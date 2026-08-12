@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Final
 
 
@@ -10,6 +11,7 @@ DEFAULT_SEARCH_REPS: Final[int] = 50
 DEFAULT_MAXITER: Final[int] = 1000
 
 
+@lru_cache(maxsize=1)
 def _require_dependencies():
     """Load optional third-party dependencies for the jump model."""
     try:
@@ -65,6 +67,7 @@ def _constrained_markov_regression(calm_stay_probability: float):
         def transform_params(self, unconstrained):
             constrained = super().transform_params(unconstrained)
             transition_index = int(self.parameters[CALM_REGIME, "regime_transition"][0])
+            # statsmodels stores transformed transition parameters as probabilities.
             constrained[transition_index] = calm_stay_probability
             return constrained
 
