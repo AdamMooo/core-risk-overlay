@@ -105,11 +105,8 @@ def compute_weekly_log_returns(prices: "pd.Series") -> "pd.Series":
     if len(prices) < 2:
         raise ValueError("At least two weekly prices are required to compute log returns.")
 
-    if not np.isfinite(prices).all():
-        raise ValueError("Weekly prices must be finite.")
-
-    if (prices <= 0).any():
-        raise ValueError("Weekly prices must be strictly positive to compute log returns.")
+    if (not np.isfinite(prices).all()) or (prices <= 0).any():
+        raise ValueError("Weekly prices must be finite and strictly positive.")
 
     log_returns = np.log(prices / prices.shift(1)).dropna()
     log_returns = log_returns.rename("weekly_log_return").astype("float64")
