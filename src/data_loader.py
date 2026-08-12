@@ -48,21 +48,25 @@ def download_weekly_prices(
         raise ValueError(f"No weekly price data returned for ticker '{ticker}'.")
 
     if isinstance(data.columns, pd.MultiIndex):
-        ticker_level = next(
-            (
-                level
-                for level in range(data.columns.nlevels)
-                if ticker in data.columns.get_level_values(level)
-            ),
-            None,
-        )
-        if ticker_level is None:
+        matched_data = None
+
+        for level in range(data.columns.nlevels):
+            if ticker not in data.columns.get_level_values(level):
+                continue
+
+            candidate = data.xs(ticker, axis=1, level=level)
+            if price_column in candidate.columns:
+                matched_data = candidate
+                break
+
+        if matched_data is None:
             available_columns = ", ".join(map(str, data.columns))
             raise ValueError(
                 f"Ticker '{ticker}' not found in downloaded data. "
                 f"Available columns: {available_columns}"
             )
-        data = data.xs(ticker, axis=1, level=ticker_level)
+
+        data = matched_data
 
     if price_column not in data.columns:
         available_columns = ", ".join(map(str, data.columns))
@@ -84,6 +88,8 @@ def download_weekly_prices(
 
 def compute_weekly_log_returns(prices: "pd.Series") -> "pd.Series":
     np, _, _ = _require_dependencies()
+    prices = prices.dropna().astype("float64")
+
     if prices.empty:
         raise ValueError("Price series is empty.")
 
