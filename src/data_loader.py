@@ -1,14 +1,26 @@
 from __future__ import annotations
 
+from functools import lru_cache
 from typing import Final
-
-import numpy as np
-import pandas as pd
-import yfinance as yf
 
 
 DEFAULT_TICKER: Final[str] = "SPY"
 DEFAULT_PRICE_COLUMN: Final[str] = "Close"
+
+
+@lru_cache(maxsize=1)
+def _require_dependencies():
+    """Load and cache optional third-party dependencies for the data loader."""
+    try:
+        import numpy as np
+        import pandas as pd
+        import yfinance as yf
+    except ModuleNotFoundError as exc:
+        raise ModuleNotFoundError(
+            "data_loader.py requires numpy, pandas, and yfinance to be installed."
+        ) from exc
+
+    return np, pd, yf
 
 
 def download_weekly_prices(
@@ -16,7 +28,8 @@ def download_weekly_prices(
     start: str | None = None,
     end: str | None = None,
     price_column: str = DEFAULT_PRICE_COLUMN,
-) -> pd.Series:
+) -> "pd.Series":
+    _, pd, yf = _require_dependencies()
     data = yf.download(
         ticker,
         start=start,
@@ -47,7 +60,8 @@ def download_weekly_prices(
     return prices
 
 
-def compute_weekly_log_returns(prices: pd.Series) -> pd.Series:
+def compute_weekly_log_returns(prices: "pd.Series") -> "pd.Series":
+    np, pd, _ = _require_dependencies()
     if prices.empty:
         raise ValueError("Price series is empty.")
 
@@ -70,7 +84,7 @@ def load_weekly_log_returns(
     start: str | None = None,
     end: str | None = None,
     price_column: str = DEFAULT_PRICE_COLUMN,
-) -> pd.Series:
+) -> "pd.Series":
     prices = download_weekly_prices(
         ticker=ticker,
         start=start,
@@ -78,4 +92,3 @@ def load_weekly_log_returns(
         price_column=price_column,
     )
     return compute_weekly_log_returns(prices)
-
