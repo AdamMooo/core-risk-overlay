@@ -91,17 +91,22 @@ def _constrained_markov_regression(calm_stay_probability: float):
     class ConstrainedMarkovRegression(MarkovRegression):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
-            self._calm_transition_index = _transition_parameter_index(self)
+            self._calm_transition_index = None
+
+        def _get_calm_transition_index(self) -> int:
+            if self._calm_transition_index is None:
+                self._calm_transition_index = _transition_parameter_index(self)
+            return self._calm_transition_index
 
         def transform_params(self, unconstrained):
             constrained = super().transform_params(unconstrained).copy()
             # statsmodels stores transformed transition parameters as probabilities.
-            constrained[self._calm_transition_index] = calm_stay_probability
+            constrained[self._get_calm_transition_index()] = calm_stay_probability
             return constrained
 
         def untransform_params(self, constrained):
             unconstrained = super().untransform_params(constrained).copy()
-            unconstrained[self._calm_transition_index] = calm_logit
+            unconstrained[self._get_calm_transition_index()] = calm_logit
             return unconstrained
 
     return ConstrainedMarkovRegression
