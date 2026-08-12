@@ -48,13 +48,21 @@ def download_weekly_prices(
         raise ValueError(f"No weekly price data returned for ticker '{ticker}'.")
 
     if isinstance(data.columns, pd.MultiIndex):
-        if ticker not in data.columns.get_level_values(-1):
+        ticker_level = next(
+            (
+                level
+                for level in range(data.columns.nlevels)
+                if ticker in data.columns.get_level_values(level)
+            ),
+            None,
+        )
+        if ticker_level is None:
             available_columns = ", ".join(map(str, data.columns))
             raise ValueError(
                 f"Ticker '{ticker}' not found in downloaded data. "
                 f"Available columns: {available_columns}"
             )
-        data = data.xs(ticker, axis=1, level=-1)
+        data = data.xs(ticker, axis=1, level=ticker_level)
 
     if price_column not in data.columns:
         available_columns = ", ".join(map(str, data.columns))
@@ -82,7 +90,7 @@ def compute_weekly_log_returns(prices: "pd.Series") -> "pd.Series":
     if (prices <= 0).any():
         raise ValueError("Weekly prices must be strictly positive to compute log returns.")
 
-    log_returns = np.log(prices).diff()
+    log_returns = np.log(prices / prices.shift(1))
     log_returns = log_returns.replace([np.inf, -np.inf], np.nan).dropna()
     log_returns = log_returns.rename("weekly_log_return").astype("float64")
 
