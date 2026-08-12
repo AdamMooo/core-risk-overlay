@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from threading import Lock
 from typing import Final
 
 
 DEFAULT_TICKER: Final[str] = "SPY"
 DEFAULT_PRICE_COLUMN: Final[str] = "Close"
 _DEPS: tuple[object, object, object] | None = None
+_DEPS_LOCK = Lock()
 
 
 def _require_dependencies():
@@ -15,16 +17,21 @@ def _require_dependencies():
     if _DEPS is not None:
         return _DEPS
 
-    try:
-        import numpy as np
-        import pandas as pd
-        import yfinance as yf
-    except ModuleNotFoundError as exc:
-        raise ModuleNotFoundError(
-            "data_loader.py requires numpy, pandas, and yfinance to be installed."
-        ) from exc
+    with _DEPS_LOCK:
+        if _DEPS is not None:
+            return _DEPS
 
-    _DEPS = (np, pd, yf)
+        try:
+            import numpy as np
+            import pandas as pd
+            import yfinance as yf
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
+                "data_loader.py requires numpy, pandas, and yfinance to be installed."
+            ) from exc
+
+        _DEPS = (np, pd, yf)
+
     return _DEPS
 
 
@@ -56,7 +63,7 @@ def download_weekly_prices(
 
             candidate = data.xs(ticker, axis=1, level=level)
             if isinstance(candidate, pd.Series):
-                candidate = candidate.to_frame()
+                candidate = candidate.to_frame(name=price_column)
 
             if isinstance(candidate, pd.DataFrame) and price_column in candidate.columns:
                 matched_data = candidate
@@ -90,6 +97,7 @@ def download_weekly_prices(
 
 
 def compute_weekly_log_returns(prices: "pd.Series") -> "pd.Series":
+    """Compute weekly log returns, which are one observation shorter than the price series."""
     np, _, _ = _require_dependencies()
     prices = prices.dropna().astype("float64")
 
