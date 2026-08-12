@@ -1,16 +1,20 @@
 from __future__ import annotations
 
-from functools import lru_cache
 from typing import Final
 
 
 DEFAULT_TICKER: Final[str] = "SPY"
 DEFAULT_PRICE_COLUMN: Final[str] = "Close"
+_DEPS: tuple[object, object, object] | None = None
 
 
-@lru_cache(maxsize=1)
 def _require_dependencies():
     """Load and cache optional third-party dependencies for the data loader."""
+    global _DEPS
+
+    if _DEPS is not None:
+        return _DEPS
+
     try:
         import numpy as np
         import pandas as pd
@@ -20,7 +24,8 @@ def _require_dependencies():
             "data_loader.py requires numpy, pandas, and yfinance to be installed."
         ) from exc
 
-    return np, pd, yf
+    _DEPS = (np, pd, yf)
+    return _DEPS
 
 
 def download_weekly_prices(
@@ -42,6 +47,15 @@ def download_weekly_prices(
     if data.empty:
         raise ValueError(f"No weekly price data returned for ticker '{ticker}'.")
 
+    if isinstance(data.columns, pd.MultiIndex):
+        if ticker not in data.columns.get_level_values(-1):
+            available_columns = ", ".join(map(str, data.columns))
+            raise ValueError(
+                f"Ticker '{ticker}' not found in downloaded data. "
+                f"Available columns: {available_columns}"
+            )
+        data = data.xs(ticker, axis=1, level=-1)
+
     if price_column not in data.columns:
         available_columns = ", ".join(map(str, data.columns))
         raise ValueError(
@@ -61,7 +75,7 @@ def download_weekly_prices(
 
 
 def compute_weekly_log_returns(prices: "pd.Series") -> "pd.Series":
-    np, pd, _ = _require_dependencies()
+    np, _, _ = _require_dependencies()
     if prices.empty:
         raise ValueError("Price series is empty.")
 
@@ -71,7 +85,6 @@ def compute_weekly_log_returns(prices: "pd.Series") -> "pd.Series":
     log_returns = np.log(prices).diff()
     log_returns = log_returns.replace([np.inf, -np.inf], np.nan).dropna()
     log_returns = log_returns.rename("weekly_log_return").astype("float64")
-    log_returns.index = pd.to_datetime(log_returns.index)
 
     if log_returns.empty:
         raise ValueError("Log-return series is empty after cleaning.")
