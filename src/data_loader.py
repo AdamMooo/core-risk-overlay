@@ -55,7 +55,10 @@ def download_weekly_prices(
                 continue
 
             candidate = data.xs(ticker, axis=1, level=level)
-            if price_column in candidate.columns:
+            if isinstance(candidate, pd.Series):
+                candidate = candidate.to_frame()
+
+            if isinstance(candidate, pd.DataFrame) and price_column in candidate.columns:
                 matched_data = candidate
                 break
 
@@ -92,6 +95,9 @@ def compute_weekly_log_returns(prices: "pd.Series") -> "pd.Series":
 
     if prices.empty:
         raise ValueError("Price series is empty.")
+
+    if len(prices) < 2:
+        raise ValueError("At least two weekly prices are required to compute log returns.")
 
     if (prices <= 0).any():
         raise ValueError("Weekly prices must be strictly positive to compute log returns.")
