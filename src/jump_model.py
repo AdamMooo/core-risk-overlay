@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from functools import lru_cache
+from threading import Lock
 from typing import Final
 
 
@@ -9,21 +9,38 @@ CALM_REGIME: Final[int] = 0
 DEFAULT_CALM_STAY_PROBABILITY: Final[float] = 0.98
 DEFAULT_SEARCH_REPS: Final[int] = 50
 DEFAULT_MAXITER: Final[int] = 1000
+_DEPS: tuple[object, object, object] | None = None
+_DEPS_LOCK = Lock()
 
 
-@lru_cache(maxsize=1)
 def _require_dependencies():
     """Load optional third-party dependencies for the jump model."""
-    try:
-        import numpy as np
-        import pandas as pd
-        from statsmodels.tsa.regimeswitching.markov_regression import MarkovRegression
-    except ModuleNotFoundError as exc:
-        raise ModuleNotFoundError(
-            "jump_model.py requires numpy, pandas, and statsmodels to be installed."
-        ) from exc
+    global _DEPS
 
-    return np, pd, MarkovRegression
+    with _DEPS_LOCK:
+        if _DEPS is not None:
+            return _DEPS
+
+        try:
+            import numpy as np
+            import pandas as pd
+            from statsmodels.tsa.regimeswitching.markov_regression import MarkovRegression
+        except ModuleNotFoundError as exc:
+            raise ModuleNotFoundError(
+                "jump_model.py requires numpy, pandas, and statsmodels to be installed."
+            ) from exc
+
+        _DEPS = (np, pd, MarkovRegression)
+
+    return _DEPS
+
+
+def _transition_parameter_index(model) -> int:
+    """Return the parameter index for the calm regime's stay probability."""
+    np, _, _ = _require_dependencies()
+    transition_indices = np.atleast_1d(model.parameters[CALM_REGIME, "regime_transition"])
+    return int(transition_indices[0])
+
 
 
 def _prepare_weekly_log_returns(weekly_log_returns: "pd.Series") -> "pd.Series":
@@ -66,14 +83,14 @@ def _constrained_markov_regression(calm_stay_probability: float):
     class ConstrainedMarkovRegression(MarkovRegression):
         def transform_params(self, unconstrained):
             constrained = super().transform_params(unconstrained)
-            transition_index = int(self.parameters[CALM_REGIME, "regime_transition"][0])
+            transition_index = _transition_parameter_index(self)
             # statsmodels stores transformed transition parameters as probabilities.
             constrained[transition_index] = calm_stay_probability
             return constrained
 
         def untransform_params(self, constrained):
             unconstrained = super().untransform_params(constrained)
-            transition_index = int(self.parameters[CALM_REGIME, "regime_transition"][0])
+            transition_index = _transition_parameter_index(self)
             unconstrained[transition_index] = calm_logit
             return unconstrained
 
