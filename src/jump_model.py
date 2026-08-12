@@ -17,6 +17,9 @@ def _require_dependencies():
     """Load optional third-party dependencies for the jump model."""
     global _DEPS
 
+    if _DEPS is not None:
+        return _DEPS
+
     with _DEPS_LOCK:
         if _DEPS is not None:
             return _DEPS
@@ -37,9 +40,14 @@ def _require_dependencies():
 
 def _transition_parameter_index(model) -> int:
     """Return the parameter index for the calm regime's stay probability."""
-    np, _, _ = _require_dependencies()
-    transition_indices = np.atleast_1d(model.parameters[CALM_REGIME, "regime_transition"])
-    return int(transition_indices[0])
+    parameter_name = f"p[{CALM_REGIME}->{CALM_REGIME}]"
+
+    try:
+        return model.param_names.index(parameter_name)
+    except ValueError as exc:
+        raise ValueError(
+            f"Transition parameter '{parameter_name}' was not found in the model."
+        ) from exc
 
 
 
@@ -81,17 +89,19 @@ def _constrained_markov_regression(calm_stay_probability: float):
     calm_logit = float(np.log(calm_stay_probability / (1.0 - calm_stay_probability)))
 
     class ConstrainedMarkovRegression(MarkovRegression):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self._calm_transition_index = _transition_parameter_index(self)
+
         def transform_params(self, unconstrained):
             constrained = super().transform_params(unconstrained)
-            transition_index = _transition_parameter_index(self)
             # statsmodels stores transformed transition parameters as probabilities.
-            constrained[transition_index] = calm_stay_probability
+            constrained[self._calm_transition_index] = calm_stay_probability
             return constrained
 
         def untransform_params(self, constrained):
             unconstrained = super().untransform_params(constrained)
-            transition_index = _transition_parameter_index(self)
-            unconstrained[transition_index] = calm_logit
+            unconstrained[self._calm_transition_index] = calm_logit
             return unconstrained
 
     return ConstrainedMarkovRegression
