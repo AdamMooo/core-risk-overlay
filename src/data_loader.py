@@ -63,7 +63,7 @@ def download_weekly_prices(
 
             candidate = data.xs(ticker, axis=1, level=level)
             if isinstance(candidate, pd.Series):
-                candidate = candidate.to_frame(name=price_column)
+                candidate = candidate.to_frame()
 
             if isinstance(candidate, pd.DataFrame) and price_column in candidate.columns:
                 matched_data = candidate
@@ -110,8 +110,7 @@ def compute_weekly_log_returns(prices: "pd.Series") -> "pd.Series":
     if (prices <= 0).any():
         raise ValueError("Weekly prices must be strictly positive to compute log returns.")
 
-    log_returns = np.log(prices / prices.shift(1))
-    log_returns = log_returns.replace([np.inf, -np.inf], np.nan).dropna()
+    log_returns = np.log(prices / prices.shift(1)).dropna()
     log_returns = log_returns.rename("weekly_log_return").astype("float64")
 
     if log_returns.empty:
