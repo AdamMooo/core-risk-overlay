@@ -100,13 +100,19 @@ def _constrained_markov_regression(calm_stay_probability: float):
 
         def transform_params(self, unconstrained):
             constrained = super().transform_params(unconstrained).copy()
+            transition_index = self._get_calm_transition_index()
+            if transition_index >= len(constrained):
+                raise ValueError("Calm-state transition index is out of bounds.")
             # statsmodels stores transformed transition parameters as probabilities.
-            constrained[self._get_calm_transition_index()] = calm_stay_probability
+            constrained[transition_index] = calm_stay_probability
             return constrained
 
         def untransform_params(self, constrained):
             unconstrained = super().untransform_params(constrained).copy()
-            unconstrained[self._get_calm_transition_index()] = calm_logit
+            transition_index = self._get_calm_transition_index()
+            if transition_index >= len(unconstrained):
+                raise ValueError("Calm-state transition index is out of bounds.")
+            unconstrained[transition_index] = calm_logit
             return unconstrained
 
     return ConstrainedMarkovRegression
