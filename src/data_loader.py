@@ -14,9 +14,6 @@ def _require_dependencies():
     """Load and cache optional third-party dependencies for the data loader."""
     global _DEPS
 
-    if _DEPS is not None:
-        return _DEPS
-
     with _DEPS_LOCK:
         if _DEPS is not None:
             return _DEPS
@@ -41,6 +38,7 @@ def download_weekly_prices(
     end: str | None = None,
     price_column: str = DEFAULT_PRICE_COLUMN,
 ) -> "pd.Series":
+    """Download and clean weekly closing prices for a single ticker."""
     _, pd, yf = _require_dependencies()
     data = yf.download(
         ticker,
@@ -107,6 +105,9 @@ def compute_weekly_log_returns(prices: "pd.Series") -> "pd.Series":
     if len(prices) < 2:
         raise ValueError("At least two weekly prices are required to compute log returns.")
 
+    if not np.isfinite(prices).all():
+        raise ValueError("Weekly prices must be finite.")
+
     if (prices <= 0).any():
         raise ValueError("Weekly prices must be strictly positive to compute log returns.")
 
@@ -125,6 +126,7 @@ def load_weekly_log_returns(
     end: str | None = None,
     price_column: str = DEFAULT_PRICE_COLUMN,
 ) -> "pd.Series":
+    """Return weekly log returns ready for statsmodels MarkovRegression input."""
     prices = download_weekly_prices(
         ticker=ticker,
         start=start,
