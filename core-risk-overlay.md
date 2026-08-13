@@ -12,7 +12,24 @@ Tail-risk hedge overlay for a permanently long global equity book. Mandate and o
 
 ## Status
 
-**Pre-implementation. The model's form is under review, not its parameters.**
+**Framing settled 2026-08-12; evaluation machinery built; the model itself is now a candidate to be
+tested, not the thing being defended.**
+
+The research question is fixed ([[README]] section 1b): *how well does a Markov-switching jump model
+with Hamilton filtering provide information about Value at Risk and the risk of equity assets?*
+Stated absolutely, answerable with no benchmark, scored on every observation rather than on a dozen
+crisis episodes.
+
+`src/evaluation.py` implements the scoring and knows nothing about which model produced the
+estimate — Kupiec and Christoffersen coverage tests, forward-aligned realized targets, and the
+Newey-West encompassing regression. 12 known-answer checks. Any candidate (regime model,
+GARCH variant, VIX, a constant) is scored identically, which is what turns the model-choice argument
+into an experiment.
+
+Three commits today: `ed67e7b` respecification, `d432e5c` doc rewrite and data-layer fixes,
+`952d804` evaluation machinery.
+
+**Still true: the model's form is under review, not its parameters.**
 
 A 2-regime Markov-switching model on weekly SPY returns exists and works: no look-ahead, valid
 inference, documented minimum history. But it was inherited from a Copilot scaffold and never chosen
@@ -125,11 +142,45 @@ volatility?* That is an open question in the literature, the answer is genuinely
 well-executed negative result is publishable and useful. It also happens to be exactly the question
 that decides whether this system should exist — so the paper and the project want the same evidence.
 
-## Next
+## Next — start here on a cold open
 
-1. **Settle question 1** — what the model should predict. Everything else follows.
-2. Then decide whether to fix the current form or replace it.
-3. Only then `risk_engine.py` and `main.py`.
+The framing questions are settled and live in [[README]] sections 1, 1a and 1b. Read those first;
+they are short. The remaining work is mechanical enough to resume without context.
+
+**1. Conditional VaR from the model — the immediate next build, and it has a trap.**
+
+`jump_model` returns regime probabilities; VaR needs a predictive *distribution*. Three steps:
+
+```
+w[j]  = SUM over i of p[i->j] * filt[t][i]        # push the state forward one period
+f(r)  = w[0]*Normal(mu_0, sigma_0) + w[1]*Normal(mu_1, sigma_1)   # a MIXTURE, not a normal
+mean  = w[0]*mu_0 + w[1]*mu_1
+var   = w[0]*sigma_0^2 + w[1]*sigma_1^2                       # within-regime
+      + w[0]*(mu_0-mean)^2 + w[1]*(mu_1-mean)^2               # BETWEEN-regime -- commonly dropped
+```
+
+**The trap:** `VaR = mean + sqrt(var)*norm.ppf(alpha)` is WRONG. That is the normal formula, and
+matching a mixture's first two moments does not match its quantiles. Solve the mixture CDF directly:
+find `q` with `w[0]*Phi((q-mu_0)/sigma_0) + w[1]*Phi((q-mu_1)/sigma_1) = alpha`. Monotone, so Brent
+or bisection is reliable. Strong correctness check: a degenerate mixture (`w = 1`) must reproduce
+`evaluation.normal_var` exactly.
+
+The gap between mixture VaR and the normal approximation is itself a small paper result — expected
+largest at maximum regime uncertainty (`w` near 0.5), with the sign depending on `alpha`. Measure it
+rather than assume it.
+
+**2. Daily data.** `data_loader.WEEKLY_RULE` already isolates the resampling rule, so this is small.
+Estimate daily, decide weekly ([[README]] section 2).
+
+**3. Then Test 1 on real data** — `evaluation.coverage_tests` against realized returns. That answers
+the research question.
+
+**4. Multi-period VaR is materially harder** and can wait. Over `h` periods the return is a mixture
+over regime *paths* (2^h of them; 8,192 at 13 weeks), not end-states. Simulation over paths is the
+standard approach. Do one-step first as the clean result.
+
+Not planned: intraday data, Hawkes, K-means, binary classifiers, economic backtesting before Tests 1
+and 2 pass.
 
 Not planned: intraday data, Hawkes, K-means, binary classifiers.
 
