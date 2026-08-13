@@ -38,15 +38,15 @@ plausible next change introduces it. **ACCEPTED** = present, understood, judged 
 
 | # | Channel | Status | Where | Fix |
 |---|---|---|---|---|
-| 1 | **State inference uses the whole sample.** Kim smoother conditions each week on all data through `T`. | **CLOSED** 2026-08-12 | `src/jump_model.py` | Fixed: returns `filtered_marginal_probabilities`. Guarded by two checks in `checks.py`. The two disagreed about the 0.5 threshold in 9.7% of real weeks. |
-| 2 | **Parameter look-ahead.** Variances, mean, and transition probabilities are fitted once on the entire history, so even a *filtered* probability comes from a model tuned knowing the future. | **MEASURED, still open in the live path** | `walkforward.py` | `walkforward.py` refits quarterly on data `<= t` and shows the honest cost: **~7.5% of weeks have their tier revised** by later refits (7.8% SPY / 7.3% QQQ), p95 revision 0.19-0.25. No live path consumes it yet — `main.py` is a stub. |
+| 1 | **State inference uses the whole sample.** Kim smoother conditions each week on all data through `T`. | **CLOSED** 2026-08-12 | `src/markov_switching.py` | Fixed: returns `filtered_marginal_probabilities`. Guarded by two checks in `checks.py`. The two disagreed about the 0.5 threshold in 9.7% of real weeks. |
+| 2 | **Parameter look-ahead.** Variances, mean, and transition probabilities are fitted once on the entire history, so even a *filtered* probability comes from a model tuned knowing the future. | **MEASURED, still open in the live path** | `walkforward.py` | `walkforward.py` refits quarterly on data `<= t` and shows the honest cost: **~7.5% of weeks have their state revised** by later refits, p95 revision 0.19-0.25. `markov_switching.estimate_high_variance_probability` fits once on the whole series and says so in its docstring; it is for correctness checks only. Protocol §4 makes vintage parameters mandatory for every reported number. |
 | 2b | **Weekly grid depended on the download start date.** Not look-ahead, but the same class of silent input defect: `yfinance`'s `interval="1wk"` anchors bars on each series' first observation, so SPY from 1993 was Monday-anchored and from 2010 Friday-anchored, sharing zero bars. A live "fetch the last 5 years" would have sat on a different grid than the backtest. | **CLOSED** 2026-08-12 | `src/data_loader.py` | Fixed: download daily, resample to an explicit `W-FRI` grid. Verified start-invariant (max return diff 1.2e-06) and cross-ticker aligned. `start=None` also silently returned a short window; now defaulted and length-guarded. |
-| 3 | **Signal/execution timing.** README §4 specifies running Friday 3:30pm EST using weekly closes. Friday's weekly close does not exist at 3:30pm Friday. | **OPEN** | `README.md` §4 | Either generate the signal from Thursday's close, or keep the Friday-close signal and execute Monday. Pick one and write it down. |
+| 3 | **Signal/execution timing.** An earlier README specified running Friday 3:30pm EST on weekly closes. Friday's weekly close does not exist at 3:30pm Friday. | **OPEN** | no live path yet | Either generate the signal from Thursday's close, or keep the Friday-close signal and execute Monday. Pick one and write it down before `main.py` is built. |
 | 4 | **`initialize_known` applies the transition matrix twice** (`Pi^2 q`, not `Pi q`). Invisible under the default steady-state init because `Pi pi = pi`, but a live trap the moment we hand the filter a known starting state. | **LATENT** | `markov_switching.py:120-122` (statsmodels; docstring does not match behaviour) | Do not use `initialize_known` when building the walk-forward loop for #2 without verifying the extra multiplication. |
-| 5 | **Tier thresholds chosen on full history.** The 20% / 60% bands were set by inspection, not fitted — currently harmless. If they are ever *tuned*, tuning them on all history is leakage. | **LATENT** | `src/risk_engine.py:14-15`, `README.md` §4 | If tiers get calibrated, calibrate on a training window only and hold out the rest. |
-| 6 | **`auto_adjust=True`** back-adjusts historical prices using split/dividend information known only later. | **ACCEPTED** | `src/data_loader.py:47` | Benign for log returns — it yields a consistent total-return series, and the adjustment is multiplicative so it cancels in `log(P_t / P_{t-1})` except across distribution dates. Documented rather than fixed. Revisit if we ever model price *levels* or strike distances. |
+| 5 | **Thresholds chosen on full history.** The 20% / 60% tier bands were set by inspection, never fitted. | **CLOSED** 2026-08-12 | — | `risk_engine.py` deleted and tiering removed from scope (protocol §9). Any future threshold must be calibrated on a training window only. |
+| 6 | **`auto_adjust=True`** back-adjusts historical prices using split/dividend information known only later. | **ACCEPTED** | `src/data_loader.py` | Benign for log returns — it yields a consistent total-return series, and the adjustment is multiplicative so it cancels in `log(P_t / P_{t-1})` except across distribution dates. Documented rather than fixed. Revisit if we ever model price *levels* or strike distances. |
 | 7 | **Full-sample scaling / standardization.** No scaler exists in the pipeline today. | **N/A** | — | If one is ever added, fit it on the training window only. |
-| 8 | **Survivorship bias.** Single liquid ETF, no universe selection. | **N/A** | `src/data_loader.py:7` | Becomes live the moment this goes multi-asset or screens a universe. |
+| 8 | **Survivorship bias.** Single liquid ETF, no universe selection. | **N/A** | `src/data_loader.py` | Becomes live the moment this goes multi-asset or screens a universe. |
 
 ## Pre-flight checklist
 
@@ -63,17 +63,17 @@ Run this before any backtest number is quoted, written down, or acted on:
 
 **If a backtest looks excellent on the first run, assume leakage until proven otherwise.**
 
-Strategy-specific tell: a panic signal that reliably rises *before* crashes rather than *during*
+Strategy-specific tell: a risk measure that reliably rises *before* crashes rather than *during*
 them is the signature of a smoother, not a forecast. Real-time regime detection is late and
 hesitant by construction — the filter needs to actually observe bad returns before it can raise the
 probability. A crisis indicator that anticipates crises has read the answer sheet.
 
-Concrete illustration from the synthetic fixture (`checks.py:30-39`), week 99 — the last calm week
+Concrete illustration from the synthetic fixture in `checks.py`, week 99 — the last calm week
 before the crash:
 
 ```
-filtered  jump probability = 0.0059   <-  0.6%, what we could actually have known
-smoothed  jump probability = 0.2008   <- 20.1%, after peeking at week 100
+filtered  high-variance probability = 0.0059   <-  0.6%, what we could actually have known
+smoothed  high-variance probability = 0.2008   <- 20.1%, after peeking at week 100
 ```
 
 Same model, same week. The 34x gap is the Kim smoother's backward revision, and it grows as calm

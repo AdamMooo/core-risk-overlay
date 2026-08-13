@@ -1,8 +1,8 @@
 """Regression checks for the core-risk-overlay pipeline.
 
 Plain-script smoke test (no pytest) meant to be run after any change to
-src/data_loader.py or src/jump_model.py. Uses synthetic data so it has no
-network dependency and is fully deterministic. Exits non-zero on failure.
+anything under src/. Uses synthetic data so it has no network dependency and is
+fully deterministic. Exits non-zero on failure.
 
 Several checks here are guards against specific defects found in the
 2026-08-12 audit -- see core-risk-overlay.md. They are cheap and they encode
@@ -21,10 +21,11 @@ import pandas as pd
 
 import data_loader as dl
 import evaluation as ev
-import jump_model as jm
+import markov_switching as ms
 
-CALM_TIER_UPPER = 0.20
-HYSTERIA_TIER_LOWER = 0.60
+# A plain sanity bound on the fixture's calm periods, NOT a tier threshold.
+# Tiering is out of scope -- see docs/RESEARCH-PROTOCOL.md section 9.
+CALM_PROBABILITY_MAX = 0.20
 
 FAILURES: list[str] = []
 
@@ -181,54 +182,55 @@ def check_evaluation() -> None:
     )
 
 
-def check_jump_model_output() -> None:
+def check_markov_switching_output() -> None:
     returns = make_synthetic_returns()
-    jump_index = returns.index[100:110]
+    event_index = returns.index[100:110]
 
-    probabilities = jm.estimate_jump_regimes(returns)
+    probabilities = ms.estimate_high_variance_probability(returns)
 
     check(
-        "jump_model: output length matches input length",
+        "markov_switching: output length matches input length",
         len(probabilities) == len(returns),
     )
     check(
-        "jump_model: output keeps the input DatetimeIndex",
+        "markov_switching: output keeps the input DatetimeIndex",
         probabilities.index.equals(returns.index),
     )
     check(
-        "jump_model: output is bounded in [0, 1]",
+        "markov_switching: output is bounded in [0, 1]",
         bool(((probabilities >= 0.0) & (probabilities <= 1.0)).all()),
     )
     check(
-        "jump_model: synthetic jump weeks get high jump probability",
-        probabilities.loc[jump_index].mean() > 0.8,
+        "markov_switching: synthetic event weeks get high probability",
+        probabilities.loc[event_index].mean() > 0.8,
     )
     check(
-        "jump_model: synthetic calm weeks get low jump probability",
-        probabilities.drop(jump_index).mean() < CALM_TIER_UPPER,
+        "markov_switching: synthetic calm weeks get low probability",
+        probabilities.drop(event_index).mean() < CALM_PROBABILITY_MAX,
     )
     check(
-        "jump_model: identical input gives identical output (reproducible)",
-        probabilities.equals(jm.estimate_jump_regimes(returns)),
+        "markov_switching: identical input gives identical output (reproducible)",
+        probabilities.equals(ms.estimate_high_variance_probability(returns)),
     )
 
 
-def check_jump_model_internals() -> None:
+def check_markov_switching_internals() -> None:
     returns = make_synthetic_returns()
-    model, results, jump_regime = jm.fit_jump_model(returns)
+    model, results, high_variance_regime = ms.fit_markov_switching(returns)
     params = dict(zip(model.param_names, np.asarray(results.params, dtype=float)))
 
     check(
-        "jump_model: mean switches as well as variance (guards sign-blindness)",
+        "markov_switching: mean switches as well as variance (guards sign-blindness)",
         "const[0]" in params and "const[1]" in params,
     )
     check(
-        "jump_model: no parameter is pinned (6 free parameters)",
+        "markov_switching: no parameter is pinned (6 free parameters)",
         model.k_params == 6,
     )
     check(
-        "jump_model: jump regime is the higher-variance regime",
-        params[f"sigma2[{jump_regime}]"] == max(params["sigma2[0]"], params["sigma2[1]"]),
+        "markov_switching: identified regime is the higher-variance regime",
+        params[f"sigma2[{high_variance_regime}]"]
+        == max(params["sigma2[0]"], params["sigma2[1]"]),
     )
 
     # The pre-2026-08-12 spec pinned p[0->0] inside transform_params, which
@@ -239,11 +241,11 @@ def check_jump_model_internals() -> None:
     gradient = np.asarray(results.mle_retvals["gopt"], dtype=float)
     hessian_diagonal = np.diag(np.asarray(results.mle_retvals["Hinv"], dtype=float))
     check(
-        "jump_model: gradient is small in every coordinate at the optimum",
+        "markov_switching: gradient is small in every coordinate at the optimum",
         bool(np.all(np.abs(gradient) < 1e-3)),
     )
     check(
-        "jump_model: no coordinate left at the BFGS identity init (never explored)",
+        "markov_switching: no coordinate left at the BFGS identity init (never explored)",
         bool(np.all(hessian_diagonal != 1.0)),
     )
 
@@ -251,15 +253,15 @@ def check_jump_model_internals() -> None:
     # probabilities puts look-ahead bias straight into the trading signal --
     # the Kim smoother conditions every week on the whole sample, including the
     # future. See docs/POINT-IN-TIME-DISCIPLINE.md.
-    returned = jm.estimate_jump_regimes(returns)
-    filtered = np.asarray(results.filtered_marginal_probabilities)[:, jump_regime]
-    smoothed = np.asarray(results.smoothed_marginal_probabilities)[:, jump_regime]
+    returned = ms.estimate_high_variance_probability(returns)
+    filtered = np.asarray(results.filtered_marginal_probabilities)[:, high_variance_regime]
+    smoothed = np.asarray(results.smoothed_marginal_probabilities)[:, high_variance_regime]
     check(
-        "jump_model: returns FILTERED probabilities",
+        "markov_switching: returns FILTERED probabilities",
         bool(np.allclose(returned.to_numpy(), filtered)),
     )
     check(
-        "jump_model: does NOT return smoothed probabilities (look-ahead guard)",
+        "markov_switching: does NOT return smoothed probabilities (look-ahead guard)",
         not bool(np.allclose(returned.to_numpy(), smoothed)),
     )
 
@@ -270,14 +272,14 @@ def check_short_sample_warning() -> None:
     # produced degenerate parameters and flipping regime labels in walkforward.py.
     with warnings.catch_warnings(record=True) as caught:
         warnings.simplefilter("always")
-        jm._prepare_weekly_log_returns(make_synthetic_returns())
+        ms._prepare_log_returns(make_synthetic_returns())
     check(
-        "jump_model: warns when fitting below the reliable minimum",
+        "markov_switching: warns when fitting below the reliable minimum",
         any("RELIABLE_MIN_OBSERVATIONS" in str(w.message) for w in caught),
     )
 
 
-def check_jump_model_validation() -> None:
+def check_markov_switching_validation() -> None:
     short_returns = make_synthetic_returns().iloc[:5]
     for bad_input, label in [
         (pd.Series(dtype="float64"), "empty series"),
@@ -285,29 +287,28 @@ def check_jump_model_validation() -> None:
         (pd.Series([0.01, np.inf] * 10), "non-finite values"),
     ]:
         try:
-            jm.estimate_jump_regimes(bad_input)
-            check(f"jump_model: rejects {label}", False)
+            ms.estimate_high_variance_probability(bad_input)
+            check(f"markov_switching: rejects {label}", False)
         except ValueError:
-            check(f"jump_model: rejects {label}", True)
+            check(f"markov_switching: rejects {label}", True)
 
 
 def report_known_limitation() -> None:
-    # Not a pass/fail assertion: a recorded, measured limitation. The jump
-    # regime is identified by variance, so a high-volatility RALLY is still
-    # labelled a jump even with a switching mean. Real crisis regimes carry
-    # negative drift, so this is expected to matter far less on real data --
-    # diagnostics.py measures it there. If it survives on real data the fix
-    # belongs in risk_engine.py's tier logic, not in regime identification.
+    # Not a pass/fail assertion: a recorded, measured limitation. The regime is
+    # identified by variance, so a high-volatility RALLY is labelled high-variance
+    # even with a switching mean. A ratio near 1.0 means fully sign-blind. This
+    # is why the regime is not named directionally -- see markov_switching.py.
     print()
-    print("--- measured limitation: sign-blindness of the jump label ---")
-    for label, jump_mean in [("crash ", -0.02), ("melt-up", +0.02)]:
-        series = make_synthetic_returns(jump_mean=jump_mean)
-        probability = jm.estimate_jump_regimes(series).iloc[100:110].mean()
-        tier = "HYSTERIA" if probability > HYSTERIA_TIER_LOWER else "sub-hysteria"
+    print("--- measured limitation: sign-blindness (synthetic fixture) ---")
+    probabilities = {}
+    for label, event_mean in [("crash  ", -0.02), ("melt-up", +0.02)]:
+        series = make_synthetic_returns(jump_mean=event_mean)
+        probabilities[label] = ms.estimate_high_variance_probability(series).iloc[100:110].mean()
         print(
             f"  {label}: event-window mean return {series.iloc[100:110].mean():+.4f}"
-            f"   filtered P {probability:.4f}   tier {tier}"
+            f"   filtered P {probabilities[label]:.4f}"
         )
+    print(f"  up/down probability ratio: {probabilities['melt-up'] / probabilities['crash  ']:.4f}")
 
 
 def main() -> None:
@@ -318,9 +319,9 @@ def main() -> None:
     # Every remaining check fits the 150-week fixture, so the short-sample
     # warning is expected throughout and would only be noise.
     warnings.filterwarnings("ignore", message=".*RELIABLE_MIN_OBSERVATIONS.*")
-    check_jump_model_output()
-    check_jump_model_internals()
-    check_jump_model_validation()
+    check_markov_switching_output()
+    check_markov_switching_internals()
+    check_markov_switching_validation()
     report_known_limitation()
 
     print()

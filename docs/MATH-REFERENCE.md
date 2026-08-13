@@ -1,10 +1,10 @@
-# Math Reference — 2-Regime Markov-Switching Volatility Model
+# Math Reference — Markov-Switching Model
 
 Last updated: 2026-08-12 (**reduced** from 2065 lines: audit records of the deleted constrained
 specification compressed into Section 8; repeated worked examples and recitals of fitted
 parameter values removed)
 
-Companion to `src/jump_model.py`: every equation is tied to the code it becomes, every technique
+Companion to `src/markov_switching.py`: every equation is tied to the code it becomes, every technique
 named with its standard-literature term.
 
 > **Status note — the specification documented here is not settled.** This document describes
@@ -16,19 +16,20 @@ named with its standard-literature term.
 > - The model's target variable (weekly return variance) may not be the project's actual target
 >   (forward drawdown in a long global equity book).
 >
-> The open-questions list is `README.md` section 2. Read it before treating anything below as
-> settled design.
+> The open questions are `README.md` §5 and `core-risk-overlay.md`; the tests that settle them are
+> `RESEARCH-PROTOCOL.md` §3. Read those before treating anything below as settled design.
 
 **Scope.** The estimator fitted is `statsmodels`' `MarkovRegression` with
 `k_regimes=2, trend="c", switching_trend=True, switching_variance=True`, on weekly SPY log
-returns (`src/jump_model.py:125-131`). No subclass, no overrides: six free parameters, all
-estimated. Which fitted regime is the "jump" regime is decided **after** the fit, by whichever
-carries the larger variance (`_jump_regime_index`, `src/jump_model.py:96-105`).
+returns (`markov_switching.fit_markov_switching`). No subclass, no overrides: six free parameters, all
+estimated. Which fitted regime is the high-variance one is decided **after** the fit, by whichever carries
+the larger variance (`markov_switching._high_variance_regime_index`).
 
-**Conventions.** Library files (cited by basename) live in
-`.venv/.../statsmodels/tsa/regime_switching/`. Numeric examples come from the deterministic
-synthetic fit in `checks.py:37-46` ($T = 150$); figures from the real SPY fit ($T = 1750$, via
-`diagnostics.py`) are labelled **real**. The jump regime lands on index **1** on the fixture and
+**Conventions.** Citations prefixed `statsmodels/` are library internals under
+`.venv/.../statsmodels/tsa/regime_switching/` — note that statsmodels has its own
+`markov_switching.py`, unrelated to `src/markov_switching.py`. Our own code is cited by symbol
+rather than line number, because line numbers rot. Numeric examples come from the deterministic
+synthetic fit in `checks.py` ($T = 150$); figures from the real SPY fit ($T = 1750$) are labelled **real**. The high-variance regime lands on index **1** on the fixture and
 on index **0** on every real fit — Section 7's identification problem, not a bug.
 
 ---
@@ -39,27 +40,27 @@ Fixed for the whole document. (Unnumbered, so "Section 1.x" always means a Layer
 
 | Symbol | Meaning | statsmodels name | Where |
 |---|---|---|---|
-| $t$, $T$ | time index and sample length; weekly | `nobs` | `src/data_loader.py:111` |
-| $r_t$, $\mathcal F_t$ | weekly log return $\log(P_t/P_{t-1})$; information set $\{r_1,\dots,r_t\}$ | `endog` | `src/data_loader.py:111` |
-| $S_t$ | latent regime, $S_t \in \{0,1\}$; labels are meaningless until 7.3 | — | `src/jump_model.py:7` |
-| $j^\star$ | **jump** regime index, $= \arg\max_j \hat\sigma_j^2$, decided after the fit | `jump_regime_index` | `src/jump_model.py:96-105` |
-| $p_{ij}$ | $\Pr(S_t = j \mid S_{t-1} = i)$ — **row = from, column = to** | `p[i->j]` | `markov_switching.py:1405-1408` |
-| $P$, $\Pi$ | $P$ row-stochastic with $P_{ij} = p_{ij}$; $\Pi = P^{\!\top}$, what statsmodels builds | `regime_transition_matrix` | `markov_switching.py:632-664` |
-| $\pi$ | ergodic (stationary) distribution, $\Pi\pi = \pi$ | `initial_probabilities` | `markov_switching.py:576-602` |
-| $\mu_j$, $\sigma_j^2$ | regime-$j$ intercept and variance; both **switch**, both unrestricted | `const[j]`, `sigma2[j]` | `markov_regression.py:342-352` |
-| $\theta$, $\tilde\theta$ | $(p_{00},\,p_{10},\,\mu_0,\,\mu_1,\,\sigma_0^2,\,\sigma_1^2)\in\mathbb R^6$, and its optimizer-space (unconstrained-link) image | `params` | `markov_switching.py:1388-1453` |
-| $\eta_t(j)$ | conditional density $f(r_t \mid S_t = j;\theta)$ | `conditional_loglikelihoods` (logged) | `markov_regression.py:190-191` |
-| $\xi_{t\mid t-1}$ | **predicted** probs, $\Pr(S_t = \cdot \mid \mathcal F_{t-1})$ | `predicted_marginal_probabilities` | `markov_switching.py:1583-1591` |
-| $\xi_{t\mid t}$ | **filtered** probs, $\Pr(S_t = \cdot \mid \mathcal F_t)$ | `filtered_marginal_probabilities` | `markov_switching.py:174` |
-| $\xi_{t\mid T}$ | **smoothed** probs, $\Pr(S_t = \cdot \mid \mathcal F_T)$ | `smoothed_marginal_probabilities` | `markov_switching.py:300-303` |
-| $\ell_t$, $\ell(\theta)$ | per-period and total log-likelihood | `joint_loglikelihoods`, `llf` | `markov_switching.py:180`, `1902` |
-| $z_t$ | regime-standardized residual $(r_t - \hat\mu_{S_t})/\hat\sigma_{S_t}$ | — | `diagnostics.py:545-546` |
-| $k$, $\odot$, $\mathbf 1$ | free-parameter count; Hadamard product; column vector of ones | `k_params` | `markov_switching.py:541-546` |
+| $t$, $T$ | time index and sample length; weekly | `nobs` | `data_loader.compute_weekly_log_returns` |
+| $r_t$, $\mathcal F_t$ | weekly log return $\log(P_t/P_{t-1})$; information set $\{r_1,\dots,r_t\}$ | `endog` | `data_loader.compute_weekly_log_returns` |
+| $S_t$ | latent regime, $S_t \in \{0,1\}$; labels are meaningless until 7.3 | — | `markov_switching.N_REGIMES` |
+| $j^\star$ | **high-variance** regime index, $= \arg\max_j \hat\sigma_j^2$, decided after the fit | `_high_variance_regime_index` | `markov_switching._high_variance_regime_index` |
+| $p_{ij}$ | $\Pr(S_t = j \mid S_{t-1} = i)$ — **row = from, column = to** | `p[i->j]` | `statsmodels/markov_switching.py:1405-1408` |
+| $P$, $\Pi$ | $P$ row-stochastic with $P_{ij} = p_{ij}$; $\Pi = P^{\!\top}$, what statsmodels builds | `regime_transition_matrix` | `statsmodels/markov_switching.py:632-664` |
+| $\pi$ | ergodic (stationary) distribution, $\Pi\pi = \pi$ | `initial_probabilities` | `statsmodels/markov_switching.py:576-602` |
+| $\mu_j$, $\sigma_j^2$ | regime-$j$ intercept and variance; both **switch**, both unrestricted | `const[j]`, `sigma2[j]` | `statsmodels/markov_regression.py:342-352` |
+| $\theta$, $\tilde\theta$ | $(p_{00},\,p_{10},\,\mu_0,\,\mu_1,\,\sigma_0^2,\,\sigma_1^2)\in\mathbb R^6$, and its optimizer-space (unconstrained-link) image | `params` | `statsmodels/markov_switching.py:1388-1453` |
+| $\eta_t(j)$ | conditional density $f(r_t \mid S_t = j;\theta)$ | `conditional_loglikelihoods` (logged) | `statsmodels/markov_regression.py:190-191` |
+| $\xi_{t\mid t-1}$ | **predicted** probs, $\Pr(S_t = \cdot \mid \mathcal F_{t-1})$ | `predicted_marginal_probabilities` | `statsmodels/markov_switching.py:1583-1591` |
+| $\xi_{t\mid t}$ | **filtered** probs, $\Pr(S_t = \cdot \mid \mathcal F_t)$ | `filtered_marginal_probabilities` | `statsmodels/markov_switching.py:174` |
+| $\xi_{t\mid T}$ | **smoothed** probs, $\Pr(S_t = \cdot \mid \mathcal F_T)$ | `smoothed_marginal_probabilities` | `statsmodels/markov_switching.py:300-303` |
+| $\ell_t$, $\ell(\theta)$ | per-period and total log-likelihood | `joint_loglikelihoods`, `llf` | `statsmodels/markov_switching.py:180`, `1902` |
+| $z_t$ | regime-standardized residual $(r_t - \hat\mu_{S_t})/\hat\sigma_{S_t}$ | — | — |
+| $k$, $\odot$, $\mathbf 1$ | free-parameter count; Hadamard product; column vector of ones | `k_params` | `statsmodels/markov_switching.py:541-546` |
 
 **The one notational trap in this codebase.** $p_{ij}$ above is *from $i$ to $j$*, matching the
 statsmodels *parameter name* `p[i->j]`. But the *matrix* statsmodels constructs is the transpose:
-`regime_transition_matrix(params)[i, j, 0]` $= p_{ji}$ (`markov_switching.py:643-648`). Columns
-sum to one, not rows. It is why `diagnostics.py:145` slices `[:, :, 0]` and then reads $p_{ii}$
+`regime_transition_matrix(params)[i, j, 0]` $= p_{ji}$ (`statsmodels/markov_switching.py:643-648`). Columns
+sum to one, not rows. It is why reading $p_{ii}$ from `regime_transition` requires slicing `[:, :, 0]`
 off the *diagonal* only, where the ambiguity cannot bite.
 
 ---
@@ -131,17 +132,17 @@ $$r_t \mid S_t = j \;\sim\; \mathcal N(\mu_j,\ \sigma_j^2), \qquad
 \eta_t(j) \;=\; \frac{1}{\sqrt{2\pi\sigma_j^2}}\,
 \exp\!\left(-\frac{(r_t-\mu_j)^2}{2\sigma_j^2}\right)$$
 
-computed longhand at `markov_regression.py:190-191` as
+computed longhand at `statsmodels/markov_regression.py:190-191` as
 `-0.5 * resid**2 / variance - 0.5 * np.log(2*np.pi*variance)`. Note what the switching mean does
 *not* buy: the regime log-density ratio is a constant plus a term quadratic in $r_t$, dominated
 on real data by the $1/\sigma^2$ asymmetry rather than by the $0.623\%$/wk gap between the means
 — worth $0.16$ jump-regime standard deviations — so a large positive week is nearly as strong
-evidence of the jump regime as a large negative one.
+evidence of the high-variance regime as a large negative one.
 
 **Subtlety that matters in 2.4.** The conditional-density array has shape `(2, 2, T)`: `_resid`
 repeats the prediction across a redundant $S_{t-1}$ axis, so the filter runs on the *pairwise*
 joint even though the emission depends on $S_t$ alone, which inflates the filter's local `order`
-to **1** while `model_order` stays **0** (`markov_switching.py:157`). Harmless for the marginal
+to **1** while `model_order` stays **0** (`statsmodels/markov_switching.py:157`). Harmless for the marginal
 recursions, since the redundant axis is summed out; not harmless for initialization.
 
 ### 1.2 The transition matrix and its indexing
@@ -150,7 +151,7 @@ Only $k(k-1) = 2$ transition parameters are free, and statsmodels parameterizes 
 $\Pi$ only**: the names come from
 `['p[%d->%d]' % (j, i) for i in range(k-1) for j in range(k)]`, so with $k=2$ the outer loop
 takes only $i=0$ and yields exactly `['p[0->0]', 'p[1->0]']` — both *destinations* are regime 0.
-Row 0 gets $(p_{00},\,p_{10})$; row 1 is filled by complement (`markov_switching.py:652-659`):
+Row 0 gets $(p_{00},\,p_{10})$; row 1 is filled by complement (`statsmodels/markov_switching.py:652-659`):
 
 $$\Pi[:,:,0] \;=\;
 \begin{pmatrix} p_{00} & p_{10} \\ 1 - p_{00} & 1 - p_{10}\end{pmatrix}
@@ -167,7 +168,7 @@ self-persistence must go through $p_{10}$.
 
 ### 1.3 The parameter vector
 
-Parameters are ordered by block, then number, then regime (`markov_switching.py:323-352`), the
+Parameters are ordered by block, then number, then regime (`statsmodels/markov_switching.py:323-352`), the
 blocks being `regime_transition`, `exog`, `variance`:
 
 $$\theta = \big(\,\underbrace{p_{00},\ p_{10}}_{\texttt{regime\_transition}},\
@@ -175,7 +176,7 @@ $$\theta = \big(\,\underbrace{p_{00},\ p_{10}}_{\texttt{regime\_transition}},\
 \underbrace{\sigma_0^2,\ \sigma_1^2}_{\texttt{variance}}\,\big) \in \mathbb R^6$$
 
 `param_names` $=$ `['p[0->0]', 'p[1->0]', 'const[0]', 'const[1]', 'sigma2[0]', 'sigma2[1]']` and
-`k_params = 6`, asserted at `checks.py:110-113`. **All six are free**; `src/jump_model.py` defines
+`k_params = 6`, asserted at `checks.py`. **All six are free**; `src/markov_switching.py` defines
 no `transform_params` or `untransform_params` override at all. The likelihood separates the
 regimes overwhelmingly on variance, so the *variance ratio* decides how sharply they are
 identified — $37.7\times$ on the synthetic fixture against $6.53\times$ on real SPY.
@@ -198,10 +199,10 @@ $$\boxed{\ \pi_0 = \frac{p_{10}}{p_{01} + p_{10}}, \qquad \pi_1 = \frac{p_{01}}{
 
 The chain is irreducible and aperiodic whenever $0 < p_{01}, p_{10} < 1$, so $\pi$ is unique and
 limiting — standard finite-state Markov chain theory (Perron–Frobenius). statsmodels solves it
-for general $k$ by pseudo-inverse (`markov_switching.py:587-589`), flooring at $10^{-20}$ so the
+for general $k$ by pseudo-inverse (`statsmodels/markov_switching.py:587-589`), flooring at $10^{-20}$ so the
 log-space filter never sees $\log 0$. **Read the result as a claim:** on the real fit
 $\pi_{j^\star} = 0.263603$, so the model asserts 26.4% of all weeks are jump-regime weeks — at
-that frequency an elevated-volatility state, not a panic detector.
+that frequency an elevated-volatility state, not a crash detector.
 
 ### 1.5 Expected regime duration
 
@@ -214,7 +215,7 @@ E[D_i] = \sum_{d\ge1} d\,p_{ii}^{\,d-1}(1-p_{ii}) = \boxed{\frac{1}{1 - p_{ii}}}
 Since $\operatorname{Var}(D_i) = p_{ii}/(1-p_{ii})^2$, the standard deviation of duration is
 $\approx E[D_i]$ for $p_{ii}$ near 1: durations are enormously dispersed — a "50-week average"
 regime routinely produces 5-week and 150-week runs — so never treat $E[D_i]$ as typical. As a
-diagnostic (`diagnostics.py:621-629`) compare it against empirical run lengths of $\hat S_t$; on
+diagnostic compare it against empirical run lengths of $\hat S_t$; on
 the real fit both regimes come out more persistent than the realized episodes, that dispersion
 interacting with a fuzzy classifier whose short spells below $0.5$ chop long episodes up.
 
@@ -272,7 +273,7 @@ over regime paths into $O(Tk^2)$. Step 1's $\Pr(S_t = j \mid \mathcal F_{t-1})$ 
 
 ### 2.3 Log-space form — what the code actually runs
 
-`cy_hamilton_filter_log` converts to logs first (`markov_switching.py:169-170`) and runs the
+`cy_hamilton_filter_log` converts to logs first (`statsmodels/markov_switching.py:169-170`) and runs the
 recursion additively. Writing $L^{\text{pred}}_t = \log\xi_{t\mid t-1}$,
 $L^{\text{filt}}_t = \log\xi_{t\mid t}$:
 
@@ -297,24 +298,24 @@ the $k=3$ comparison fit returns $p_{2\to0} = 4.36\times10^{-19}$.
 
 ### 2.4 Initialization
 
-Default is **steady-state (ergodic) initialization** (`markov_switching.py:537-538`), never
-overridden, so $\xi_{1\mid 0} = \pi$. One wrinkle: `markov_switching.py:187-197` writes $\log\pi$
+Default is **steady-state (ergodic) initialization** (`statsmodels/markov_switching.py:537-538`), never
+overridden, so $\xi_{1\mid 0} = \pi$. One wrinkle: `statsmodels/markov_switching.py:187-197` writes $\log\pi$
 into the filtered joint array and, because the local `order` is 1 (1.1), applies $\Pi$ **once**
 while building the joint; the prediction step applies it again. The effective prior on the first
 observation is therefore $\Pi^2\pi$ — invisible here, since $\Pi\pi = \pi$.
 
-**It is not invisible if you call `initialize_known`** (`markov_switching.py:563-574`), the
+**It is not invisible if you call `initialize_known`** (`statsmodels/markov_switching.py:563-574`), the
 natural thing to reach for when chaining expanding-window refits (4.3). Verified: seeding
 $q = (1 - 10^{-12},\ 10^{-12})$ gives `predicted_marginal_probabilities[:, 0]`
 $= (0.98490289,\ 0.01509711)$, exactly $\Pi^2 q$ — not $\Pi q = (0.99195970,\ 0.00804030)$, not
 $q$. **Two transition steps are applied, not one**, while the docstring at
-`markov_switching.py:120-122` reads as one. Verify the realized
+`statsmodels/markov_switching.py:120-122` reads as one. Verify the realized
 `predicted_marginal_probabilities[:, 0]` against your intent rather than trusting it.
 
 The alternatives (**diffuse initialization**, or free $\xi_{1|0}$) cost parameters or consistency;
 ergodic is the only one consistent with the estimated $P$. One last numerical detail reaches the
 public contract: Step 2's normalization can return a probability an ULP *above* one, fatal for any
-downstream $\sqrt{1-p}$, so `estimate_jump_regimes` clips to $[0,1]$ before returning.
+downstream $\sqrt{1-p}$, so `estimate_high_variance_probability` clips to $[0,1]$ before returning.
 
 ---
 
@@ -329,12 +330,12 @@ The filter is the *only* way $\theta$ reaches the objective: `loglikeobs` runs
 `self._filter(params)` and returns $(\ell_1,\dots,\ell_T)$ and `loglike` sums it, so every
 likelihood evaluation is a full $O(Tk^2)$ filter pass.
 
-Optimizer: BFGS (`markov_switching.py:1028`), with `skip_hessian=True`. Gradients are
+Optimizer: BFGS (`statsmodels/markov_switching.py:1028`), with `skip_hessian=True`. Gradients are
 **complex-step derivatives**, `approx_fprime_cs` — not finite differences: complex-step
 differentiation evaluates $f(x + ih)$ and takes $\operatorname{Im}f/h$, exact to machine
 precision *provided $f$ is analytic*, a proviso that is the whole content of Section 8. Because
 nothing intercepts the parameter vector, the objective is smooth in every optimizer coordinate,
-and `checks.py:124-133` asserts every run that no gradient coordinate is exactly zero and no
+and `checks.py` asserts every run that no gradient coordinate is exactly zero and no
 inverse-Hessian diagonal entry is still at the BFGS identity value $1.0$.
 
 ### 3.2 The constrained ↔ unconstrained reparameterization
@@ -347,10 +348,10 @@ likelihood evaluation maps $\tilde\theta \mapsto \theta$ first via `transform_pa
 overrides neither, and the pair is a genuine mutual inverse — the round trip returns exactly zero
 in all six coordinates.
 
-**Transition probabilities** (`markov_switching.py:1444-1449`) go through a multinomial-logistic
+**Transition probabilities** (`statsmodels/markov_switching.py:1444-1449`) go through a multinomial-logistic
 **softmax** against a zero baseline, per column of $\Pi$, which for $k=2$ collapses to the plain
 **logistic** $p_{i0} = e^{\tilde p_i}/(1 + e^{\tilde p_i})$ with the **logit**
-$\log\tfrac{p}{1-p}$ as inverse. **Variances** (`markov_regression.py:384-385`) go through
+$\log\tfrac{p}{1-p}$ as inverse. **Variances** (`statsmodels/markov_regression.py:384-385`) go through
 **squaring**, not logging, so the optimizer's variance coordinate is a *standard deviation*
 $\tilde\sigma_j = \pm\sigma_j$; that map is two-to-one, giving the surface a mirror symmetry and
 a kink at $\tilde\sigma_j = 0$. **Intercepts** are untouched — already unconstrained, so a
@@ -358,7 +359,7 @@ switching mean adds no curvature here.
 
 ### 3.3 `search_reps` and the multimodality of the mixture likelihood
 
-`src/jump_model.py:134` passes `search_reps=50`: untransform the base start values, draw 50
+`markov_switching.fit_markov_switching` passes `search_reps=50`: untransform the base start values, draw 50
 perturbations $u_i \sim \mathcal U(-0.5, 0.5)^6$, run 5 EM iterations on each keeping any candidate
 that beats the incumbent, then polish the winner with 5 more before BFGS starts.
 
@@ -371,8 +372,8 @@ driving $\sigma_j^2 \to 0$ with a single observation assigned to regime $j$ send
 $\to\infty$: the mixture likelihood is unbounded on the boundary of the parameter space
 (Day 1969; Kiefer & Wolfowitz 1956), so any "maximum" you find is a *local interior* maximum and
 which one depends on where you start. And **flat ridges** run between high-variance/low-persistence
-and moderate-variance/high-persistence configurations. Since `markov_switching.py:1349` draws from
-the *global* RNG with no `random_state` hook, `_seeded_numpy_random` (`src/jump_model.py:41-52`)
+and moderate-variance/high-persistence configurations. Since `statsmodels/markov_switching.py:1349` draws from
+the *global* RNG with no `random_state` hook, `_seeded_numpy_random` (`markov_switching._seeded_numpy_random`)
 wraps the fit to keep it deterministic.
 
 **Alternative route: EM / Baum–Welch**, the standard HMM estimator (Baum et al. 1970; Dempster,
@@ -388,7 +389,7 @@ EM into a good basin, BFGS to finish.
 ## Layer 4 — The Kim smoother
 
 Kim (1994), *Journal of Econometrics* 60(1–2), 1–22; textbook treatment in Kim & Nelson (1999)
-ch. 5, cited at `markov_regression.py:80-83`. Equivalent to the HMM **forward–backward
+ch. 5, cited at `statsmodels/markov_regression.py:80-83`. Equivalent to the HMM **forward–backward
 algorithm**, in the "$\gamma$ from $\gamma$" rather than $\beta$-recursion formulation.
 
 ### 4.1 What "smoothed" means, precisely
@@ -423,7 +424,7 @@ smoother is exact here** — it becomes approximate only for Markov-switching au
 Kim 1994's caveat, which does not apply to us. Every factor is already available from the forward
 pass ($\xi_{t|t}$ from Step 2, $\xi_{t+1|t}$ from Step 1), which is why the smoother costs one
 extra $O(Tk^2)$ sweep and no extra filtering. **Log-space form**, matching `cy_kim_smoother_log`
-and the log joint arrays retained at `markov_switching.py:214-216`:
+and the log joint arrays retained at `statsmodels/markov_switching.py:214-216`:
 
 $$\log\xi_{t\mid T}(j) = \log\xi_{t\mid t}(j)
 + \operatorname*{logsumexp}_{i}\big[\log p_{ji} + \log\xi_{t+1\mid T}(i) - \log\xi_{t+1\mid t}(i)\big]$$
@@ -432,21 +433,21 @@ Sanity check on the terminal condition: `filtered[-1] == smoothed[-1]` exactly.
 
 ### 4.3 Why smoothed probabilities are look-ahead bias for a trading signal
 
-**Status: resolved in code.** `estimate_jump_regimes` returns
-`results.filtered_marginal_probabilities` (`src/jump_model.py:163`), guarded at
-`checks.py:142-149`: the returned series must match the filtered array and must *not* match the
+**Status: resolved in code.** `estimate_high_variance_probability` returns
+`results.filtered_marginal_probabilities` (`markov_switching.estimate_high_variance_probability`), guarded at
+`checks.py`: the returned series must match the filtered array and must *not* match the
 smoothed one. The argument below is why, and the second-order leak it identifies is still open.
 
 Read 4.1 again: $\xi_{t\mid T}$ at week $t$ is computed using weeks $t+1$ through $T$. In a
 backtest walking forward through history, the value at 2008-09-15 would be informed by
 2008-10-10, 2009-03-06, and every week since. **You cannot have known it at the time**, so any
 Sharpe ratio computed from a signal built on $\xi_{t|T}$ is fiction. Measured gap (**real**,
-`diagnostics.py:751-759`): $\max_t|\xi_{t|t} - \xi_{t|T}| = 0.704014$, mean $0.109884$, and
+measured on real data 2026-08-12): $\max_t|\xi_{t|t} - \xi_{t|T}| = 0.704014$, mean $0.109884$, and
 **170 of 1750 weeks (9.71%) disagree about the $0.50$ threshold**. Smoothed probabilities are the
 *correct* object for retrospective questions — "was 2011-08 a crisis regime?" — and the standard
 choice for historical business-cycle dating (Hamilton 1989's original application), but the
 *wrong* object for a signal. The synthetic fixture makes the mechanism visible around its true
-jump block (weeks 100–109, `checks.py:42`, $j^\star = 1$ here; both series first cross $0.50$ at
+jump block (weeks 100–109, `checks.py`, $j^\star = 1$ here; both series first cross $0.50$ at
 week 100):
 
 | week | $\xi_{t\mid t}(j^\star)$ filtered | $\xi_{t\mid T}(j^\star)$ smoothed |
@@ -487,9 +488,9 @@ window**; and `initialize_known` applies $\Pi$ twice.
 $$\text{AIC} = -2\,\ell(\hat\theta) + 2k, \qquad
 \text{BIC} = -2\,\ell(\hat\theta) + k\log T$$
 
-`markov_switching.py:1818-1832`, both passing `self.params.shape[0]` as $k$ — i.e. **the length
+`statsmodels/markov_switching.py:1818-1832`, both passing `self.params.shape[0]` as $k$ — i.e. **the length
 of the parameter vector**, with no adjustment for restrictions. That count is correct here because
-nothing is pinned, which `diagnostics.py:390-403` verifies rather than assumes.
+nothing is pinned, which was verified rather than assumed.
 
 **Three cases worth keeping separate**, because the penalties must count *effective* degrees of
 freedom and a parameter fixed by fiat has none. A **point restriction** removes exactly one degree
@@ -523,7 +524,7 @@ first line of defence, the modern alternatives in Section 9, or a **parametric b
 simulate $B$ samples from the fitted 1-regime model, refit both specifications to each, read the
 null distribution off the draws. A restriction *within* a fixed number of regimes is by contrast
 standard — $H_0: \mu_0 = \mu_1$ is a single point restriction on identified parameters at an
-interior point, so $\chi^2_1$ applies (`diagnostics.py:415-424`) — but such a test asks about the
+interior point, so $\chi^2_1$ applies — but such a test asks about the
 *contrast*, not either coefficient's own significance.
 
 ---
@@ -537,7 +538,7 @@ $\mathcal N(0,1)$, so the object to test is $z_t = (r_t - \hat\mu_{S_t})/\hat\si
 under correct specification is i.i.d. standard normal. Note the numerator: with a switching mean,
 subtracting a single sample mean is wrong and manufactures skew. **Hard classification** takes
 $\hat S_t = \arg\max_j \xi_{t|t}(j)$ and standardizes by that regime's moments — simple, discards
-classification uncertainty, and is the primary version reported (`diagnostics.py:545-546`). The
+classification uncertainty, and is the primary version reported. The
 **probability-weighted** alternative standardizes by the moments of the *mixture*, which with a
 switching mean means the law of total variance,
 $v_t = \sum_j \xi_{t|t}(j)(\hat\sigma_j^2 + \hat\mu_j^2) - m_t^2$ with
@@ -585,7 +586,7 @@ $$z_t^2 = \alpha_0 + \sum_{k=1}^{q}\alpha_k z_{t-k}^2 + u_t,
 \qquad \text{LM} = T R^2 \;\xrightarrow{d}\; \chi^2_q
 \quad\text{under } H_0:\ \alpha_1=\dots=\alpha_q=0$$
 
-`statsmodels.stats.diagnostic.het_arch`, `diagnostics.py:214-220`. Ljung–Box on $z_t^2$ tests the
+`statsmodels.stats.diagnostic.het_arch`. Ljung–Box on $z_t^2$ tests the
 same hypothesis with a different statistic; report both, they rarely disagree. **Real:**
 ARCH-LM$(4) = \mathbf{55.652}$ ($p = 2.372\times10^{-11}$), ARCH-LM$(12) = \mathbf{78.830}$
 ($p = 6.897\times10^{-12}$), Ljung–Box$(4)$ on $z_t^2 = \mathbf{69.955}$
@@ -616,7 +617,7 @@ empirical run-length distribution of $\hat S_t$ (1.5).
 
 **A limitation of `checks.py` worth stating once.** Its fixture is drawn from exactly the model
 being fitted, so every diagnostic here passes on it (JB $p = 0.500$, ARCH-LM(4) $p = 0.170$) while
-the same tests reject at $p < 10^{-6}$ on real data — which is why `diagnostics.py` exists
+the same tests reject at $p < 10^{-6}$ on real data — which is the finding that reframed this project
 separately.
 
 ---
@@ -639,7 +640,7 @@ algebraic invariance, not numerical coincidence: the permutation acts on the fil
 indices, and every sum in 2.2's recursion is over all states.
 
 Consequences: the likelihood has $k! = 2$ global maxima; regime *indices* carry no meaning without
-an extra convention; and any statement of the form "regime 1 is the jump regime" is a claim that
+an extra convention; and any statement of the form "regime 1 is the high-variance regime" is a claim that
 must be **derived from the fit**, never assumed. The canonical reference is
 Frühwirth-Schnatter (2006), *Finite Mixture and Markov Switching Models*, ch. 3 and ch. 3.7 / 11.
 The Markov structure does **not** rescue identifiability; it only makes the *model* identified up
@@ -650,7 +651,7 @@ to permutation, which is why a labelling convention suffices and priors are not 
 | Remedy | Mechanism | Trade-off |
 |---|---|---|
 | **Ordering (identifiability) constraint** | Restrict $\Theta$ to one representative per permutation orbit, e.g. $\sigma_0^2 \le \sigma_1^2$ | Standard and clean *if* implemented smoothly, i.e. as a reparameterization. Choose the ordering variable that actually separates the regimes — here, variance. Frühwirth-Schnatter (2006) §3.2 |
-| **Post-hoc relabelling** | Estimate freely; permute the fitted output so the higher-variance regime is the jump regime | **What this repo does** (7.3). Trivially correct for MLE: one fit, one permutation, no effect on the optimization |
+| **Post-hoc relabelling** | Estimate freely; permute the fitted output so the higher-variance regime is the high-variance regime | **What this repo does** (7.3). Trivially correct for MLE: one fit, one permutation, no effect on the optimization |
 
 Two further remedies are Bayesian only: **random-permutation sampling** (permute labels each MCMC
 sweep, then relabel the draws — k-means in parameter space, or Stephens 2000) and
@@ -658,9 +659,9 @@ sweep, then relabel the draws — k-means in parameter space, or Stephens 2000) 
 
 ### 7.3 Post-hoc relabelling — the repo's identification strategy
 
-**The code.** `_jump_regime_index` (`src/jump_model.py:96-105`) reads `sigma2[0]` and `sigma2[1]`
-off the fitted vector and returns `argmax`; `fit_jump_model` returns it as the third element of
-`(model, results, jump_regime_index)` and `estimate_jump_regimes` uses it to select the column.
+**The code.** `markov_switching._high_variance_regime_index` reads `sigma2[0]` and `sigma2[1]`
+off the fitted vector and returns `argmax`; `fit_markov_switching` returns it as the third element of
+`(model, results, high_variance_regime_index)` and `estimate_high_variance_probability` uses it to select the column.
 It runs once, after `fit()`, and touches nothing the optimizer sees.
 
 **Why that is the correct place to resolve it.** (1) The likelihood is exactly invariant to a
@@ -698,7 +699,7 @@ $0.85$), and `sorted()` the two variances on every likelihood evaluation. It was
   part and credited the derivative to the wrong coordinate; `max(complex, float)` discarded it.
 - **The failure looked exactly like success.** `gopt[0]` was exactly `-0.0` and `Hinv[0,0]` exactly
   `1.0` — the untouched BFGS identity initialization — with `warnflag = 0`. A convergence flag
-  cannot detect a coordinate the optimizer never explored; `checks.py:124-133` now asserts on both.
+  cannot detect a coordinate the optimizer never explored; `checks.py` now asserts on both.
 - **Standard errors described an unfitted model.** `cov_params_approx` calls
   `hessian(params, transformed=True)`, which bypasses `transform_params` — the one method the
   constraints lived in — so `bse` and `conf_int()` belonged to a different, unrestricted model at a

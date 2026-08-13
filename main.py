@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-# Structural placeholder only. Not implemented yet — see README.md section 4
-# (Weekly Execution Protocol). This will orchestrate data_loader ->
-# jump_model -> risk_engine once all three modules are audited and the
-# math reference sheet is written.
+# Placeholder. Deliberately unwritten: there is no live path until the
+# preregistered gates D1-D3 clear (docs/RESEARCH-PROTOCOL.md section 7).
+# Writing an orchestrator now would fix a shape that the results should choose.
+#
+# Next build is src/predictive.py, not this file.
 
 
-def run_weekly_thermostat() -> None:
-    """Fetch weekly returns, fit the jump-regime model, and report the
-    smoothed panic probability and risk tier. Not implemented.
-    """
-    raise NotImplementedError("main.run_weekly_thermostat is not implemented yet.")
+def main() -> None:
+    raise NotImplementedError(
+        "No live path yet. See docs/RESEARCH-PROTOCOL.md section 10 for the build order."
+    )
 
 
 if __name__ == "__main__":
-    run_weekly_thermostat()
+    main()

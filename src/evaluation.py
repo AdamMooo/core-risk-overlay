@@ -1,19 +1,22 @@
-"""Evaluation machinery for conditional risk estimates.
+"""Scoring machinery for conditional risk estimates.
 
-Implements the three-test standard in README section 1b. Deliberately knows
-nothing about which model produced the estimate: it takes a conditional mean
-and volatility series (or a VaR series directly) and scores it. Any candidate
--- the regime model, a GARCH variant, VIX itself, a constant -- is just a
-different input here and is scored identically.
+Deliberately knows nothing about which model produced the estimate: it takes a
+conditional mean and volatility (or a VaR series directly) and scores it. A
+constant, a trailing-volatility rung and VIX are therefore scored by exactly
+this code, which is what keeps the comparison honest.
 
-Test 1, calibration: Kupiec (1995) unconditional coverage and Christoffersen
-(1998) independence / conditional coverage.
+Calibration -- Kupiec (1995) unconditional coverage, Christoffersen (1998)
+independence and conditional coverage.
 
-Test 2, incremental information: the forecast encompassing regression
+Incremental information over implied volatility -- the encompassing regression
     RV[t, t+h] = a + b*IV[t] + c*X[t] + e
-with Newey-West standard errors, which are required rather than optional --
+with Newey-West standard errors, which are required rather than optional:
 overlapping h-period horizons make the errors autocorrelated by construction,
-so plain OLS standard errors are wrong and will overstate significance.
+so plain OLS standard errors overstate significance.
+
+Still to build -- PIT / Berkowitz density calibration, the Engle-Manganelli
+dynamic quantile test, tick loss, and the ES breach-severity bootstrap. See
+docs/RESEARCH-PROTOCOL.md sections 5 and 10.
 """
 from __future__ import annotations
 

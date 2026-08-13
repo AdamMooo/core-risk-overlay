@@ -6,192 +6,146 @@ type: project
 
 Last updated: 2026-08-12
 
-Tail-risk hedge overlay for a permanently long global equity book. Mandate and open questions in
-[[README]]. Mathematics in [[docs/MATH-REFERENCE]]. Time-basis rules in
+Tail-risk hedge overlay for a permanently long global equity book. Mandate in [[README]]. Protocol in
+[[docs/RESEARCH-PROTOCOL]]. Mathematics in [[docs/MATH-REFERENCE]]. Time-basis rules in
 [[docs/POINT-IN-TIME-DISCIPLINE]].
 
 ## Status
 
-**Framing settled 2026-08-12; evaluation machinery built; the model itself is now a candidate to be
-tested, not the thing being defended.**
+**Framing settled, naming corrected, evaluation half-built. The model is a candidate under test, not
+a thing being defended.**
 
-The research question is fixed ([[README]] section 1b): *how well does a Markov-switching jump model
-with Hamilton filtering provide information about Value at Risk and the risk of equity assets?*
-Stated absolutely, answerable with no benchmark, scored on every observation rather than on a dozen
-crisis episodes.
+The question is fixed and absolute ([[README]] §3): *how well does a Markov-switching model provide
+real-time information about Value at Risk and the tail risk of equity assets?* Scored on every
+observation, no benchmark required. **Real-time** excludes smoothed probabilities by definition.
 
-`src/evaluation.py` implements the scoring and knows nothing about which model produced the
-estimate — Kupiec and Christoffersen coverage tests, forward-aligned realized targets, and the
-Newey-West encompassing regression. 12 known-answer checks. Any candidate (regime model,
-GARCH variant, VIX, a constant) is scored identically, which is what turns the model-choice argument
-into an experiment.
+[[docs/RESEARCH-PROTOCOL]] is preregistered — estimand, tests, reliability battery, decision
+thresholds, build order. `src/evaluation.py` scores whatever it is handed and knows nothing about
+which model produced it, which is what turns the specification argument into an experiment.
 
-Three commits today: `ed67e7b` respecification, `d432e5c` doc rewrite and data-layer fixes,
-`952d804` evaluation machinery.
-
-**Still true: the model's form is under review, not its parameters.**
-
-A 2-regime Markov-switching model on weekly SPY returns exists and works: no look-ahead, valid
-inference, documented minimum history. But it was inherited from a Copilot scaffold and never chosen
-against a stated target — the target was only written down on 2026-08-12. Now that it exists, four
-concrete mismatches between form and target are visible (see Open Questions). `risk_engine.py` and
-`main.py` remain stubs, deliberately: their shape depends on those answers.
-
-## The target — stated 2026-08-12
+## Target
 
 > Each week: is there a real, **systemic** threat to a long global equity book, large enough that
 > paying for a hedge is worth it?
 
-The book is permanently long SPY / QQQ / international (XEQT- or VT-like) and is never sold. The
-hedge is a small USD sleeve buying SPY puts, monetized in a crash and recycled into the core at
-lower prices. Goals: smooth the ride, cut drawdown depth, stay invested.
+The book is permanently long SPY / QQQ / international and is never sold. The hedge is a small USD
+sleeve buying SPY puts, monetized in a crash and recycled into the core at lower prices. Goals:
+smooth the ride, cut drawdown depth, stay invested.
 
-Two properties this implies, neither of which the current model has:
+Two properties this implies that the current model lacks:
 
 - **Systemic, not single-asset.** SPY alone wobbling is noise; SPY + QQQ + international falling
-  together is the event. Those correlate 0.77-0.87 weekly, and that joint behaviour is the signal.
-- **Continuous, not a switch.** A hedge ratio that moves smoothly from none to meaningful. A 2-state
-  HMM is near-binary by construction — the top-20 probability weeks all sit at P >= 0.99999.
+  together is the event. Those correlate 0.77-0.87 weekly.
+- **Continuous, not a switch.** A 2-state model is near-binary by construction — the top-20
+  probability weeks all sit at P ≥ 0.99999.
 
-## Open questions — the real ones
+## Open questions
 
-Positions stated, not hedged. None of these is a tuning question.
+Positions stated, not hedged. None is a tuning question.
 
-1. **Is the target variable right?** *No, probably not.* The model estimates the latent state of
-   weekly return *variance*; the mandate is about forward *drawdown* over weeks to months. These
-   diverge badly — 2022 was -24% over 39 weeks at unremarkable weekly volatility, while a single
-   -8% week that recovers is high-variance and harmless. This question subsumes most of the others.
-2. **Is a discrete-regime model the right class?** *Probably not alone.* ARCH-LM on standardized
-   residuals rejects at 55.6 (p = 2.4e-11) *after* regime-switching — volatility keeps moving within
-   regimes. And near-binary output contradicts the continuous hedge ratio the mandate wants.
-   Asymmetric GARCH (GJR-GARCH / EGARCH) matches the target far better: continuous, and asymmetric
-   in the right direction by construction. **Untested here — the claim that it forecasts drawdowns
-   better is unverified.**
-3. **How many regimes?** Corrected AIC *and* BIC both prefer **k=3** decisively (dAIC +66, dBIC +44)
-   on real data. We stayed at k=2 because [[README]] said so. But k=3 does not fix question 2, so
-   this is likely the wrong axis to move on.
-4. **Model returns only?** *No.* VIX is free, forward-looking, aligns 1750/1750 weeks, and predicts
-   forward tail events better than the current model (37.7% vs 26.8% for a sub -5% week within 13).
-   It is loaded in `data_loader.py` and used by nothing.
-5. **Sign-blindness.** Not a bug to patch — it is what modelling variance *means*. Up/down
-   probability ratio is **1.0000** at |return| >= 7%; adding a switching mean moved it only to
-   0.9279. Follows directly from question 1.
+1. **Is the target variable right?** *Probably not.* The model estimates the latent state of return
+   *variance*; the mandate is about forward *drawdown* over weeks to months. These diverge badly —
+   2022 was -24% over 39 weeks at unremarkable weekly volatility, while a single -8% week that
+   recovers is high-variance and harmless. Subsumes most of the others. The protocol's answer is to
+   score the predictive density directly rather than argue about the target.
+2. **Is a discrete-regime model the right class?** *Not alone.* ARCH-LM on standardized residuals
+   rejects at 55.6 (p = 2.4e-11) *after* regime-switching — volatility keeps moving within regimes.
+   MS(2) has exactly two possible conditional variances, and at daily frequency that binds harder.
+   Within-regime ARCH and Student-$t$ regime densities are S3/S4 in the protocol.
+3. **How many regimes?** Corrected AIC *and* BIC both prefer **k=3** decisively (ΔAIC 66, ΔBIC 44) on
+   real data. k=2 persisted only because [[README]] said so. But k=3 does not fix question 2.
+4. **Returns only?** *No.* VIX is free, forward-looking, aligns 1750/1750 weeks. It is the **price**
+   side — what acting costs — not a benchmark to beat. Loaded in `data_loader.py`, used by nothing.
+5. **Sign-blindness.** Not a bug to patch — it is what modelling variance *means*. Up/down probability
+   ratio **1.0000** at |return| ≥ 7% with a common mean; **0.9279** with a switching mean. Follows
+   from question 1, and it is why the regime is named `high_variance` rather than anything
+   directional.
 
 ## Settled by evidence
 
-- **Filtered, never smoothed.** Smoothed (Kim) probabilities condition on the entire sample
-  including the future. Filtered and smoothed disagree about the 0.5 threshold in **9.7%** of real
-  weeks. Guarded in `checks.py`.
-- **520-week (10-year) minimum history.** At a 260-week minimum, walk-forward fits produced
-  degenerate parameters (`p[0->0]` to 0.163, `p[1->0]` pinned at 0.999999, a variance collapsing to
-  zero), 6 regime-label flips across SPY and QQQ, 2-3% convergence failures and 9.5-16.5% tier
-  revision. At 520 weeks: 1 flip, 0-1 failures, 7.3-7.8% revision, no degenerate values.
-  `jump_model.RELIABLE_MIN_OBSERVATIONS`.
-- **Post-hoc relabelling is load-bearing.** The jump-regime index flips across refits on real data —
-  SPY at 2009-01-09, a genuine GFC transition. Any hardcoded index inverts the signal. Never remove.
-- **The data loader must resample daily to a fixed weekly grid.** `yfinance`'s `interval="1wk"`
+- **Filtered, never smoothed.** Kim-smoothed probabilities condition on the entire sample including
+  the future. Filtered and smoothed disagree at the 0.5 threshold in **9.7%** of real weeks. Guarded
+  by two checks.
+- **520-week (10-year) minimum history, weekly.** At 260 weeks, walk-forward fits produced degenerate
+  parameters (`p[0->0]` to 0.163, `p[1->0]` pinned at 0.999999, a variance collapsing to zero), 6
+  label flips across SPY and QQQ, 2-3% convergence failures. At 520: 1 flip, 0-1 failures, 7.3-7.8%
+  revision, no degenerate values. **Does not transfer to daily by multiplying by 5** — must be
+  re-measured.
+- **Post-hoc relabelling is load-bearing.** The high-variance index flips across refits on real data —
+  SPY at 2009-01-09, a genuine GFC transition. Any hardcoded index inverts the signal.
+- **The data loader must resample daily onto a fixed weekly grid.** `yfinance`'s `interval="1wk"`
   anchors on each series' first observation: SPY from 1993 came back Monday-anchored, from 2010
-  Friday-anchored, sharing zero bars. `start=None` silently returns a short window. Both fixed and
-  guarded.
-- **The 2006-2011 "persistence pathology"** that the original constraints existed to prevent **does
-  not occur.** The unconstrained crisis regime is *less* persistent (17.2 vs 44.7 weeks). Those
+  Friday-anchored, sharing zero bars. `start=None` silently returned a short window. Both fixed.
+- **The 2006-2011 "persistence pathology"** the original constraints existed to prevent **does not
+  occur.** The unconstrained high-variance regime is *less* persistent (17.2 vs 44.7 weeks). Those
   constraints were removed.
+- **Mixture VaR and ES closed forms verified** against a 40M-draw Monte Carlo to ~1e-5. The
+  moment-matched normal approximation errs by 11% of the VaR level at $w=[0.85,0.15]$ — it is wrong,
+  not merely imprecise.
 
 ## Known defects
 
 | what | where | severity |
 |---|---|---|
-| `risk_engine.py`, `main.py` are stubs — no live path exists | those files | blocks everything |
-| QQ table compares unstandardized values to N(0,1) quantiles | `diagnostics.py` | reported numbers were partly a scale artifact |
-| Crisis windows hand-typed from hindsight | `diagnostics.py` | biased test bed |
-| ~7.5% of weeks have their tier revised by later refits | model class | tiering logic must absorb it |
-| ~1-2% of refits fail to converge, no policy | `jump_model.py` | live operation undefined |
-| Signal timing: README says Friday 3:30pm on weekly closes that don't exist yet | operational | unresolved |
+| No predictive density, so no VaR or ES exists yet | `src/predictive.py` unwritten | blocks everything |
+| Density calibration, DQ, tick loss, ES bootstrap unbuilt | `src/evaluation.py` | blocks the primary test |
+| Parameter look-ahead in the convenience path | `markov_switching.estimate_high_variance_probability` | documented in the docstring; walk-forward path is the honest one |
+| ~7.5% of weeks have their state revised by later refits | model class | reliability number, protocol R4 |
+| ~1-2% of refits fail to converge | `markov_switching.py` | policy fixed in protocol §4.5, not yet coded |
+| Signal timing unresolved — no weekly close exists at Friday 3:30pm | operational | leak register #3 |
+| Daily minimum history unmeasured | `RELIABLE_MIN_OBSERVATIONS` | blocks quoting any daily result |
 
 ## Working lesson from 2026-08-12
 
-**4599 lines in this repo; 665 are the base (`data_loader`, `jump_model`, `checks`) and 49 are the
-deliverable, both stubs.** The rest is analysis apparatus built while the base was unsettled. That
-apparatus did active harm, not just wasted effort: 2065 lines documenting a 2-regime model made
-k=2 feel decided when the repo's own diagnostics said k=3, and a 764-line diagnostics suite nobody
-had read produced numbers that went into permanent documents as fact — including a QQ bug found the
-first time it was actually reviewed.
+**Most of this repo was analysis apparatus built while the base was unsettled, and it did active harm
+rather than merely wasting effort.** 2065 lines documenting a 2-regime model made k=2 feel decided
+when the repo's own diagnostics said k=3. A 764-line diagnostics suite nobody had read produced
+numbers that entered permanent documents as fact — including a QQ standardization bug found the first
+time it was actually reviewed. That suite is deleted; the documents that cited its line numbers had to
+be rewritten.
 
-Sort findings into **deductive** (code does X, math implies Y — no statistics, solid as stated) and
-**inductive** (this beat that on these episodes — needs a rule-based test bed and honest effective-n,
-which is episodes, not configuration rows). They were being quoted with equal confidence.
+Two rules that came out of it:
 
-Before any confirmatory economic test: fix the design and the kill thresholds in advance, as
-`algo-trading-bot/SWEEP_PREREG.md` does. A premature version of that document was written and
-deleted on 2026-08-12 — it preregistered a test of a form now in question.
+- Sort findings into **deductive** (code does X, math implies Y — solid as stated) and **inductive**
+  (this beat that on these episodes — needs a rule-based test bed and honest effective-n, which is
+  episodes, not configuration rows). They were being quoted with equal confidence.
+- **Fix the design and the kill thresholds before running.** That is now
+  [[docs/RESEARCH-PROTOCOL]] §7.
+
+A third, from the naming sweep: **a wrong name is a load-bearing defect.** `jump_model.py` implemented
+a Markov-switching model while "statistical jump model" is an established name for a different method.
+Every document inherited the confusion.
 
 ## Possible output: a paper
 
-Noted 2026-08-12 as a **long-run** goal, not a near-term deliverable. Adam would like this to be
-publishable and shareable — a portfolio piece as much as a system.
+A **long-run** goal, not a near-term deliverable — but recording it disciplines the work rather than
+adding to it. A paper audience will not accept metrics invented after seeing the data, hand-picked
+crisis windows, or economic results without a calibration test. That is exactly the standard
+[[docs/RESEARCH-PROTOCOL]] sets, and it is stricter than what this project was applying to itself.
 
-The point of recording it now is that it disciplines the work rather than adding to it. A paper
-audience will not accept metrics invented after seeing the data, hand-picked crisis windows, or
-economic results without a calibration test. That is exactly the standard [[README]] section 1b now
-sets, and it is stricter than what this project was applying to itself. Writing for that audience is
-a forcing function for the mathematical framing being right.
+The natural shape, if results support one: *does a conditional regime model carry information about
+downside risk that is incremental to implied volatility?* Open in the literature, genuinely uncertain,
+and a well-executed negative result is publishable and useful. It is also exactly the question that
+decides whether this system should exist.
 
-The natural shape, if the results support one: *does a conditional volatility/regime model carry
-information about downside risk in a long global equity book that is incremental to implied
-volatility?* That is an open question in the literature, the answer is genuinely uncertain, and a
-well-executed negative result is publishable and useful. It also happens to be exactly the question
-that decides whether this system should exist — so the paper and the project want the same evidence.
+## Next
 
-## Next — start here on a cold open
+Read [[README]] §§1-5 and [[docs/RESEARCH-PROTOCOL]] §§1, 5, 10 — short, and they contain the whole
+framing. Then build in protocol §10 order, starting with `src/predictive.py`.
 
-The framing questions are settled and live in [[README]] sections 1, 1a and 1b. Read those first;
-they are short. The remaining work is mechanical enough to resume without context.
-
-**1. Conditional VaR from the model — the immediate next build, and it has a trap.**
-
-`jump_model` returns regime probabilities; VaR needs a predictive *distribution*. Three steps:
-
-```
-w[j]  = SUM over i of p[i->j] * filt[t][i]        # push the state forward one period
-f(r)  = w[0]*Normal(mu_0, sigma_0) + w[1]*Normal(mu_1, sigma_1)   # a MIXTURE, not a normal
-mean  = w[0]*mu_0 + w[1]*mu_1
-var   = w[0]*sigma_0^2 + w[1]*sigma_1^2                       # within-regime
-      + w[0]*(mu_0-mean)^2 + w[1]*(mu_1-mean)^2               # BETWEEN-regime -- commonly dropped
-```
-
-**The trap:** `VaR = mean + sqrt(var)*norm.ppf(alpha)` is WRONG. That is the normal formula, and
-matching a mixture's first two moments does not match its quantiles. Solve the mixture CDF directly:
-find `q` with `w[0]*Phi((q-mu_0)/sigma_0) + w[1]*Phi((q-mu_1)/sigma_1) = alpha`. Monotone, so Brent
-or bisection is reliable. Strong correctness check: a degenerate mixture (`w = 1`) must reproduce
-`evaluation.normal_var` exactly.
-
-The gap between mixture VaR and the normal approximation is itself a small paper result — expected
-largest at maximum regime uncertainty (`w` near 0.5), with the sign depending on `alpha`. Measure it
-rather than assume it.
-
-**2. Daily data.** `data_loader.WEEKLY_RULE` already isolates the resampling rule, so this is small.
-Estimate daily, decide weekly ([[README]] section 2).
-
-**3. Then Test 1 on real data** — `evaluation.coverage_tests` against realized returns. That answers
-the research question.
-
-**4. Multi-period VaR is materially harder** and can wait. Over `h` periods the return is a mixture
-over regime *paths* (2^h of them; 8,192 at 13 weeks), not end-states. Simulation over paths is the
-standard approach. Do one-step first as the clean result.
-
-Not planned: intraday data, Hawkes, K-means, binary classifiers, economic backtesting before Tests 1
-and 2 pass.
-
-Not planned: intraday data, Hawkes, K-means, binary classifiers.
+Not planned: economic backtesting before the calibration tests pass, statistical jump models, intraday
+data, Hawkes processes, K-means, binary classifiers.
 
 ## Open governance question
 
-Not in [[INDEX]] nor the repo table in [[CLAUDE]], so charter status is undeclared.
-[[regime-detection/regime-detection]] already concluded a K=2 jump model's decision value is
-dominated by reactive estimators — the same pattern found here independently.
+Not in [[INDEX]] nor the repo table in [[CLAUDE]], so charter status is undeclared. Related: the
+`regime-detection` repo is **no longer on disk** — it is not under `systematic-investing-research/`
+and the four governance docs [[CLAUDE]] says live in `regime-detection/governance/` are gone with it.
+GitHub (`AdamMooo/regime-detection`, private) should still have them. A read-only assessment survives
+at [[portfolio-sprint/assessments/regime-detection]].
 
 ## Related
 
-- [[README]] · [[docs/MATH-REFERENCE]] · [[docs/POINT-IN-TIME-DISCIPLINE]]
+- [[README]] · [[docs/RESEARCH-PROTOCOL]] · [[docs/MATH-REFERENCE]] · [[docs/POINT-IN-TIME-DISCIPLINE]]
 - [[look-ahead-bias-is-self-concealing]] — vault lesson from this work
 - [[INDEX|Home]]

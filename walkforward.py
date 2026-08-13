@@ -1,4 +1,4 @@
-"""Walk-forward correctness harness for the jump model.
+"""Walk-forward correctness harness for the Markov-switching model.
 
 Answers the question the rest of the repo has not: is this usable as a LIVE
 weekly estimator? Everything prior fits parameters once and applies them
@@ -10,7 +10,7 @@ signal for weeks r..next_refit is produced with those parameters. Nothing from
 the future enters at any point.
 
 Measured, in order of how badly each would sink the model:
-  1. does the JUMP REGIME LABEL flip between refits (the signal inverts)
+  1. does the HIGH-VARIANCE LABEL flip between refits (the signal inverts)
   2. do fits converge at every refit
   3. how much does the estimate for week t get REVISED by later refits
   4. how far the honest live signal sits from the full-sample signal
@@ -31,12 +31,13 @@ import pandas as pd
 from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 
 import data_loader as dl
-import jump_model as jm
+import markov_switching as ms
 
 TICKERS = ("SPY", "QQQ")
-MIN_TRAIN_WEEKS = 520          # 10 years; see jump_model.RELIABLE_MIN_OBSERVATIONS
+MIN_TRAIN_WEEKS = 520          # 10 years; see markov_switching.RELIABLE_MIN_OBSERVATIONS
 REFIT_EVERY_WEEKS = 13         # quarterly, a realistic operational cadence
-TIER_CALM, TIER_HYSTERIA = 0.20, 0.60
+STATE_THRESHOLD = 0.50        # the 0.5 convention used throughout the docs;
+                              # tiering is out of scope (RESEARCH-PROTOCOL section 9)
 DATA_DIR = Path(__file__).parent / "data"
 
 
@@ -63,7 +64,7 @@ def filter_with(returns: pd.Series, params: np.ndarray) -> np.ndarray:
     the value at week t depends only on returns up to t. Running it over the
     whole series and reading position t gives exactly what was knowable at t.
     """
-    model = MarkovRegression(returns, k_regimes=jm.N_REGIMES, trend="c",
+    model = MarkovRegression(returns, k_regimes=ms.N_REGIMES, trend="c",
                              switching_trend=True, switching_variance=True)
     return np.asarray(model.filter(params).filtered_marginal_probabilities)
 
@@ -75,24 +76,24 @@ def walk_forward(returns: pd.Series) -> pd.DataFrame:
     for n, start in enumerate(refit_points):
         window = returns.iloc[:start]
         try:
-            model, results, jump_regime = jm.fit_jump_model(window)
+            model, results, hv_regime = ms.fit_markov_switching(window)
         except (RuntimeError, ValueError) as exc:
             failures += 1
             rows.append({"refit_end": returns.index[start - 1], "n_obs": start,
-                         "converged": False, "jump_regime": np.nan,
+                         "converged": False, "hv_regime": np.nan,
                          "error": type(exc).__name__})
             continue
 
         params = np.asarray(results.params, dtype=float)
         names = model.param_names
-        probs = filter_with(returns, params)[:, jump_regime]
+        probs = filter_with(returns, params)[:, hv_regime]
         stop = refit_points[n + 1] if n + 1 < len(refit_points) else len(returns)
 
         rows.append({
             "refit_end": returns.index[start - 1],
             "n_obs": start,
             "converged": True,
-            "jump_regime": jump_regime,
+            "hv_regime": hv_regime,
             "llf": results.llf,
             "live_from": returns.index[start],
             "live_to": returns.index[stop - 1],
@@ -120,9 +121,9 @@ def report(ticker: str) -> None:
 
     print()
     print("1. REGIME LABEL STABILITY (a flip inverts the signal)")
-    labels = ok.jump_regime.astype(int)
+    labels = ok.hv_regime.astype(int)
     flips = int((labels.diff().fillna(0) != 0).sum())
-    print(f"   jump regime index by refit: {sorted(labels.unique().tolist())}")
+    print(f"   high-variance regime index by refit: {sorted(labels.unique().tolist())}")
     print(f"   label flips across {len(labels)} refits: {flips}")
     if flips:
         f = ok.loc[labels.diff().fillna(0) != 0, "refit_end"]
@@ -142,31 +143,31 @@ def report(ticker: str) -> None:
         filter_with(returns, np.asarray(
             [final_params[n] for n in
              ["p[0->0]", "p[1->0]", "const[0]", "const[1]", "sigma2[0]", "sigma2[1]"]]
-        ))[:, int(final_params.jump_regime)], index=returns.index)
+        ))[:, int(final_params.hv_regime)], index=returns.index)
     common = live.index.intersection(final.index)
     d = (live.loc[common] - final.loc[common]).abs()
     print(f"   weeks with a live estimate: {len(common)}")
     print(f"   |live - latest-params| : mean {d.mean():.4f}  median {d.median():.4f}  "
           f"p95 {d.quantile(0.95):.4f}  max {d.max():.4f}")
 
-    def tier(x):
-        return np.where(x <= TIER_CALM, 0, np.where(x <= TIER_HYSTERIA, 1, 2))
+    def state(x):
+        return (np.asarray(x) > STATE_THRESHOLD).astype(int)
 
-    tl, tf = tier(live.loc[common]), tier(final.loc[common])
-    print(f"   weeks whose TIER changes under revision: {int((tl != tf).sum())} "
-          f"({(tl != tf).mean():.1%})")
+    sl, sf = state(live.loc[common]), state(final.loc[common])
+    print(f"   weeks whose STATE flips under revision (at {STATE_THRESHOLD}): "
+          f"{int((sl != sf).sum())} ({(sl != sf).mean():.1%})")
 
     print()
     print("4. LIVE vs FULL-SAMPLE FIT (what the leaky version would have shown)")
-    _, fs_res, fs_jr = jm.fit_jump_model(returns)
+    _, fs_res, fs_jr = ms.fit_markov_switching(returns)
     fs = pd.Series(filter_with(returns, np.asarray(fs_res.params, dtype=float))[:, fs_jr],
                    index=returns.index)
     d2 = (live.loc[common] - fs.loc[common]).abs()
     print(f"   |live - full-sample| : mean {d2.mean():.4f}  p95 {d2.quantile(0.95):.4f}  "
           f"max {d2.max():.4f}")
-    t2 = tier(fs.loc[common])
-    print(f"   weeks whose TIER differs from the full-sample version: "
-          f"{int((tl != t2).sum())} ({(tl != t2).mean():.1%})")
+    s2 = state(fs.loc[common])
+    print(f"   weeks whose STATE differs from the full-sample version: "
+          f"{int((sl != s2).sum())} ({(sl != s2).mean():.1%})")
     print(f"   mean live {live.loc[common].mean():.4f} vs full-sample "
           f"{fs.loc[common].mean():.4f}")
 
@@ -182,7 +183,7 @@ def report(ticker: str) -> None:
               f"{v.max():12.6f} {v.iloc[half:].std():13.6f}")
 
     out = DATA_DIR / f"walkforward_{ticker.lower()}.csv"
-    ok[["refit_end", "n_obs", "jump_regime", "llf", *pnames]].to_csv(out, index=False)
+    ok[["refit_end", "n_obs", "hv_regime", "llf", *pnames]].to_csv(out, index=False)
     print(f"\n   parameter path written to {out.relative_to(Path(__file__).parent)}")
 
 

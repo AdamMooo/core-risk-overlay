@@ -14,8 +14,10 @@ _DEPS_LOCK = Lock()
 
 
 def _require_dependencies():
-    """Load and cache optional third-party dependencies for the data loader."""
     global _DEPS
+
+    if _DEPS is not None:
+        return _DEPS
 
     with _DEPS_LOCK:
         if _DEPS is not None:
@@ -66,7 +68,7 @@ def download_weekly_prices(
     )
 
     if data.empty:
-        raise ValueError(f"No weekly price data returned for ticker '{ticker}'.")
+        raise ValueError(f"No daily price data returned for ticker '{ticker}'.")
 
     if isinstance(data.columns, pd.MultiIndex):
         matched_data = None
@@ -162,10 +164,10 @@ def download_weekly_vix(
 def align_vix_to_returns(vix: "pd.Series", returns: "pd.Series") -> "pd.Series":
     """Align VIX onto a weekly return index by exact date match.
 
-    Deliberately does NOT forward-fill. Both series come from the same weekly
-    resampling convention (every bar lands on a Monday) and every SPY week from
-    1993 has an exact VIX bar, so a fill would never be a legitimate repair --
-    it would only mask a data defect by silently carrying a stale quote.
+    Deliberately does NOT forward-fill. Both series are resampled onto the same
+    explicit WEEKLY_RULE grid and every SPY week from 1993 has an exact VIX bar,
+    so a fill would never be a legitimate repair -- it would only mask a data
+    defect by silently carrying a stale quote.
     """
     np, pd, _ = _require_dependencies()
 
