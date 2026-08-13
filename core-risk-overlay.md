@@ -4,7 +4,7 @@ type: project
 
 # Core-Risk-Overlay
 
-Last updated: 2026-08-12
+Last updated: 2026-08-13
 
 Tail-risk hedge overlay for a permanently long global equity book. Mandate in [[README]]. Protocol in
 [[docs/RESEARCH-PROTOCOL]]. Mathematics in [[docs/MATH-REFERENCE]]. Time-basis rules in
@@ -82,12 +82,21 @@ Positions stated, not hedged. None is a tuning question.
 - **Mixture VaR and ES closed forms verified** against a 40M-draw Monte Carlo to ~1e-5. The
   moment-matched normal approximation errs by 11% of the VaR level at $w=[0.85,0.15]$ — it is wrong,
   not merely imprecise.
+- **The primary test has a blind spot, and it is the one this project cares about.** Berkowitz's
+  $\rho$ tests autocorrelation in the *level* of $z$. A stochastic-volatility series scored at
+  constant volatility passes the full LR at $p=0.07$ while the Ljung-Box on $(u_t-0.5)^2$ rejects at
+  $p<10^{-16}$. Unabsorbed volatility dynamics are a $z^2$ phenomenon. A passing Berkowitz is
+  meaningless without the companion statistic — enforced by a check, documented in both the
+  docstring and protocol §5.1.
+- **The censored Berkowitz separates from the full one on exactly the case it is for.** Standardized
+  $t(4)$ scored as $N(0,1)$ — zero mean, unit variance, no dependence, wrong only in the tail — gives
+  full $p=0.89$, censored $p=4\times10^{-37}$. Measured, not asserted.
 
 ## Known defects
 
 | what | where | severity |
 |---|---|---|
-| Density calibration, DQ, tick loss, ES bootstrap unbuilt | `src/evaluation.py` | blocks the primary test |
+| DQ, tick loss, ES bootstrap unbuilt | `src/evaluation.py` | blocks §5.2-5.4 |
 | No vintage-parameter VaR path — the only VaR available is full-sample fit | `walkforward.py` | nothing is reportable until this exists |
 | Parameter look-ahead in the convenience path | `markov_switching.estimate_high_variance_probability` | documented in the docstring; walk-forward path is the honest one |
 | ~7.5% of weeks have their state revised by later refits | model class | reliability number, protocol R4 |
@@ -153,9 +162,17 @@ flatters.
 ## Next
 
 Read [[README]] §§1-5 and [[docs/RESEARCH-PROTOCOL]] §§1, 5, 10 — short, and they contain the whole
-framing. Then continue protocol §10 from step 2: the density-calibration battery
-(PIT/Berkowitz, DQ, tick loss, ES bootstrap) in `src/evaluation.py`, each with a known-answer test
-that must reject miscalibrated input.
+framing. Protocol §10 step 2 is **half done**: PIT and Berkowitz (full and censored) landed
+2026-08-13 with 23 known-answer checks. Remaining in step 2, in order:
+
+1. **DQ (Engle-Manganelli)** — §5.2. The one that matters and the one that is missing; Christoffersen
+   only asks whether a breach follows a breach. DQ regresses $\mathrm{Hit}_t = I_t - \alpha$ on a
+   constant, lagged hits **and the VaR forecast itself**, catching "breaches too often precisely when
+   it claims risk is high". Report $p \in \{1,4\}$.
+2. **Tick loss + DM/GW** — §5.4.
+3. **ES breach-severity bootstrap** — §5.3. Read the §5.3 caution before writing any of it.
+
+Then step 3 (context rungs) shakes out the harness before any model number is quoted.
 
 Not planned: economic backtesting before the calibration tests pass, statistical jump models, intraday
 data, Hawkes processes, K-means, binary classifiers.

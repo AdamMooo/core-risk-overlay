@@ -180,8 +180,28 @@ LR test of $H_0: \mu=0,\ \rho=0,\ \sigma^2=1$, $\chi^2(3)$. Rejection decomposes
 $\mu \ne 0$ location bias, $\sigma^2 > 1$ the model understates risk overall, $\rho \ne 0$ it fails
 to track clustering.
 
-**Censored Berkowitz** — the same LR restricted below the $\alpha$-quantile. A model can be calibrated
-in the body and wrong in the tail; the full-sample version will not show it.
+**Censored Berkowitz** — the same LR restricted below the $\alpha$-quantile, testing
+$H_0: \mu=0,\ \sigma^2=1$ against $\chi^2(2)$. $\rho$ is **dropped**: once the sample above the cutoff
+is censored to a single indicator, the AR coefficient is not identified. See the amendment below. A
+model can be calibrated in the body and wrong in the tail; the full-sample version will not show it.
+
+Both are built (`evaluation.berkowitz_test`, `evaluation.censored_berkowitz_test`) on the exact
+likelihood, with the null and alternative evaluated through the same function so $LR \ge 0$ by
+construction rather than by hope. The discriminating case is measured, not asserted: a standardized
+$t(4)$ scored as $N(0,1)$ — zero mean, unit variance, no dependence, wrong only in the tail — gives
+full $p = 0.89$ and censored $p = 4\times10^{-37}$.
+
+**Blind spot, measured.** $\rho$ tests autocorrelation in the *level* of $z$. Volatility dynamics the
+model has not absorbed live in $z^2$ and are invisible to the full LR: a stochastic-volatility series
+scored at constant volatility returns $\mu=0.007$, $\rho=0.041$, $\sigma^2=0.998$, $p=0.07$ — **not
+rejected** — while the Ljung-Box on $(u_t-0.5)^2$ rejects at $p<10^{-16}$. A passing Berkowitz is
+never read without that companion statistic. This is the §3 open question about within-regime ARCH
+appearing in the scoring layer.
+
+**PIT clipping.** $u_t \in \{0,1\}$ sends $z_t$ to $\pm\infty$. Clipping at $10^{-10}$ is
+unavoidable; every result carries `n_clipped`, because a clipped observation is the model's *worst*
+miss — the density called the realized return impossible — and silently absorbing it would delete the
+most informative failure in the sample.
 
 Reported alongside: PIT histogram (20 bins), PIT ACF, and the ACF of $(u_t-0.5)^2$ — the last detects
 volatility dynamics the model has not absorbed.
@@ -327,7 +347,15 @@ Fixed in advance so the analysis has a target and cannot sprawl.
 
 ### Amendments
 
-*None yet. Every change to §1-§8 after a result exists is logged here with date and reason.*
+Every change to §1-§8 after a result exists is logged here with date and reason.
+
+**2026-08-13 — §5.1, censored Berkowitz is $\chi^2(2)$, not $\chi^2(3)$.** As originally written §5.1
+said "the same LR restricted below the $\alpha$-quantile", implying all three restrictions. $\rho$ is
+not identified on a censored sample: observations above the cutoff enter the likelihood only through
+$\Pr(z > z^*)$, so the lag structure that $\rho$ describes is unobserved for the large majority of the
+sample. The tail test therefore restricts $(\mu, \sigma^2)$ only, against $\chi^2(2)$ — the standard
+form. Decided **before any real-data result existed**, on identification grounds, not to move a
+p-value.
 
 ---
 
@@ -338,10 +366,17 @@ Fixed in advance so the analysis has a target and cannot sprawl.
    `regime_transition` was verified empirically at $k=2$ and $k=3$ to be stored `[to, from]` with
    columns summing to one; `transition_matrix` does that transpose in one place and cross-checks
    against the `p[i->j]` named parameters.
-2. **Extend `src/evaluation.py`** — PIT and Berkowitz (full and censored), DQ, tick loss, ES
-   breach-severity bootstrap, DM/GW. Each with a known-answer check: correctly-specified simulated
+2. **Extend `src/evaluation.py`** — Each with a known-answer check: correctly-specified simulated
    data must **fail to reject**, deliberately miscalibrated data must **reject**. A test that never
    rejects is worse than no test.
+   - ~~PIT, Berkowitz full and censored, PIT histogram/ACF/Ljung-Box.~~ **Done 2026-08-13.** 23
+     checks: null quiet on both forms; understated risk, location bias and serial dependence each
+     rejected *and* correctly diagnosed by the parameter that owns them ($\sigma^2 \to 2.25$,
+     $\mu \to 0.5$, $\rho \to 0.6$); the body-correct/tail-wrong case separating the two forms; the
+     $z^2$ blind spot; clip counting; validation.
+   - **DQ (Engle-Manganelli)** — next.
+   - **Tick loss and DM/GW.**
+   - **ES breach-severity bootstrap.**
 3. **Context rungs** — constant and EWMA end-to-end through the battery. Shakes out the harness before
    any model number is quoted.
 4. **Daily data** — `data_loader` daily path, and re-measure $N_{\min}$ (§1.3).

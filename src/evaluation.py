@@ -5,8 +5,13 @@ conditional mean and volatility (or a VaR series directly) and scores it. A
 constant, a trailing-volatility rung and VIX are therefore scored by exactly
 this code, which is what keeps the comparison honest.
 
-Calibration -- Kupiec (1995) unconditional coverage, Christoffersen (1998)
-independence and conditional coverage.
+Density calibration -- the PIT (Rosenblatt 1952) and the Berkowitz (2001) LR,
+full and tail-censored. This is the PRIMARY test: u = F(r) is iid U(0,1) under
+any correctly-specified density, so the identical code scores a constant, an
+EWMA rung, VIX and the regime mixture.
+
+Quantile calibration -- Kupiec (1995) unconditional coverage, Christoffersen
+(1998) independence and conditional coverage.
 
 Incremental information over implied volatility -- the encompassing regression
     RV[t, t+h] = a + b*IV[t] + c*X[t] + e
@@ -14,8 +19,8 @@ with Newey-West standard errors, which are required rather than optional:
 overlapping h-period horizons make the errors autocorrelated by construction,
 so plain OLS standard errors overstate significance.
 
-Still to build -- PIT / Berkowitz density calibration, the Engle-Manganelli
-dynamic quantile test, tick loss, and the ES breach-severity bootstrap. See
+Still to build -- the Engle-Manganelli dynamic quantile test, tick loss with
+Diebold-Mariano, and the ES breach-severity bootstrap. See
 docs/RESEARCH-PROTOCOL.md sections 5 and 10.
 """
 from __future__ import annotations
@@ -25,7 +30,13 @@ from typing import Final, NamedTuple
 
 DEFAULT_ALPHA: Final[float] = 0.05
 
-_DEPS: tuple[object, object, object, object] | None = None
+# u_t exactly 0 or 1 sends z_t to +-inf and takes the whole log-likelihood with
+# it. Clipping is unavoidable, but a clipped observation is the model's WORST
+# miss -- the density called the realized return impossible. Every result that
+# clips carries the count, so the number can never be swallowed silently.
+PIT_CLIP_EPS: Final[float] = 1e-10
+
+_DEPS: tuple[object, object, object, object, object] | None = None
 _DEPS_LOCK = Lock()
 
 
@@ -43,13 +54,13 @@ def _require_dependencies():
             import numpy as np
             import pandas as pd
             import statsmodels.api as sm
-            from scipy import stats
+            from scipy import optimize, stats
         except ModuleNotFoundError as exc:
             raise ModuleNotFoundError(
                 "evaluation.py requires numpy, pandas, scipy and statsmodels."
             ) from exc
 
-        _DEPS = (np, pd, sm, stats)
+        _DEPS = (np, pd, sm, stats, optimize)
 
     return _DEPS
 
@@ -84,16 +95,61 @@ class EncompassingResult(NamedTuple):
     r_squared: float
 
 
+class BerkowitzResult(NamedTuple):
+    n: int
+    n_clipped: int
+    mu: float
+    rho: float
+    sigma2: float
+    log_likelihood: float
+    log_likelihood_null: float
+    lr: float
+    df: int
+    p_value: float
+
+
+class CensoredBerkowitzResult(NamedTuple):
+    n: int
+    n_tail: int
+    alpha: float
+    cutoff: float
+    n_clipped: int
+    mu: float
+    sigma2: float
+    log_likelihood: float
+    log_likelihood_null: float
+    lr: float
+    df: int
+    p_value: float
+
+
+class PitDiagnostics(NamedTuple):
+    n: int
+    n_clipped: int
+    bins: int
+    bin_counts: tuple[int, ...]
+    bin_expected: float
+    uniformity_chi2: float
+    uniformity_p: float
+    lags: int
+    acf_level: tuple[float, ...]
+    acf_squared: tuple[float, ...]
+    ljung_box_level: float
+    ljung_box_level_p: float
+    ljung_box_squared: float
+    ljung_box_squared_p: float
+
+
 def normal_var(conditional_mean, conditional_vol, alpha: float = DEFAULT_ALPHA):
     """Lower-tail VaR under a conditional normal. Returned as a return level."""
-    np, _, _, stats = _require_dependencies()
+    np, _, _, stats, _ = _require_dependencies()
     _validate_alpha(alpha)
     return conditional_mean + conditional_vol * stats.norm.ppf(alpha)
 
 
 def normal_expected_shortfall(conditional_mean, conditional_vol, alpha: float = DEFAULT_ALPHA):
     """E[r | r < VaR_alpha] under a conditional normal."""
-    np, _, _, stats = _require_dependencies()
+    np, _, _, stats, _ = _require_dependencies()
     _validate_alpha(alpha)
     z = stats.norm.ppf(alpha)
     return conditional_mean - conditional_vol * stats.norm.pdf(z) / alpha
@@ -105,7 +161,7 @@ def _validate_alpha(alpha: float) -> None:
 
 
 def _safe_log(x: float) -> float:
-    np, _, _, _ = _require_dependencies()
+    np, _, _, _, _ = _require_dependencies()
     # A cell count of zero contributes nothing to the log-likelihood; guarding
     # here keeps a degenerate transition table from producing -inf.
     return float(np.log(x)) if x > 0.0 else 0.0
@@ -117,7 +173,7 @@ def coverage_tests(exceedances, alpha: float = DEFAULT_ALPHA) -> CoverageResult:
     `exceedances` is a boolean series: True where the realized return breached
     the VaR estimate made before that period.
     """
-    np, _, _, stats = _require_dependencies()
+    np, _, _, stats, _ = _require_dependencies()
     _validate_alpha(alpha)
 
     hits = np.asarray(exceedances, dtype=bool).ravel()
@@ -180,7 +236,7 @@ def realized_forward(returns, horizon: int, statistic: str = "vol"):
     this back into a signal would be look-ahead bias -- see
     docs/POINT-IN-TIME-DISCIPLINE.md.
     """
-    np, pd, _, _ = _require_dependencies()
+    np, pd, _, _, _ = _require_dependencies()
 
     series = pd.Series(returns).astype("float64")
     if horizon < 1:
@@ -212,7 +268,7 @@ def encompassing_regression(
     Newey-West lags default to horizon - 1, the minimum needed to account for
     the moving-average structure that overlapping horizons induce.
     """
-    np, pd, sm, _ = _require_dependencies()
+    np, pd, sm, _, _ = _require_dependencies()
 
     frame = pd.concat(
         [
@@ -250,4 +306,256 @@ def encompassing_regression(
         p_implied=float(fitted.pvalues[1]),
         p_model=float(fitted.pvalues[2]),
         r_squared=float(fitted.rsquared),
+    )
+
+
+def pit_to_normal(u, clip_eps: float = PIT_CLIP_EPS) -> tuple["np.ndarray", int]:
+    """z = Phi^-1(u), with clipped observations counted rather than hidden.
+
+    Returns (z, n_clipped). A clipped u is an observation the predictive density
+    assigned essentially zero probability -- the single most informative failure
+    the model can produce. It must reach the caller as a number.
+    """
+    np, pd, _, stats, _ = _require_dependencies()
+
+    values = np.asarray(pd.Series(u).dropna(), dtype="float64").ravel()
+    if values.size == 0:
+        raise ValueError("No non-missing PIT values.")
+    if not np.isfinite(values).all():
+        raise ValueError("PIT values must be finite.")
+    if (values < 0.0).any() or (values > 1.0).any():
+        raise ValueError("PIT values must lie in [0, 1]; got values outside.")
+    if not 0.0 < clip_eps < 0.5:
+        raise ValueError("clip_eps must lie strictly between 0 and 0.5.")
+
+    n_clipped = int(np.sum((values <= clip_eps) | (values >= 1.0 - clip_eps)))
+    clipped = np.clip(values, clip_eps, 1.0 - clip_eps)
+    return stats.norm.ppf(clipped), n_clipped
+
+
+def _ar1_negative_log_likelihood(params, z, np) -> float:
+    mu, rho, log_sigma = params
+    sigma2 = float(np.exp(2.0 * log_sigma))
+
+    # EXACT likelihood: observation 1 contributes its stationary marginal
+    # z_1 ~ N(mu/(1-rho), sigma2/(1-rho^2)). The conditional shortcut drops that
+    # term and reduces to OLS -- a different statistic, and Berkowitz specifies
+    # the exact one. Evaluating null and alternative through this same function
+    # is what guarantees LR >= 0 rather than hoping the optimizer behaves.
+    stationary_var = sigma2 / (1.0 - rho * rho)
+    stationary_mean = mu / (1.0 - rho)
+    log_2pi = float(np.log(2.0 * np.pi))
+
+    ll = -0.5 * (
+        log_2pi + np.log(stationary_var) + (z[0] - stationary_mean) ** 2 / stationary_var
+    )
+    residual = z[1:] - mu - rho * z[:-1]
+    ll += float(np.sum(-0.5 * (log_2pi + np.log(sigma2) + residual**2 / sigma2)))
+    return -float(ll)
+
+
+def berkowitz_test(u, clip_eps: float = PIT_CLIP_EPS) -> BerkowitzResult:
+    """Berkowitz (2001) LR test that the PIT series is iid U(0,1).
+
+    z_t = Phi^-1(u_t); under correct specification z_t ~ iid N(0,1). Fit
+
+        z_t = mu + rho*z_{t-1} + e_t,   e_t ~ N(0, sigma2)
+
+    and LR-test H0: mu=0, rho=0, sigma2=1 against chi2(3). The decomposition is
+    the point: mu != 0 is location bias, sigma2 > 1 means the model understates
+    risk overall, rho != 0 means it fails to track volatility clustering.
+
+    Primary test of docs/RESEARCH-PROTOCOL.md section 5.1. Applies to ANY
+    predictive density, which is why it takes u rather than a model.
+
+    KNOWN BLIND SPOT, measured in checks.py: rho tests autocorrelation in the
+    LEVEL of z. Unabsorbed volatility dynamics live in z^2 and are invisible
+    here -- a stochastic-vol series scored at constant volatility returns
+    mu=0.007, rho=0.041, sigma2=0.998 and p=0.07, failing to reject, while the
+    Ljung-Box on (u-0.5)^2 in `pit_diagnostics` rejects at p<1e-16. Never read a
+    passing Berkowitz without that companion statistic.
+    """
+    np, _, _, stats, optimize = _require_dependencies()
+
+    z, n_clipped = pit_to_normal(u, clip_eps)
+    n = int(z.size)
+    if n < 10:
+        raise ValueError(f"Berkowitz needs at least 10 observations; got {n}.")
+
+    # Two starts: the OLS estimate, and the null itself. The AR(1) likelihood is
+    # well behaved, but starting at the null guarantees the optimizer can never
+    # return a fit worse than H0 and hand back a negative LR.
+    lag_corr = float(np.corrcoef(z[1:], z[:-1])[0, 1]) if n > 2 else 0.0
+    rho0 = float(np.clip(lag_corr if np.isfinite(lag_corr) else 0.0, -0.9, 0.9))
+    mu0 = float(np.mean(z)) * (1.0 - rho0)
+    resid0 = z[1:] - mu0 - rho0 * z[:-1]
+    sigma0 = max(float(np.std(resid0, ddof=0)), 1e-6)
+
+    bounds = [(None, None), (-0.999, 0.999), (np.log(1e-8), np.log(1e4))]
+    best = None
+    for start in ([mu0, rho0, float(np.log(sigma0))], [0.0, 0.0, 0.0]):
+        fit = optimize.minimize(
+            _ar1_negative_log_likelihood, start, args=(z, np),
+            method="L-BFGS-B", bounds=bounds,
+        )
+        if best is None or fit.fun < best.fun:
+            best = fit
+
+    mu_hat, rho_hat, log_sigma_hat = (float(v) for v in best.x)
+    ll_alt = -float(best.fun)
+    ll_null = -_ar1_negative_log_likelihood([0.0, 0.0, 0.0], z, np)
+
+    lr = 2.0 * (ll_alt - ll_null)
+    return BerkowitzResult(
+        n=n,
+        n_clipped=n_clipped,
+        mu=mu_hat,
+        rho=rho_hat,
+        sigma2=float(np.exp(2.0 * log_sigma_hat)),
+        log_likelihood=ll_alt,
+        log_likelihood_null=ll_null,
+        lr=lr,
+        df=3,
+        p_value=float(stats.chi2.sf(max(lr, 0.0), 3)),
+    )
+
+
+def _censored_negative_log_likelihood(params, z, cutoff, np, stats) -> float:
+    mu, log_sigma = params
+    sigma = float(np.exp(log_sigma))
+
+    below = z < cutoff
+    ll = float(np.sum(stats.norm.logpdf(z[below], loc=mu, scale=sigma)))
+    n_above = int(z.size - int(below.sum()))
+    if n_above:
+        # logsf, not log(1 - cdf): the survival function stays accurate where
+        # the complement underflows to exactly 1.0.
+        ll += n_above * float(stats.norm.logsf(cutoff, loc=mu, scale=sigma))
+    return -ll
+
+
+def censored_berkowitz_test(
+    u, alpha: float = DEFAULT_ALPHA, clip_eps: float = PIT_CLIP_EPS
+) -> CensoredBerkowitzResult:
+    """Berkowitz LR restricted to the left tail below the alpha-quantile.
+
+    A model can be calibrated in the body and wrong in the tail; the full-sample
+    version will not show it. Observations above the cutoff contribute only
+    Pr(z > cutoff), so the fit is driven entirely by tail shape.
+
+    df = 2, NOT 3. rho is not identified once most of the sample is censored to
+    a single indicator, so the AR term is dropped and only (mu, sigma2) are
+    tested. This is the standard tail form and departs from the wording of
+    RESEARCH-PROTOCOL section 5.1 as originally written -- logged in that
+    document's Amendments section, 2026-08-13.
+    """
+    np, _, _, stats, optimize = _require_dependencies()
+    _validate_alpha(alpha)
+
+    z, n_clipped = pit_to_normal(u, clip_eps)
+    n = int(z.size)
+    cutoff = float(stats.norm.ppf(alpha))
+    n_tail = int(np.sum(z < cutoff))
+
+    # With no tail observations the likelihood is maximized by pushing mu to
+    # +inf: an unbounded, meaningless "fit". Refuse rather than report it.
+    if n_tail < 10:
+        raise ValueError(
+            f"Only {n_tail} observations below the alpha={alpha} cutoff; "
+            "too few to identify the censored likelihood (need 10)."
+        )
+
+    tail = z[z < cutoff]
+    bounds = [(None, None), (np.log(1e-8), np.log(1e4))]
+    best = None
+    for start in ([float(np.mean(tail)), 0.0], [0.0, 0.0]):
+        fit = optimize.minimize(
+            _censored_negative_log_likelihood, start, args=(z, cutoff, np, stats),
+            method="L-BFGS-B", bounds=bounds,
+        )
+        if best is None or fit.fun < best.fun:
+            best = fit
+
+    mu_hat, log_sigma_hat = (float(v) for v in best.x)
+    ll_alt = -float(best.fun)
+    ll_null = -_censored_negative_log_likelihood([0.0, 0.0], z, cutoff, np, stats)
+
+    lr = 2.0 * (ll_alt - ll_null)
+    return CensoredBerkowitzResult(
+        n=n,
+        n_tail=n_tail,
+        alpha=alpha,
+        cutoff=cutoff,
+        n_clipped=n_clipped,
+        mu=mu_hat,
+        sigma2=float(np.exp(2.0 * log_sigma_hat)),
+        log_likelihood=ll_alt,
+        log_likelihood_null=ll_null,
+        lr=lr,
+        df=2,
+        p_value=float(stats.chi2.sf(max(lr, 0.0), 2)),
+    )
+
+
+def _autocorrelations(x, lags: int, np) -> "np.ndarray":
+    centered = x - float(np.mean(x))
+    denominator = float(np.dot(centered, centered))
+    if denominator <= 0.0:
+        raise ValueError("Series has zero variance; autocorrelation is undefined.")
+    return np.array(
+        [float(np.dot(centered[k:], centered[:-k])) / denominator
+         for k in range(1, lags + 1)]
+    )
+
+
+def _ljung_box(acf, n: int, np, stats) -> tuple[float, float]:
+    m = acf.size
+    k = np.arange(1, m + 1)
+    q = float(n * (n + 2) * np.sum(acf**2 / (n - k)))
+    return q, float(stats.chi2.sf(q, m))
+
+
+def pit_diagnostics(u, bins: int = 20, lags: int = 10,
+                    clip_eps: float = PIT_CLIP_EPS) -> PitDiagnostics:
+    """Histogram and serial-dependence diagnostics on the PIT series.
+
+    Reported alongside Berkowitz per RESEARCH-PROTOCOL section 5.1. The ACF of
+    (u - 0.5)^2 is the substantive one: it detects volatility dynamics the model
+    has not absorbed, which a level ACF near zero can easily hide.
+    """
+    np, pd, _, stats, _ = _require_dependencies()
+
+    values = np.asarray(pd.Series(u).dropna(), dtype="float64").ravel()
+    _, n_clipped = pit_to_normal(values, clip_eps)
+    n = int(values.size)
+
+    if bins < 2:
+        raise ValueError("bins must be at least 2.")
+    if not 1 <= lags < n:
+        raise ValueError(f"lags must lie in [1, {n - 1}]; got {lags}.")
+
+    counts, _ = np.histogram(values, bins=bins, range=(0.0, 1.0))
+    expected = n / bins
+    chi2_stat = float(np.sum((counts - expected) ** 2 / expected))
+
+    acf_level = _autocorrelations(values, lags, np)
+    acf_squared = _autocorrelations((values - 0.5) ** 2, lags, np)
+    q_level, p_level = _ljung_box(acf_level, n, np, stats)
+    q_squared, p_squared = _ljung_box(acf_squared, n, np, stats)
+
+    return PitDiagnostics(
+        n=n,
+        n_clipped=n_clipped,
+        bins=bins,
+        bin_counts=tuple(int(c) for c in counts),
+        bin_expected=float(expected),
+        uniformity_chi2=chi2_stat,
+        uniformity_p=float(stats.chi2.sf(chi2_stat, bins - 1)),
+        lags=lags,
+        acf_level=tuple(float(v) for v in acf_level),
+        acf_squared=tuple(float(v) for v in acf_squared),
+        ljung_box_level=q_level,
+        ljung_box_level_p=p_level,
+        ljung_box_squared=q_squared,
+        ljung_box_squared_p=p_squared,
     )

@@ -183,6 +183,136 @@ def check_evaluation() -> None:
     )
 
 
+def check_density_calibration() -> None:
+    """Known-answer battery for PIT / Berkowitz (RESEARCH-PROTOCOL section 10, step 2).
+
+    Every case is simulated with a KNOWN defect and a known correct answer. The
+    protocol's requirement is two-sided and both halves are enforced here:
+    correctly-specified input must FAIL TO REJECT, and each deliberately
+    miscalibrated input must REJECT. A test that never rejects is worse than no
+    test, and a test that always rejects is equally useless.
+    """
+    from scipy import stats
+
+    rng = np.random.default_rng(11)
+    n = 5000
+
+    # --- the null: correctly specified, both forms must stay quiet ------------
+    correct = stats.norm.cdf(rng.normal(0.0, 1.0, n))
+    clean = ev.berkowitz_test(correct)
+    clean_tail = ev.censored_berkowitz_test(correct, 0.05)
+    check("evaluation: Berkowitz does not reject a correctly-specified density",
+          clean.p_value > 0.05)
+    check("evaluation: censored Berkowitz does not reject it either",
+          clean_tail.p_value > 0.05)
+    check("evaluation: Berkowitz recovers mu=0, rho=0, sigma2=1 under the null",
+          abs(clean.mu) < 0.05 and abs(clean.rho) < 0.05 and abs(clean.sigma2 - 1.0) < 0.05)
+
+    # --- understated risk: the failure that matters most for an overlay -------
+    understated = ev.berkowitz_test(stats.norm.cdf(rng.normal(0.0, 1.5, n)))
+    check("evaluation: Berkowitz rejects a density that understates risk",
+          understated.p_value < 1e-6)
+    check("evaluation: sigma2 diagnoses the understatement as 1.5^2",
+          abs(understated.sigma2 - 2.25) < 0.15)
+
+    # --- location bias -------------------------------------------------------
+    biased = ev.berkowitz_test(stats.norm.cdf(rng.normal(0.5, 1.0, n)))
+    check("evaluation: Berkowitz rejects a location-biased density",
+          biased.p_value < 1e-6)
+    check("evaluation: mu diagnoses the location bias as +0.5",
+          abs(biased.mu - 0.5) < 0.05)
+
+    # --- serial dependence in the level --------------------------------------
+    # Unit unconditional variance, so the ONLY defect is dependence. Note the
+    # fitted sigma2 is the innovation variance 1 - rho^2 = 0.64, not 1: the
+    # "sigma2 > 1 means understated risk" reading only holds at rho = 0.
+    rho_true = 0.6
+    innovations = rng.normal(0.0, np.sqrt(1.0 - rho_true**2), n)
+    z = np.empty(n)
+    z[0] = innovations[0]
+    for t in range(1, n):
+        z[t] = rho_true * z[t - 1] + innovations[t]
+    dependent = ev.berkowitz_test(stats.norm.cdf(z))
+    check("evaluation: Berkowitz rejects serially dependent PIT values",
+          dependent.p_value < 1e-6)
+    check("evaluation: rho recovers the true AR(1) coefficient 0.6",
+          abs(dependent.rho - rho_true) < 0.05)
+
+    # --- the case the censored version exists for ----------------------------
+    # Standardized t(4): unit variance, zero mean, no dependence -- correct in
+    # the body and wrong only in the tail. The full test cannot see it.
+    fat_tailed = stats.norm.cdf(rng.standard_t(4, n) / np.sqrt(4.0 / 2.0))
+    body_ok = ev.berkowitz_test(fat_tailed)
+    tail_bad = ev.censored_berkowitz_test(fat_tailed, 0.05)
+    check(
+        "evaluation: full Berkowitz MISSES a body-correct, tail-wrong density "
+        f"(p={body_ok.p_value:.2f})",
+        body_ok.p_value > 0.05,
+    )
+    check(
+        "evaluation: censored Berkowitz catches it "
+        f"(p={tail_bad.p_value:.1e}, sigma2={tail_bad.sigma2:.2f})",
+        tail_bad.p_value < 1e-6 and tail_bad.sigma2 > 1.0,
+    )
+    check("evaluation: censored Berkowitz is chi2(2), rho dropped (amended 2026-08-13)",
+          tail_bad.df == 2 and clean.df == 3)
+
+    # --- LR is a likelihood ratio, so it cannot be negative -------------------
+    check(
+        "evaluation: LR >= 0 in every case (optimizer never loses to the null)",
+        all(r.lr >= 0.0 for r in (clean, clean_tail, understated, biased,
+                                  dependent, body_ok, tail_bad)),
+    )
+
+    # --- PIT diagnostics: the companion the primary test needs ---------------
+    uniform_diagnostics = ev.pit_diagnostics(np.random.default_rng(3).random(4000))
+    check("evaluation: PIT histogram does not reject genuinely uniform values",
+          uniform_diagnostics.uniformity_p > 0.05)
+    check("evaluation: Ljung-Box on (u-0.5)^2 stays quiet on iid values",
+          uniform_diagnostics.ljung_box_squared_p > 0.05)
+    check("evaluation: PIT histogram bins account for every observation",
+          sum(uniform_diagnostics.bin_counts) == uniform_diagnostics.n)
+
+    # Berkowitz's documented blind spot, measured rather than asserted:
+    # persistent volatility scored at constant volatility. rho tests the LEVEL
+    # of z, so the full test passes; the dynamics are only visible in z^2.
+    vol_rng = np.random.default_rng(3)
+    vol_rng.random(4000)                       # keep the stream aligned with above
+    log_variance = np.zeros(4000)
+    for t in range(1, 4000):
+        log_variance[t] = 0.97 * log_variance[t - 1] + vol_rng.normal(0.0, 0.25)
+    heteroskedastic = vol_rng.normal(0.0, 1.0, 4000) * np.exp(0.5 * log_variance)
+    vol_pit = stats.norm.cdf(heteroskedastic / heteroskedastic.std())
+    vol_diagnostics = ev.pit_diagnostics(vol_pit)
+    check(
+        "evaluation: squared-PIT Ljung-Box catches unabsorbed volatility dynamics",
+        vol_diagnostics.ljung_box_squared_p < 1e-6,
+    )
+    check(
+        "evaluation: ... which the level ACF does not (why both are reported)",
+        vol_diagnostics.ljung_box_level_p > vol_diagnostics.ljung_box_squared_p * 1e6,
+    )
+
+    # --- clipping is counted, never silent -----------------------------------
+    with_impossible = np.concatenate([[0.0, 1.0], rng.random(200)])
+    _, clipped = ev.pit_to_normal(with_impossible)
+    check("evaluation: PIT clipping counts the model's impossible observations",
+          clipped == 2)
+    check("evaluation: the clip count reaches the Berkowitz result",
+          ev.berkowitz_test(with_impossible).n_clipped == 2)
+
+    # --- boundary validation -------------------------------------------------
+    for bad, label in [
+        (lambda: ev.berkowitz_test(np.full(50, -0.1)), "PIT values below 0"),
+        (lambda: ev.berkowitz_test(np.full(50, 1.2)), "PIT values above 1"),
+        (lambda: ev.berkowitz_test(rng.random(5)), "fewer than 10 observations"),
+        (lambda: ev.censored_berkowitz_test(0.1 + 0.9 * rng.random(300), 0.01),
+         "too few observations below the cutoff"),
+        (lambda: ev.pit_diagnostics(rng.random(100), lags=100), "lags >= n"),
+    ]:
+        check(f"evaluation: rejects {label}", _raises(bad))
+
+
 def check_markov_switching_output() -> None:
     returns = make_synthetic_returns()
     event_index = returns.index[100:110]
@@ -467,6 +597,7 @@ def main() -> None:
     check_data_loader()
     check_vix_alignment()
     check_evaluation()
+    check_density_calibration()
     check_short_sample_warning()
     # Every remaining check fits the 150-week fixture, so the short-sample
     # warning is expected throughout and would only be noise.
