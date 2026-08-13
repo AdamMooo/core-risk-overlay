@@ -2,7 +2,7 @@
 
 Last updated: 2026-08-12
 
-Standing rules for this repo. Companion to [[MATH-REFERENCE]] (§4.3 has the mechanism).
+Standing rules for this repo. Companion to [[MATH-REFERENCE]] (§2.7 has the mechanism).
 
 ## The rule
 
@@ -77,4 +77,4 @@ smoothed  high-variance probability = 0.2008   <- 20.1%, after peeking at week 1
 ```
 
 Same model, same week. The 34x gap is the Kim smoother's backward revision, and it grows as calm
-persistence is pinned higher — see [[MATH-REFERENCE]] §4.3.
+persistence is pinned higher — see [[MATH-REFERENCE]] §2.7.
