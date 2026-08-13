@@ -11,6 +11,7 @@ mistakes that were already made once.
 from __future__ import annotations
 
 import sys
+import warnings
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent / "src"))
@@ -64,6 +65,45 @@ def check_data_loader() -> None:
             check(f"data_loader: rejects invalid input {bad_prices.tolist()}", False)
         except ValueError:
             check(f"data_loader: rejects invalid input {bad_prices.tolist()}", True)
+
+
+def check_vix_alignment() -> None:
+    index = pd.date_range("2024-01-01", periods=6, freq="W-MON")
+    vix = pd.Series([13.0, 14.5, 22.0, 31.5, 18.0, 15.0], index=index)
+    returns = pd.Series(np.linspace(-0.02, 0.02, 6), index=index)
+
+    aligned = dl.align_vix_to_returns(vix, returns)
+    check("data_loader: VIX aligns on an exact index match", aligned.index.equals(returns.index))
+    check("data_loader: VIX alignment preserves values", bool(np.allclose(aligned, vix)))
+
+    # The whole point of the exact join: a missing week must surface, never be
+    # papered over with a stale carried-forward quote.
+    for label, gap in [
+        ("a missing week", vix.drop(index[2])),
+        ("a shifted index", pd.Series(vix.to_numpy(), index=index + pd.Timedelta(days=1))),
+    ]:
+        try:
+            dl.align_vix_to_returns(gap, returns)
+            check(f"data_loader: VIX alignment rejects {label}", False)
+        except ValueError:
+            check(f"data_loader: VIX alignment rejects {label}", True)
+
+    try:
+        dl.align_vix_to_returns(vix.copy().mask(vix > 30, -1.0), returns)
+        check("data_loader: VIX alignment rejects non-positive values", False)
+    except ValueError:
+        check("data_loader: VIX alignment rejects non-positive values", True)
+
+    log_vix = dl.to_log_vix(aligned)
+    check(
+        "data_loader: to_log_vix matches np.log",
+        bool(np.allclose(log_vix, np.log(vix))),
+    )
+    try:
+        dl.to_log_vix(pd.Series([10.0, 0.0], index=index[:2]))
+        check("data_loader: to_log_vix rejects non-positive values", False)
+    except ValueError:
+        check("data_loader: to_log_vix rejects non-positive values", True)
 
 
 def check_jump_model_output() -> None:
@@ -149,6 +189,19 @@ def check_jump_model_internals() -> None:
     )
 
 
+def check_short_sample_warning() -> None:
+    # The fixture is deliberately 150 weeks, well under the reliable minimum, so
+    # the warning must fire here. Silently fitting a short sample is what
+    # produced degenerate parameters and flipping regime labels in walkforward.py.
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        jm._prepare_weekly_log_returns(make_synthetic_returns())
+    check(
+        "jump_model: warns when fitting below the reliable minimum",
+        any("RELIABLE_MIN_OBSERVATIONS" in str(w.message) for w in caught),
+    )
+
+
 def check_jump_model_validation() -> None:
     short_returns = make_synthetic_returns().iloc[:5]
     for bad_input, label in [
@@ -184,6 +237,11 @@ def report_known_limitation() -> None:
 
 def main() -> None:
     check_data_loader()
+    check_vix_alignment()
+    check_short_sample_warning()
+    # Every remaining check fits the 150-week fixture, so the short-sample
+    # warning is expected throughout and would only be noise.
+    warnings.filterwarnings("ignore", message=".*RELIABLE_MIN_OBSERVATIONS.*")
     check_jump_model_output()
     check_jump_model_internals()
     check_jump_model_validation()

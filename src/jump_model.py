@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from contextlib import contextmanager
 from threading import Lock
 from typing import Final
@@ -9,6 +10,16 @@ DEFAULT_SEARCH_REPS: Final[int] = 50
 DEFAULT_MAXITER: Final[int] = 1000
 DEFAULT_RANDOM_SEED: Final[int] = 20260811
 MIN_OBSERVATIONS: Final[int] = 10
+
+# Below this the fit is feasible but not trustworthy. Measured by walkforward.py
+# on SPY and QQQ: at a 260-week minimum window the fits produced degenerate
+# parameters (p[0->0] as low as 0.163, p[1->0] pinned at 0.999999, a regime
+# variance collapsing to 0.000000), the jump-regime label flipped 6 times across
+# the two tickers, 2-3% of refits failed to converge, and 9.5-16.5% of weeks had
+# their risk tier revised by later refits. At a 520-week minimum every one of
+# those improved sharply: 1 label flip, 0-1 convergence failures, 7.3-7.8% tier
+# revision, and no degenerate parameter values at all.
+RELIABLE_MIN_OBSERVATIONS: Final[int] = 520
 
 _DEPS: tuple[object, object, object] | None = None
 _DEPS_LOCK = Lock()
@@ -68,6 +79,15 @@ def _prepare_weekly_log_returns(weekly_log_returns: "pd.Series") -> "pd.Series":
 
     if not np.isfinite(returns).all():
         raise ValueError("Weekly log returns must be finite.")
+
+    if len(returns) < RELIABLE_MIN_OBSERVATIONS:
+        warnings.warn(
+            f"Fitting on {len(returns)} weekly observations; below "
+            f"{RELIABLE_MIN_OBSERVATIONS} (~10 years) the fit is prone to degenerate "
+            "parameters and unstable regime labelling. See RELIABLE_MIN_OBSERVATIONS.",
+            UserWarning,
+            stacklevel=3,
+        )
 
     return returns
 
