@@ -1,4 +1,13 @@
 __pycache__/
 *.pyc
 data/
-figures/
+docs/literature/*.pdf
+
+# Scratch notebooks: exploration only, never a source of a reported result.
+*.ipynb
+
+# figures/* rather than figures/ so the negation below can bite -- git cannot
+# re-include a file whose parent directory is excluded.
+figures/*
+# Unreproducible: the notebook that rendered it is gone and it is not to be re-run.
+!figures/continuous_brownian_3d_smooth.gif
