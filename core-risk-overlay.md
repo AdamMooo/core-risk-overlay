@@ -97,7 +97,8 @@ Positions stated, not hedged. None is a tuning question.
 | what | where | severity |
 |---|---|---|
 | DQ, tick loss, ES bootstrap unbuilt | `src/evaluation.py` | blocks §5.2-5.4 |
-| No vintage-parameter VaR path — the only VaR available is full-sample fit | `walkforward.py` | nothing is reportable until this exists |
+| ~~No vintage-parameter VaR path~~ | ~~`walkforward.py`~~ | **fixed 2026-08-13**, `walkforward.py density` |
+| Base specification's tail is ~2.8x too narrow at $\alpha$=0.05 | model class | the finding, not a bug — S3/S4 exist for it |
 | Parameter look-ahead in the convenience path | `markov_switching.estimate_high_variance_probability` | documented in the docstring; walk-forward path is the honest one |
 | ~7.5% of weeks have their state revised by later refits | model class | reliability number, protocol R4 |
 | ~1-2% of refits fail to converge | `markov_switching.py` | policy fixed in protocol §4.5, not yet coded |
@@ -137,7 +138,53 @@ downside risk that is incremental to implied volatility?* Open in the literature
 and a well-executed negative result is publishable and useful. It is also exactly the question that
 decides whether this system should exist.
 
-## First smoke reading — NOT a result
+## First honest result — 2026-08-13
+
+**Walk-forward, no look-ahead.** 1,230 out-of-sample weekly SPY forecasts, 2003-01-24 to 2026-08-14.
+Parameters refit every 13 weeks on data through the refit point only; state from `filtered[t-1]`;
+density formed before $r_t$ exists. Run: `.venv\Scripts\python.exe walkforward.py density SPY`.
+
+**Alignment verified adversarially**, because an off-by-one would invalidate everything: shifting the
+realized series so a forecast is scored against a return its own filter already absorbed collapses
+coverage to $p=0.0000$. Only the true alignment and the harmless staler direction are sane.
+
+**The body is calibrated. The tail is not, and it degrades monotonically with depth.**
+
+| $\alpha$ | breach rate | Kupiec $p$ | independence $p$ | CC $p$ |
+|---|---|---|---|---|
+| 0.10 | 0.1049 | 0.571 | 0.657 | 0.772 |
+| 0.05 | 0.0528 | 0.650 | 0.384 | 0.617 |
+| 0.01 | **0.0179** | **0.012** | **0.006** | **0.001** |
+
+| measure | $\alpha$=0.10 | $\alpha$=0.05 | $\alpha$=0.01 |
+|---|---|---|---|
+| censored Berkowitz $\sigma^2$ | 1.89 ($p<10^{-4}$) | 2.80 ($p<10^{-4}$) | — |
+| ES ratio realized ÷ predicted | 1.108 | 1.171 | 1.216 |
+
+Full Berkowitz LR 8.66, $p=0.034$ — $\mu=-0.008$, $\rho=-0.076$, $\sigma^2=1.044$. PIT uniformity
+$p=0.033$. Ljung-Box on $u$: $p=0.111$ (quiet). **Ljung-Box on $(u-0.5)^2$: $p=0.0075$** — unabsorbed
+volatility dynamics.
+
+**Worst week, and the whole story in one line:** 2008-10-10, SPY $-22.1\%$ against a 1% VaR of
+$-6.4\%$. PIT $= 6\times10^{-16}$: the density called it impossible. That is the sample's one clipped
+observation, surfaced by the clip counter rather than swallowed.
+
+**Read.** The failure is exactly the one open question 2 predicts — ARCH-LM rejects *after*
+regime-switching, and two conditional variances cannot track scale in the far tail. Three independent
+measures (breach rate, censored $\sigma^2$, ES ratio) agree and all worsen with depth, which is the
+signature of a tail that is too thin rather than a level that is mis-set.
+
+**Both new tests earned themselves immediately.** The full Berkowitz alone reads as borderline
+($p=0.034$); the censored version is $p<10^{-4}$ — body-correct, tail-wrong, on real data the same day
+the discriminating case was demonstrated on simulated $t(4)$. And the $(u-0.5)^2$ Ljung-Box found
+dynamics the level ACF ($p=0.11$) shows no trace of.
+
+**Not a verdict.** D1 requires Berkowitz *and* DQ rejecting across R8 subsamples for *every* §3
+specification. DQ is unbuilt, subsamples unrun, and S3 (within-regime ARCH) and S4 (Student-$t$
+regime densities) — preregistered precisely for this failure — do not exist yet. **This is the base
+specification only**, and it fails where the protocol said to look.
+
+## Earlier smoke reading — NOT a result
 
 `src/predictive.py` landed 2026-08-12 and the full path runs. On weekly SPY (1,749 forecasts), fitted
 **once on the whole sample**, so this carries parameter look-ahead and is not reportable — it is a
@@ -162,8 +209,15 @@ flatters.
 ## Next
 
 Read [[README]] §§1-5 and [[docs/RESEARCH-PROTOCOL]] §§1, 5, 10 — short, and they contain the whole
-framing. Protocol §10 step 2 is **half done**: PIT and Berkowitz (full and censored) landed
-2026-08-13 with 23 known-answer checks. Remaining in step 2, in order:
+framing, then the **First honest result** section above.
+
+Step 5 (walk-forward density) was pulled forward ahead of the rest of step 2 to get a real number on
+the board, and it worked — the base specification now has a measured failure mode. The natural next
+move is **S4, Student-$t$ regime densities** (§3), because three independent measures say the tail is
+too thin and $t$ is the one-parameter fix aimed exactly at that. S3 (within-regime ARCH) addresses the
+$(u-0.5)^2$ rejection.
+
+Remaining in step 2, in order:
 
 1. **DQ (Engle-Manganelli)** — §5.2. The one that matters and the one that is missing; Christoffersen
    only asks whether a breach follows a breach. DQ regresses $\mathrm{Hit}_t = I_t - \alpha$ on a
