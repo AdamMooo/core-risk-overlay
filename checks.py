@@ -22,6 +22,7 @@ import pandas as pd
 import data_loader as dl
 import evaluation as ev
 import markov_switching as ms
+import predictive as pr
 
 # A plain sanity bound on the fixture's calm periods, NOT a tier threshold.
 # Tiering is out of scope -- see docs/RESEARCH-PROTOCOL.md section 9.
@@ -293,6 +294,157 @@ def check_markov_switching_validation() -> None:
             check(f"markov_switching: rejects {label}", True)
 
 
+def check_predictive() -> None:
+    from scipy import stats
+
+    alpha = 0.05
+    weights = np.array([0.85, 0.15])
+    means = np.array([0.0015, -0.004])
+    sigmas = np.array([0.008, 0.026])
+
+    # 1. A degenerate mixture must reproduce the closed-form normal exactly.
+    #    This is the strongest available check: it ties the mixture solver to
+    #    code that was verified independently.
+    for w in ([1.0, 0.0], [0.0, 1.0]):
+        active = int(np.argmax(w))
+        var = pr.mixture_var(w, means, sigmas, alpha)
+        es = pr.mixture_expected_shortfall(w, means, sigmas, alpha)
+        check(
+            f"predictive: degenerate mixture w={w} matches evaluation.normal_var",
+            bool(np.isclose(var, ev.normal_var(means[active], sigmas[active], alpha),
+                            rtol=0, atol=1e-12)),
+        )
+        check(
+            f"predictive: degenerate mixture w={w} matches normal_expected_shortfall",
+            bool(np.isclose(es, ev.normal_expected_shortfall(means[active], sigmas[active],
+                                                             alpha), rtol=0, atol=1e-12)),
+        )
+
+    # 2. The solved quantile must actually be the alpha-quantile.
+    var = pr.mixture_var(weights, means, sigmas, alpha)
+    check(
+        "predictive: mixture CDF at the solved VaR returns alpha",
+        abs(pr.mixture_cdf(var, weights, means, sigmas) - alpha) < 1e-10,
+    )
+
+    # 3. Monotonicity, and ES strictly worse than VaR.
+    quantiles = [pr.mixture_var(weights, means, sigmas, a) for a in (0.01, 0.05, 0.10, 0.25)]
+    check(
+        "predictive: VaR is increasing in alpha",
+        all(a < b for a, b in zip(quantiles, quantiles[1:])),
+    )
+    shortfalls = [pr.mixture_expected_shortfall(weights, means, sigmas, a)
+                  for a in (0.01, 0.05, 0.10, 0.25)]
+    check(
+        "predictive: ES is increasing in alpha",
+        all(a < b for a, b in zip(shortfalls, shortfalls[1:])),
+    )
+    check(
+        "predictive: ES is strictly worse than VaR at every alpha",
+        all(e < v for e, v in zip(shortfalls, quantiles)),
+    )
+
+    # 4. Monte Carlo: draws from the mixture must breach at rate alpha, and the
+    #    mean of the breaches must equal the closed-form ES.
+    rng = np.random.default_rng(20260812)
+    n = 400_000
+    component = rng.random(n) < weights[0]
+    draws = np.where(component,
+                     rng.normal(means[0], sigmas[0], n),
+                     rng.normal(means[1], sigmas[1], n))
+    breach_rate = float((draws < var).mean())
+    check(
+        f"predictive: simulated breach rate {breach_rate:.4f} matches alpha={alpha}",
+        abs(breach_rate - alpha) < 4.0 * np.sqrt(alpha * (1 - alpha) / n),
+    )
+    es = pr.mixture_expected_shortfall(weights, means, sigmas, alpha, var=var)
+    check(
+        "predictive: closed-form ES matches the mean of simulated breaches",
+        abs(float(draws[draws < var].mean()) - es) < 5e-4,
+    )
+
+    # 5. The moment-matched normal is WRONG, not merely imprecise. Guarding the
+    #    magnitude keeps anyone from "simplifying" the solver back to it.
+    mean = float(np.sum(weights * means))
+    total_var = float(np.sum(weights * sigmas**2) + np.sum(weights * (means - mean) ** 2))
+    naive = mean + np.sqrt(total_var) * stats.norm.ppf(alpha)
+    check(
+        "predictive: moment-matched normal errs by >5% of the VaR level (documented trap)",
+        abs(naive - var) / abs(var) > 0.05,
+    )
+
+    # 6. State prediction orientation, by hand. A transposed transition matrix
+    #    inverts the model silently and nothing else here would catch it.
+    transition = np.array([[0.90, 0.10],
+                           [0.40, 0.60]])
+    predicted = pr.state_prediction(np.array([0.7, 0.3]), transition)
+    check(
+        "predictive: state_prediction matches the hand-computed forward step",
+        bool(np.allclose(predicted, [0.7 * 0.90 + 0.3 * 0.40,
+                                     0.7 * 0.10 + 0.3 * 0.60])),
+    )
+    check(
+        "predictive: state_prediction rejects a transposed/ragged transition",
+        _raises(lambda: pr.state_prediction(np.array([0.7, 0.3]), np.ones((3, 3)))),
+    )
+
+    # 7. statsmodels orientation, against the model rather than against memory:
+    #    the row-stochastic matrix must agree with the p[i->j] named parameters.
+    returns = make_synthetic_returns()
+    model, results, _ = ms.fit_markov_switching(returns)
+    P = pr.transition_matrix(results)
+    params = dict(zip(model.param_names, np.asarray(results.params, dtype=float)))
+    check(
+        "predictive: transition_matrix agrees with the p[i->j] parameters",
+        bool(np.allclose([[params["p[0->0]"], 1 - params["p[0->0]"]],
+                          [params["p[1->0]"], 1 - params["p[1->0]"]]], P)),
+    )
+    check(
+        "predictive: transition rows sum to 1 (row = from)",
+        bool(np.allclose(P.sum(axis=1), 1.0)),
+    )
+
+    # 8. The series path must align to the period being FORECAST, not the period
+    #    the forecast was made in. An off-by-one here is look-ahead bias.
+    frame = pr.predictive_tail_risk(model, results, alpha)
+    check(
+        "predictive: series is indexed by the forecast target, one shorter than input",
+        len(frame) == len(returns) - 1 and frame.index.equals(returns.index[1:]),
+    )
+    check(
+        "predictive: series VaR reproduces the standalone mixture VaR at t=0",
+        bool(np.isclose(
+            frame["var"].iloc[0],
+            pr.mixture_var(
+                pr.state_prediction(
+                    np.asarray(results.filtered_marginal_probabilities, dtype=float)[0], P),
+                *pr.regime_parameters(model, results), alpha),
+        )),
+    )
+    check(
+        "predictive: no NaN in the series output",
+        bool(frame.notna().all().all()),
+    )
+
+    # 9. Boundary validation.
+    for bad, label in [
+        (lambda: pr.mixture_var([0.5, 0.4], means, sigmas, alpha), "weights not summing to 1"),
+        (lambda: pr.mixture_var([1.5, -0.5], means, sigmas, alpha), "negative weights"),
+        (lambda: pr.mixture_var(weights, means, [0.01, 0.0], alpha), "a zero sigma"),
+        (lambda: pr.mixture_var(weights, means, sigmas, 0.0), "alpha = 0"),
+        (lambda: pr.mixture_var(weights, means[:1], sigmas, alpha), "mismatched lengths"),
+    ]:
+        check(f"predictive: rejects {label}", _raises(bad))
+
+
+def _raises(call) -> bool:
+    try:
+        call()
+    except (ValueError, ZeroDivisionError):
+        return True
+    return False
+
+
 def report_known_limitation() -> None:
     # Not a pass/fail assertion: a recorded, measured limitation. The regime is
     # identified by variance, so a high-volatility RALLY is labelled high-variance
@@ -322,6 +474,7 @@ def main() -> None:
     check_markov_switching_output()
     check_markov_switching_internals()
     check_markov_switching_validation()
+    check_predictive()
     report_known_limitation()
 
     print()

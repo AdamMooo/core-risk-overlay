@@ -333,9 +333,11 @@ Fixed in advance so the analysis has a target and cannot sprawl.
 
 ## 10. Build order
 
-1. **`src/predictive.py`** — mixture density: state prediction, CDF, VaR by Brent, ES closed form.
-   Plus the five §1.1 checks. Nothing else. This is the missing piece between `markov_switching` and
-   `evaluation`.
+1. ~~**`src/predictive.py`** — mixture density: state prediction, CDF, VaR by Brent, ES closed form.~~
+   **Done 2026-08-12.** 23 checks, including all five §1.1 requirements. statsmodels'
+   `regime_transition` was verified empirically at $k=2$ and $k=3$ to be stored `[to, from]` with
+   columns summing to one; `transition_matrix` does that transpose in one place and cross-checks
+   against the `p[i->j]` named parameters.
 2. **Extend `src/evaluation.py`** — PIT and Berkowitz (full and censored), DQ, tick loss, ES
    breach-severity bootstrap, DM/GW. Each with a known-answer check: correctly-specified simulated
    data must **fail to reject**, deliberately miscalibrated data must **reject**. A test that never

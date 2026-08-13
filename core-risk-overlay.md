@@ -87,8 +87,8 @@ Positions stated, not hedged. None is a tuning question.
 
 | what | where | severity |
 |---|---|---|
-| No predictive density, so no VaR or ES exists yet | `src/predictive.py` unwritten | blocks everything |
 | Density calibration, DQ, tick loss, ES bootstrap unbuilt | `src/evaluation.py` | blocks the primary test |
+| No vintage-parameter VaR path — the only VaR available is full-sample fit | `walkforward.py` | nothing is reportable until this exists |
 | Parameter look-ahead in the convenience path | `markov_switching.estimate_high_variance_probability` | documented in the docstring; walk-forward path is the honest one |
 | ~7.5% of weeks have their state revised by later refits | model class | reliability number, protocol R4 |
 | ~1-2% of refits fail to converge | `markov_switching.py` | policy fixed in protocol §4.5, not yet coded |
@@ -128,10 +128,34 @@ downside risk that is incremental to implied volatility?* Open in the literature
 and a well-executed negative result is publishable and useful. It is also exactly the question that
 decides whether this system should exist.
 
+## First smoke reading — NOT a result
+
+`src/predictive.py` landed 2026-08-12 and the full path runs. On weekly SPY (1,749 forecasts), fitted
+**once on the whole sample**, so this carries parameter look-ahead and is not reportable — it is a
+smoke test that the plumbing produces sane numbers:
+
+| $\alpha$ | breach rate | Kupiec $p$ | independence $p$ |
+|---|---|---|---|
+| 0.10 | 0.1109 | 0.134 | 0.724 |
+| 0.05 | 0.0555 | 0.303 | 0.782 |
+| 0.01 | 0.0114 | 0.555 | **0.020** |
+
+Regimes: high-variance $\sigma$ 3.84%/week, mean -0.26%, expected duration 12.9 weeks; calm $\sigma$
+1.50%, mean +0.36%, 36.1 weeks.
+
+**The pattern worth noting:** rates are right at every level, but at $\alpha=0.01$ the breaches
+*cluster* — the independence test rejects while Kupiec passes comfortably. That is precisely the
+failure Kupiec cannot see and the reason [[README]] §3 calls independence the discriminating test. It
+is also what the ARCH-LM rejection predicts: two conditional variance values cannot track scale in
+the far tail. Expect the honest walk-forward version to be worse, not better, since look-ahead
+flatters.
+
 ## Next
 
 Read [[README]] §§1-5 and [[docs/RESEARCH-PROTOCOL]] §§1, 5, 10 — short, and they contain the whole
-framing. Then build in protocol §10 order, starting with `src/predictive.py`.
+framing. Then continue protocol §10 from step 2: the density-calibration battery
+(PIT/Berkowitz, DQ, tick loss, ES bootstrap) in `src/evaluation.py`, each with a known-answer test
+that must reject miscalibrated input.
 
 Not planned: economic backtesting before the calibration tests pass, statistical jump models, intraday
 data, Hawkes processes, K-means, binary classifiers.

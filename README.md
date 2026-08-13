@@ -169,8 +169,8 @@ at the discount. If markets recover instead, the core was never sold.
 | `src/data_loader.py` | working — weekly returns and VIX, start-date invariant, validated |
 | `src/markov_switching.py` | working — 2-regime switching mean/variance, filtered, no look-ahead |
 | `src/evaluation.py` | working — coverage tests, forward-aligned targets, Newey-West encompassing |
-| `src/predictive.py` | **not written** — mixture density, VaR, ES. The next build. |
-| `checks.py` | 41 checks, all passing |
+| `src/predictive.py` | working — mixture predictive density, VaR by Brent, closed-form ES |
+| `checks.py` | 64 checks, all passing |
 | `walkforward.py` | walk-forward correctness harness (weekly; vintage parameters) |
 | `main.py` | placeholder — no live path until the preregistered gates D1-D3 clear |
 
