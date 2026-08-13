@@ -108,6 +108,23 @@ Before any confirmatory economic test: fix the design and the kill thresholds in
 `algo-trading-bot/SWEEP_PREREG.md` does. A premature version of that document was written and
 deleted on 2026-08-12 — it preregistered a test of a form now in question.
 
+## Possible output: a paper
+
+Noted 2026-08-12 as a **long-run** goal, not a near-term deliverable. Adam would like this to be
+publishable and shareable — a portfolio piece as much as a system.
+
+The point of recording it now is that it disciplines the work rather than adding to it. A paper
+audience will not accept metrics invented after seeing the data, hand-picked crisis windows, or
+economic results without a calibration test. That is exactly the standard [[README]] section 1b now
+sets, and it is stricter than what this project was applying to itself. Writing for that audience is
+a forcing function for the mathematical framing being right.
+
+The natural shape, if the results support one: *does a conditional volatility/regime model carry
+information about downside risk in a long global equity book that is incremental to implied
+volatility?* That is an open question in the literature, the answer is genuinely uncertain, and a
+well-executed negative result is publishable and useful. It also happens to be exactly the question
+that decides whether this system should exist — so the paper and the project want the same evidence.
+
 ## Next
 
 1. **Settle question 1** — what the model should predict. Everything else follows.

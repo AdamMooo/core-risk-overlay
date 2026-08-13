@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 
 import data_loader as dl
+import evaluation as ev
 import jump_model as jm
 
 CALM_TIER_UPPER = 0.20
@@ -104,6 +105,80 @@ def check_vix_alignment() -> None:
         check("data_loader: to_log_vix rejects non-positive values", False)
     except ValueError:
         check("data_loader: to_log_vix rejects non-positive values", True)
+
+
+def check_evaluation() -> None:
+    from scipy import stats
+
+    check(
+        "evaluation: normal VaR equals the alpha-quantile",
+        np.isclose(ev.normal_var(0.0, 1.0, 0.05), stats.norm.ppf(0.05)),
+    )
+    check(
+        "evaluation: expected shortfall is strictly worse than VaR",
+        ev.normal_expected_shortfall(0.0, 1.0, 0.05) < ev.normal_var(0.0, 1.0, 0.05),
+    )
+
+    n = 2000
+    on_target = np.zeros(n, dtype=bool)
+    on_target[np.arange(0, n, 20)] = True          # exactly 5%, evenly spread
+    clustered = np.zeros(n, dtype=bool)
+    for start in range(0, n, 200):                 # exactly 5%, in blocks of 10
+        clustered[start:start + 10] = True
+
+    clean = ev.coverage_tests(on_target, 0.05)
+    bunched = ev.coverage_tests(clustered, 0.05)
+
+    check("evaluation: Kupiec does not reject a correctly-sized VaR", clean.p_uc > 0.99)
+    check(
+        "evaluation: Kupiec rejects a 3x oversized exceedance rate",
+        ev.coverage_tests(np.arange(n) % 6 == 0, 0.05).p_uc < 1e-10,
+    )
+    # Genuinely iid, not the evenly-spaced series above: a breach at exactly
+    # every 20th observation is perfectly regular and therefore NOT independent,
+    # and Christoffersen rejects it. The test detects excessive regularity as
+    # well as clustering.
+    iid_hits = np.random.default_rng(7).random(n) < 0.05
+    check(
+        "evaluation: Christoffersen does not reject independent exceedances",
+        ev.coverage_tests(iid_hits, 0.05).p_ind > 0.05,
+    )
+    # The discriminating case, and the reason README 1b needs no benchmark: both
+    # series breach at exactly 5%, so coverage alone cannot tell them apart.
+    check(
+        "evaluation: Christoffersen rejects clustered exceedances at the same rate",
+        bunched.p_ind < 1e-6 and np.isclose(bunched.observed_rate, clean.observed_rate),
+    )
+    check(
+        "evaluation: conditional coverage is the sum of its two parts",
+        np.isclose(bunched.lr_cc, bunched.lr_uc + bunched.lr_ind),
+    )
+
+    # realized_forward is an evaluation target and must never see r_t itself.
+    forward = ev.realized_forward(pd.Series(np.arange(1, 11, dtype=float)), 3, "sum")
+    check("evaluation: forward window covers t+1..t+h, excluding t", np.isclose(forward.iloc[0], 9.0))
+    check("evaluation: forward window has no value where the future is unknown",
+          bool(forward.iloc[-3:].isna().all()))
+
+    rng = np.random.default_rng(7)
+    m = 1500
+    implied = pd.Series(rng.normal(0.2, 0.05, m))
+    informative = pd.Series(rng.normal(0.2, 0.05, m))
+    realized = 0.01 + 0.60 * implied + 0.30 * informative + rng.normal(0, 0.01, m)
+    fitted = ev.encompassing_regression(realized, implied, informative, horizon=4)
+    check(
+        "evaluation: encompassing regression recovers known coefficients",
+        abs(fitted.beta_implied - 0.60) < 0.05 and abs(fitted.gamma_model - 0.30) < 0.05,
+    )
+    check("evaluation: Newey-West lags default to horizon - 1", fitted.hac_lags == 3)
+    uninformative = pd.Series(rng.normal(0.2, 0.05, m))
+    null_fit = ev.encompassing_regression(
+        0.01 + 0.60 * implied + rng.normal(0, 0.01, m), implied, uninformative, horizon=4
+    )
+    check(
+        "evaluation: uninformative X gives an insignificant coefficient",
+        null_fit.p_model > 0.05,
+    )
 
 
 def check_jump_model_output() -> None:
@@ -238,6 +313,7 @@ def report_known_limitation() -> None:
 def main() -> None:
     check_data_loader()
     check_vix_alignment()
+    check_evaluation()
     check_short_sample_warning()
     # Every remaining check fits the 150-week fixture, so the short-sample
     # warning is expected throughout and would only be noise.
