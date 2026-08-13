@@ -1,4 +1,13 @@
-"""Context rungs: does the Markov-switching model beat a moving average?
+"""Context rungs: is the model's one-step conditioning honest?
+
+NOT "does the model beat a moving average." At h=1 the MS model and a tuned
+EWMA are near-identical by construction, so a null here is what theory
+predicts, not evidence about the model. RiskMetrics EWMA is IGARCH -- its
+multi-step variance forecast is a martingale, E[sigma2[t+h]] = sigma2[t+1] for
+every h, so it never reverts. MS(2) reverts toward the stationary regime mix at
+a rate set by the second eigenvalue of P. That is the entire difference between
+the two models and it is invisible at one step ahead. Read these rungs as a
+sanity check on the harness, never as a ranking.
 
 RESEARCH-PROTOCOL step 3. Two deliberately trivial estimators are scored by the
 IDENTICAL battery as the model, on the IDENTICAL sample:
@@ -163,7 +172,7 @@ def figures(results: list[dict], realized: pd.Series, ticker: str) -> None:
         ax.set_ylim(0, max(rates + [alpha]) * 1.45)
         ax.spines[["top", "right"]].set_visible(False)
         ax.tick_params(labelsize=11)
-    fig.suptitle(f"Does the model beat a moving average?   {ticker}, "
+    fig.suptitle(f"One-step coverage, all three estimators   {ticker}, "
                  f"{len(realized)} weeks, no look-ahead", fontsize=15, y=1.02)
     fig.tight_layout()
     out = ROOT / "figures" / f"rungs_scorecard_{ticker.lower()}.png"

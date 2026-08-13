@@ -1,6 +1,6 @@
 # Core-Risk-Overlay
 
-Last updated: 2026-08-12
+Last updated: 2026-08-13
 
 A systematic tail-risk hedge for a permanently long, globally diversified equity book — and a
 research program testing whether the risk measure it needs can be built honestly.
@@ -132,8 +132,11 @@ violent rally nearly as high as an equal crash. A directional name would overcla
   ΔBIC 44) on real data. An earlier version of this file mandated k=2; that was a guess, not a
   result.
 - **Whether a discrete-regime model is the right class.** ARCH-LM rejects at 55.6 (p = 2.4e-11)
-  *after* regime-switching — volatility keeps moving continuously within regimes. MS(2) has exactly
-  two possible conditional variances; at daily frequency that handicap gets worse, not better.
+  *after* regime-switching — volatility keeps moving continuously within regimes. Not because MS(2)
+  has "only two conditional variances" — the mixture weight gives it a continuum. The binding limit
+  is that **a finite Gaussian mixture is Gaussian in the far tail for any k and any weight**, so more
+  regimes cannot fix a tail; only the regime density can (S4). At daily frequency returns are more
+  leptokurtic still, so the handicap gets worse, not better.
 - **Which functional.** Conditional variance is symmetric, and symmetry is not what hurts a long
   book (up/down probability ratio 1.0000 at |return| ≥ 7% with a common mean; 0.9279 with a
   switching mean). Downside semivariance, VaR and ES all measure the thing that matters.

@@ -36,8 +36,11 @@ Two properties this implies that the current model lacks:
 
 - **Systemic, not single-asset.** SPY alone wobbling is noise; SPY + QQQ + international falling
   together is the event. Those correlate 0.77-0.87 weekly.
-- **Continuous, not a switch.** A 2-state model is near-binary by construction — the top-20
-  probability weeks all sit at P ≥ 0.99999.
+- **Continuous in principle, saturated in practice.** *Not* near-binary by construction — the
+  conditional variance is continuous in the mixture weight and sweeps the whole range between the two
+  regime variances. It saturates because the fitted components are far apart ($\sigma$ 1.50% vs
+  3.84%, a 2.6x ratio), so one bad week moves the likelihood ratio almost all the way: the top-20
+  probability weeks all sit at P ≥ 0.99999. A property of the fit, not of the model class.
 
 ## Open questions
 
@@ -50,8 +53,13 @@ Positions stated, not hedged. None is a tuning question.
    score the predictive density directly rather than argue about the target.
 2. **Is a discrete-regime model the right class?** *Not alone.* ARCH-LM on standardized residuals
    rejects at 55.6 (p = 2.4e-11) *after* regime-switching — volatility keeps moving within regimes.
-   MS(2) has exactly two possible conditional variances, and at daily frequency that binds harder.
-   Within-regime ARCH and Student-$t$ regime densities are S3/S4 in the protocol.
+   Not because MS(2) has "only two conditional variances" — it has a continuum, via the mixture
+   weight. The binding limits are that the weight is driven only by returns through a saturating
+   likelihood ratio, and that **the tail decay rate is fixed by the largest regime $\sigma$ alone**:
+   a finite Gaussian mixture is Gaussian in the far tail for any $k$ and any weight. That is algebra,
+   and it means **more regimes cannot fix a tail.** Within-regime ARCH and Student-$t$ regime
+   densities are S3/S4 in the protocol; S4 is the one aimed at the measured defect. Known in the
+   literature since Rydén, Teräsvirta & Åsbrink (1998) — see protocol §11.
 3. **How many regimes?** Corrected AIC *and* BIC both prefer **k=3** decisively (ΔAIC 66, ΔBIC 44) on
    real data. k=2 persisted only because [[README]] said so. But k=3 does not fix question 2.
 4. **Returns only?** *No.* VIX is free, forward-looking, aligns 1750/1750 weeks. It is the **price**
@@ -239,7 +247,10 @@ specification. DQ is unbuilt, subsamples unrun, and S3 (within-regime ARCH) and 
 regime densities) — preregistered precisely for this failure — do not exist yet. **This is the base
 specification only**, and it fails where the protocol said to look.
 
-## Context rungs — the model does not beat a moving average (2026-08-13)
+## Context rungs — one-step coverage, harness shakeout (2026-08-13)
+
+**Claim tuple: weekly · $h=1$ · marginal quantile and density · SPY, 1,230 OOS weeks 2003-2026.**
+Nothing in this section supports any claim outside that tuple (protocol §0.1).
 
 Protocol step 3, `baselines.py`. Constant (expanding mean/sd) and EWMA
 ($\sigma^2_t = \lambda\sigma^2_{t-1} + (1-\lambda)r^2_{t-1}$, $\lambda$ reported as a sweep, never
@@ -267,9 +278,20 @@ demonstrated.
 | MS model | 0.034 fails |
 | constant | 0.027 fails |
 
-**D2 is NOT triggered** — the model does not *lose*. But "statistically indistinguishable from an
-exponential moving average" is a thin return on a Hamilton filter, post-hoc relabelling, 7.5% vintage
-revision and 1-2% convergence failures.
+**No verdict is available here, and none ever was.** At $h=1$ the MS model and a tuned EWMA have
+near-identical conditional variances by construction, so a DM null is what theory *predicts* rather
+than information about the model. RiskMetrics EWMA is IGARCH — its multi-step variance forecast is a
+martingale and never reverts; MS(2) reverts toward the stationary regime mix at a rate set by the
+second eigenvalue of $P$. That is the entire structural difference between the two, and it is exactly
+zero one step ahead. **D2 may not be evaluated against this comparison** (protocol §0, standing
+consequence).
+
+**Recorded because the rule came from it.** This section was previously headed *"the model does not
+beat a moving average"* and called the outcome *"a thin return on a Hamilton filter."* The first
+exceeded the claim tuple; the second inferred an economic judgement from a loss function, when
+economic value is gated on D5 and has never been measured here. The protocol already forbade all of
+it — the header says "Not a horse race," §3 requires a preregistered expectation, and §11 cited the
+paper that answers the specification question. Protocol §0 is the gate that now runs before code.
 
 ### The most important number on this page
 
@@ -281,9 +303,11 @@ and it means the fix applies to EWMA too, without a custom Hamilton filter.
 
 ### From `figures/rungs_paths_spy.png`
 
-- The model's VaR path is **blocky** — snaps between levels and sits flat, while EWMA glides. The
-  "near-binary by construction" defect, visible. This is also the whipsaw source: 10 of 36
-  elevated-risk episodes are single-week blips.
+- The model's VaR path is **blocky** — snaps between levels and sits flat, while EWMA glides.
+  Saturation of the mixture weight, visible; not a structural binary (see open question 2). This is
+  also the whipsaw source: 10 of 36 elevated-risk episodes are single-week blips. Whether blocky is a
+  *defect* is undetermined at $h=1$ — a model that holds a level because it believes the state
+  persists is doing what a regime model is for. That question lives at horizon.
 - **In 2008 and 2020 EWMA went deeper and faster** — reaching $-16\%$ at the 2008 trough against the
   model's $-10\%$.
 

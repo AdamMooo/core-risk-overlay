@@ -1,6 +1,6 @@
 # Research Protocol
 
-Last updated: 2026-08-12
+Last updated: 2026-08-13
 
 **Preregistration.** Written before any result exists. Companion to `../README.md` §3 (the question),
 `MATH-REFERENCE.md` (the model), `POINT-IN-TIME-DISCIPLINE.md` (the time-basis rules).
@@ -17,6 +17,55 @@ hedge sizing, instrument, strike, premium or P&L appears below.
 **Real-time** excludes Kim-smoothed probabilities by definition (§6 R5 reports them only as a
 hindsight illustration). It names the property rather than the algorithm: the Hamilton filter is the
 only filter for this model class, so it generalises across every §3 specification.
+
+---
+
+## 0. Rules of engagement — the gate every experiment passes before code is written
+
+**Why this section exists.** On 2026-08-13 the context rungs were run and the result recorded as
+*"the model does not beat a moving average."* Three devices already in this document each forbade
+it: the header above says **"Not a horse race"**; §3 requires a **preregistered expectation** so a
+negative is not a surprise; §11 line for Hamilton & Susmel (1994) cites the paper that already
+answers the specification question. The outcome was entailed by theory before the code ran — a
+one-step tick-loss comparison between MS(2) and RiskMetrics EWMA cannot distinguish them, because
+their one-step conditional variances nearly coincide by construction. The rules existed. Nothing
+made them run *before* the experiment. This section is that gate.
+
+**No experiment runs until a five-field stub is committed.** If any field cannot be filled honestly,
+the experiment does not run. The stub is committed *before* the commit carrying its results.
+
+1. **Claim tuple — `(frequency, horizon, functional, sample)`.** A test of a one-step *marginal*
+   cannot support a claim about a *path* functional, at any sample size. Drawdown is a path
+   functional; VaR at $h=1$ is a marginal one. The tuple appears in the heading of every section
+   that reports the result, so no reader can inherit a wider claim than was measured.
+2. **Predicted outcome, with its reason, written before any code.** If the prediction is confident
+   and derivable from theory or a citable paper, **the run carries no information — do not run it.**
+   Record the prediction and its source instead. This is the §3 device, made mandatory.
+3. **Literature check.** Name the paper that already settles this, or state in writing that none
+   does. §11 is a gate, not a list to admire. A finding rediscovered empirically that was already in
+   a cited paper is a process failure and gets logged as one.
+4. **Mechanism for a difference.** For any comparison: state the structural difference between the
+   two objects and **the horizon at which it becomes observable.** If the difference is invisible at
+   the proposed test horizon, the comparison is void and does not run. EWMA is IGARCH — its
+   multi-step variance forecast is a martingale and never reverts; MS($k$) reverts toward the
+   stationary regime mix at a rate set by the second eigenvalue of $P$. That is the whole difference
+   between them and it is exactly zero at $h=1$.
+5. **What would surprise me, and what decision it changes.** Name the outcome that would move a
+   decision in §7. If no outcome moves any decision, the run is decoration and does not run.
+
+**Two firewalls, absolute.**
+
+- **Statistical loss never licenses an economic claim, and no economic claim rests on a loss
+  function.** No sentence may contain both a loss-function number and a cost-benefit judgement.
+  "Indistinguishable on tick loss" says *nothing* about economic value; economic value is gated on
+  D5 and has never been measured here.
+- **A verdict may not exceed its claim tuple.** Absent a horizon at which two models differ, the
+  only sayable sentence is "indistinguishable at horizon $h$, as predicted" — never "does not beat",
+  never "thin return", never any word implying the model was given a fair chance to differ.
+
+**Standing consequence.** D2 in §7 is written as a tick-loss horse race and inherits this defect: it
+does not name a horizon. It is not actionable until amended, and no D2 verdict may be recorded
+against a $h=1$ comparison.
 
 ---
 
@@ -88,12 +137,45 @@ Both forms verified against a 40M-draw Monte Carlo to $\sim10^{-5}$ (MC noise) o
 
 ### 1.2 Horizon
 
-**Primary $h=1$**, daily — where the tests have power and the result is clean.
+**Amended 2026-08-13** — see §Amendments. Horizon was previously "secondary, and a gate on nothing."
 
-**Secondary $h \in \{5,10,20\}$ days.** Harder: the $h$-period return is a mixture over regime
-*paths*, not end-states ($k^h$). Exact enumeration to $h\approx10$ for $k=2$ (1,024 paths), Monte
-Carlo beyond. Overlapping windows destroy independence, so inference uses non-overlapping blocks and
-overlapping only for description. Secondary, and a gate on nothing.
+**$h=1$ is the prerequisite, not the verdict.** One-step density calibration is what earns the right
+to say anything at any horizon: an estimator whose one-step conditioning is dishonest cannot be
+trusted about paths. It is necessary, it is built, and it is where the tests have power. It is *not*
+where this model class differs from anything.
+
+**Multi-period is co-primary, because the model's content lives there.** The distinguishing structure
+of a Markov-switching model is persistence and mean reversion: $w_{t+h} = \xi_t' P^h$ converges to the
+stationary regime mix at a rate set by the second eigenvalue of $P$. An EWMA is IGARCH — its
+multi-step variance forecast is a martingale and never reverts. **That difference is exactly zero at
+$h=1$ and grows with $h$.** Scoring only $h=1$ marginalizes out the one thing the model was chosen
+for, and any comparison at $h=1$ is void under §0.4.
+
+**The mandate's object is a path functional.** Drawdown depth over a holding period is a property of
+the whole path, not of the marginal distribution at any single step. Two processes can share
+identical one-step marginals at every $t$ and have completely different drawdown distributions,
+because drawdown depends on the serial dependence — which is precisely what $P$ encodes. No sample
+size at $h=1$ can substitute.
+
+**Mechanics.** The $h$-period return is a mixture over regime *paths*, not end-states: $k^h$ of them.
+Exact enumeration to $h \approx 10$ for $k=2$ (1,024 paths), Monte Carlo beyond. Every input needed —
+vintage $P$, regime means and variances, filtered $\xi_t$ — is already produced by `walkforward.py`.
+No new estimator, no new fitting, no new specification.
+
+**Frequency is a separate and still-open decision** (§1.3). Horizon is stated in periods here
+deliberately; the period length does not change any argument above.
+
+**The power problem, stated before running rather than discovered after.** The horizon where this
+model can differ is the horizon where proof is hardest. Non-overlapping 13-period blocks over 1,230
+observations give ~94 independent observations, and any drawdown claim rests on 3-4 systemic episodes
+whatever a table's row count says (§6, effective sample size). **Overlapping windows are permitted for
+description only and never for inference** — inflating $n$ by overlap is the single most available way
+to fake a result here, and it is forbidden.
+
+**Preregistered third outcome.** "Indeterminate — cannot be settled on 33 years of one index" is a
+legitimate and reportable finding, accepted now so that the pressure to manufacture $n$ has no
+purchase later. It is also what makes sample extension (a longer index history, or the multi-asset
+mandate) a *power* decision rather than a nice-to-have.
 
 ### 1.3 Frequency: estimate daily, decide weekly
 
@@ -365,6 +447,35 @@ report (breach rate by $\alpha$, ES ratio, QQ of $z_t$) and introduces no new me
 
 Every change to §1-§8 after a result exists is logged here with date and reason.
 
+**2026-08-13 — §1.2, horizon promoted from "secondary, and a gate on nothing" to co-primary.**
+
+*Reason, stated as a structural argument rather than a result.* The distinguishing content of a
+Markov-switching model is persistence and mean reversion, carried by $P$. At $h=1$ its conditional
+variance nearly coincides with a tuned EWMA's, so the two models are indistinguishable there **by
+construction, not by measurement.** The entire battery as originally written scored $h=1$ only, which
+marginalizes out the property the model was selected for. Separately, the mandate's object — drawdown
+depth over a holding period — is a *path* functional, and path functionals are not determined by
+one-step marginals at any sample size, because they depend on the serial dependence $P$ encodes.
+
+*Why this is admissible under §0 and not outcome-driven.* The argument is deductive and would have
+held before any data was seen; it rests on the algebra of $P^h$ and on EWMA's IGARCH martingale
+property, neither of which involves a fitted number. It **widens** what must be tested rather than
+narrowing it, and it makes the null it replaces *harder* to claim, not easier: the $h=1$ tick-loss
+comparison that previously fed D2 is now explicitly void (§0, standing consequence). No existing
+result is reinterpreted as favourable — the $h=1$ calibration findings stand exactly as measured, and
+the $\alpha=0.01$ tail failure across every Gaussian estimator is untouched.
+
+*Prompted by a process failure, recorded so it stays visible.* On 2026-08-13 a one-step tick-loss
+comparison was run and recorded as "the model does not beat a moving average." That outcome was
+entailed by theory before the code ran. §0 was written the same day as the gate that must run first,
+and this amendment fixes the design defect §0 exposed. Under §0.3, Timmermann (2000) — closed-form
+Markov-switching moments — and Rydén, Teräsvirta & Åsbrink (1998) are `[UNREAD]` and now block the
+horizon work until read; both are directly on this question.
+
+*Consequences elsewhere, not yet applied.* D2 in §7 names no horizon and is not actionable until
+amended. §5.4 ranking and §8 Table 5 inherit the $h=1$ assumption. §10 build order still lists $h=1$
+refinements ahead of any horizon work. Each is a separate amendment and none is made here.
+
 **2026-08-13 — §5.1, censored Berkowitz is $\chi^2(2)$, not $\chi^2(3)$.** As originally written §5.1
 said "the same LR restricted below the $\alpha$-quantile", implying all three restrictions. $\rho$ is
 not identified on a censored sample: observations above the cutoff enter the likelihood only through
@@ -403,19 +514,56 @@ p-value.
 
 ---
 
-## 11. Reading list
+## 11. Reading list — a §0.3 gate, not a list to admire
 
-- Rosenblatt (1952); Diebold, Gunther & Tay (1998) — PIT, density forecast evaluation.
-- **Berkowitz (2001)** — the §5.1 test.
-- Kupiec (1995); **Christoffersen (1998)** — coverage and independence.
-- **Engle & Manganelli (2004)**, *CAViaR* — the DQ test.
-- Christoffersen & Pelletier (2004) — duration-based backtests.
-- Koenker & Bassett (1978) — tick loss and quantile consistency.
-- Acerbi & Székely (2014); **Fissler & Ziegel (2016)**; Patton, Ziegel & Chen (2019) — ES backtesting
-  and joint elicitability. Verify sign conventions against the sources (§5.3).
-- Diebold & Mariano (1995); **Giacomini & White (2006)**; Clark & West (2007) — forecast comparison.
-- **Hamilton (1989)**; Frühwirth-Schnatter (2006) — the model class and label switching.
-- Hamilton & Susmel (1994); Gray (1996) — regime-switching with within-regime ARCH (S3).
-- Andersen & Bollerslev (1998) — realized volatility; why daily beats weekly.
-- Christensen & Prabhala (1998); Blair, Poon & Taylor (2001); Jiang & Tian (2005) — the §5.5
-  literature.
+**Status marks: `[read]` · `[skim]` · `[UNREAD]`.** An `[UNREAD]` entry whose question is about to be
+investigated empirically **blocks that experiment** under §0.3. Full metadata and acquisition status
+live in `literature/README.md`.
+
+**On 2026-08-13 the entry for Hamilton & Susmel (1994) was already in this list, marked nothing, and
+S3 was rediscovered empirically instead of read.** That is the failure §0 exists to stop.
+
+### Would have prevented the 2026-08-13 waste — read these first
+
+- **Rydén, Teräsvirta & Åsbrink (1998)** `[UNREAD]` — a hidden Markov model reproduces most stylized
+  facts of daily returns but **fails specifically on the slow decay of squared-return
+  autocorrelation.** That is this repo's ARCH-LM rejection of 55.6, published 1998.
+- **Timmermann (2000)** `[UNREAD]` — moments and autocorrelation structure of Markov-switching
+  models in closed form. Gives the $h=1$ near-equivalence with an EWMA analytically, which is the
+  result the rungs spent a run discovering.
+- **Cont (2001)** `[UNREAD]` — the stylized-facts reference. Aggregational Gaussianity (daily returns
+  are materially more leptokurtic than weekly), volatility clustering, heavy tails. Settles §1.3's
+  frequency trade-off on the specification side.
+
+### The model's actual comparative advantage — persistence over a horizon
+
+- **Ang & Bekaert (2002)** `[UNREAD]` — regime shifts used for allocation across horizons, not for
+  one-step quantiles.
+- **Guidolin & Timmermann (2007)** `[UNREAD]` — allocation under *multivariate* regime switching.
+  Closest published shape to the mandate: multi-asset and multi-horizon.
+- **Magdon-Ismail, Atiya, Pratap & Abu-Mostafa (2004)** `[UNREAD]` — maximum drawdown as a path
+  functional. The object the mandate names and the battery does not measure.
+
+### The model class and its specifications
+
+- **Hamilton (1989)** `[read]`; Frühwirth-Schnatter (2006) `[skim]` — the class, and label switching.
+- **Hamilton & Susmel (1994)** `[UNREAD]`; Gray (1996) `[UNREAD]` — regime switching with
+  within-regime ARCH. **This is S3.** Cited here since before the ARCH-LM run.
+- **Haas, Mittnik & Paolella (2004)** `[UNREAD]`; Klaassen (2002) `[UNREAD]` — Markov-switching
+  GARCH done properly, and $t$ innovations inside regimes. S3 and S4 together.
+
+### The evaluation battery — the part that is actually built
+
+- Rosenblatt (1952) `[skim]`; Diebold, Gunther & Tay (1998) `[read]` — PIT, density evaluation.
+- **Berkowitz (2001)** `[read]` — the §5.1 test.
+- Kupiec (1995) `[read]`; **Christoffersen (1998)** `[read]` — coverage and independence.
+- **Engle & Manganelli (2004)**, *CAViaR* `[UNREAD]` — the DQ test. Blocks §5.2 under §0.3.
+- Christoffersen & Pelletier (2004) `[UNREAD]` — duration-based backtests.
+- Koenker & Bassett (1978) `[skim]` — tick loss and quantile consistency.
+- Acerbi & Székely (2014) `[UNREAD]`; **Fissler & Ziegel (2016)** `[UNREAD]`; Patton, Ziegel & Chen
+  (2019) `[UNREAD]` — ES backtesting and joint elicitability. Verify sign conventions (§5.3).
+- Diebold & Mariano (1995) `[read]`; **Giacomini & White (2006)** `[UNREAD]`; Clark & West (2007)
+  `[UNREAD]` — forecast comparison.
+- Andersen & Bollerslev (1998) `[skim]` — realized volatility; why daily beats weekly.
+- Christensen & Prabhala (1998); Blair, Poon & Taylor (2001); Jiang & Tian (2005) — all `[UNREAD]`,
+  the §5.5 literature.
