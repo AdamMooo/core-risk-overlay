@@ -149,12 +149,19 @@ def walk_forward_density(returns: pd.Series) -> pd.DataFrame:
         filtered = filter_with(returns, np.asarray(results.params, dtype=float))
         stop = refit_points[n + 1] if n + 1 < len(refit_points) else len(returns)
 
+        # Index of the wider regime, for reporting the weight only. The density
+        # itself never needs it -- see the docstring.
+        wide = int(np.argmax(sigmas))
+
         for t in range(start, stop):
             weights = pr.state_prediction(filtered[t - 1], transition)
             row = {
                 "date": returns.index[t],
                 "realized": values[t],
                 "refit_end": returns.index[start - 1],
+                "w_wide": float(weights[wide]),
+                "sigma_wide": float(sigmas[wide]),
+                "sigma_calm": float(sigmas[1 - wide]),
                 "pit": pr.mixture_cdf(values[t], weights, means, sigmas),
             }
             for alpha in ALPHAS:

@@ -162,8 +162,18 @@ coverage to $p=0.0000$. Only the true alignment and the harmless staler directio
 | ES ratio realized ÷ predicted | 1.108 | 1.171 | 1.216 |
 
 Full Berkowitz LR 8.66, $p=0.034$ — $\mu=-0.008$, $\rho=-0.076$, $\sigma^2=1.044$. PIT uniformity
-$p=0.033$. Ljung-Box on $u$: $p=0.111$ (quiet). **Ljung-Box on $(u-0.5)^2$: $p=0.0075$** — unabsorbed
-volatility dynamics.
+$p=0.033$. Ljung-Box on $u$ quiet at every lag count (0.06-0.42).
+
+**Ljung-Box on $(u-0.5)^2$ is lag-dependent and must be quoted as a sweep, not a number:**
+
+| lags | 5 | 10 | 15 | 20 | 26 | 52 |
+|---|---|---|---|---|---|---|
+| $p$ | 0.0004 | 0.0075 | 0.045 | 0.062 | 0.099 | 0.108 |
+
+The dependence is concentrated at lags 1-4 and dilutes as uninformative lags are added. Unabsorbed
+volatility dynamics are therefore a **short-horizon** finding, not a general one. **The protocol never
+preregistered a lag count** — a real gap, recorded rather than closed by picking one after seeing the
+sweep.
 
 **Worst week, and the whole story in one line:** 2008-10-10, SPY $-22.1\%$ against a 1% VaR of
 $-6.4\%$. PIT $= 6\times10^{-16}$: the density called it impossible. That is the sample's one clipped
@@ -174,10 +184,23 @@ regime-switching, and two conditional variances cannot track scale in the far ta
 measures (breach rate, censored $\sigma^2$, ES ratio) agree and all worsen with depth, which is the
 signature of a tail that is too thin rather than a level that is mis-set.
 
-**Both new tests earned themselves immediately.** The full Berkowitz alone reads as borderline
+**The censored test earned itself immediately.** The full Berkowitz alone reads as borderline
 ($p=0.034$); the censored version is $p<10^{-4}$ — body-correct, tail-wrong, on real data the same day
-the discriminating case was demonstrated on simulated $t(4)$. And the $(u-0.5)^2$ Ljung-Box found
-dynamics the level ACF ($p=0.11$) shows no trace of.
+the discriminating case was demonstrated on simulated $t(4)$.
+
+**The figures say two things the tables do not.**
+
+- **The QQ panel of the PIT is asymmetric.** The *left* tail falls off the 45-degree line; the right
+  tail sits on it. The density is too thin on the downside specifically, not symmetrically fat-tailed.
+  That argues for a **skewed** heavy-tailed regime density, not just Student-$t$ — and it is a
+  distributional-width finding, not a directional one, so it stays inside the mandate.
+- **A 20-bin PIT histogram cannot resolve the failure.** The whole $\alpha=0.01$ story lives inside
+  the leftmost bin. Figure 1's histogram looks unremarkable ($\chi^2 p = 0.033$) while the QQ panel
+  and the censored LR show the defect plainly. Do not read the histogram as the tail check.
+
+**Figure 2 makes the causal-filter lag concrete.** Through Feb 2020 the 1% VaR sits flat near $-5\%$;
+the $-11.8\%$, $-10.0\%$ and $-15.7\%$ weeks all arrive *before* it widens to $-9\%$. Same shape in
+2008. This is protocol §7's recorded threat to D5, now visible rather than argued.
 
 **Not a verdict.** D1 requires Berkowitz *and* DQ rejecting across R8 subsamples for *every* §3
 specification. DQ is unbuilt, subsamples unrun, and S3 (within-regime ARCH) and S4 (Student-$t$

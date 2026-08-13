@@ -206,6 +206,17 @@ most informative failure in the sample.
 Reported alongside: PIT histogram (20 bins), PIT ACF, and the ACF of $(u_t-0.5)^2$ — the last detects
 volatility dynamics the model has not absorbed.
 
+**Open gap: the Ljung-Box lag count is not preregistered, and the result depends on it.** On the
+2026-08-13 SPY run, $(u_t-0.5)^2$ gave $p$ = 0.0004 / 0.0075 / 0.045 / 0.062 / 0.099 / 0.108 at
+5 / 10 / 15 / 20 / 26 / 52 lags. The dependence is concentrated at lags 1-4 and dilutes as
+uninformative lags are added, so the finding is real but **short-horizon**. Quote the sweep, never a
+single $p$. Choosing a lag count now would be post-hoc selection under §9; it is fixed only when a
+specification is next amended, and before the run that uses it.
+
+**The 20-bin histogram is not a tail check.** At $n \approx 1{,}200$ the entire $\alpha=0.01$ story
+sits inside the leftmost bin. Use the QQ plot of $z_t$ and the censored LR for the tail; the
+histogram speaks to the body.
+
 ### 5.2 Quantile coverage
 
 At $\alpha \in \{0.10, 0.05, 0.01\}$, hit sequence $I_t = \mathbf{1}\{r_t < \mathrm{VaR}_{t|t-1}\}$.
@@ -329,10 +340,15 @@ Fixed in advance so the analysis has a target and cannot sprawl.
 - **Table 5** — tick loss and DM statistics against the context rungs.
 - **Table 6** — reliability: R1-R9 as rows, verdict stability as columns.
 - **Table 7** — encompassing regression against VIX, Newey-West, per horizon.
-- **Figure 1** — PIT histogram and ACF.
-- **Figure 2** — VaR path through 2008 and 2020, realized returns and breaches marked.
+- **Figure 1** — PIT histogram and ACF. **Built** (`figures.py`).
+- **Figure 2** — VaR path through 2008 and 2020, realized returns and breaches marked. **Built.**
 - **Figure 3** — mixture VaR minus moment-matched normal VaR against regime uncertainty $w$ (§1.1).
-- **Figure 4** — filtered vs smoothed VaR paths (R5).
+  **Built.**
+- **Figure 4** — filtered vs smoothed VaR paths (R5). Needs the smoothed path; not built.
+
+`figures.py` draws nothing outside this list, so the analysis cannot sprawl into whatever happens to
+look interesting. The one addition, `fig_tail_failure`, plots only quantities Tables 3 and 4 already
+report (breach rate by $\alpha$, ES ratio, QQ of $z_t$) and introduces no new measure.
 
 ---
 
