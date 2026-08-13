@@ -60,14 +60,15 @@ def load_returns(ticker: str) -> pd.Series:
     return returns
 
 
-def filter_with(returns: pd.Series, params: np.ndarray) -> np.ndarray:
+def filter_with(returns: pd.Series, params: np.ndarray,
+                k_regimes: int = ms.N_REGIMES) -> np.ndarray:
     """Filtered marginal probabilities over the full series at fixed params.
 
     Slicing this is legitimate: the Hamilton filter is a forward recursion, so
     the value at week t depends only on returns up to t. Running it over the
     whole series and reading position t gives exactly what was knowable at t.
     """
-    model = MarkovRegression(returns, k_regimes=ms.N_REGIMES, trend="c",
+    model = MarkovRegression(returns, k_regimes=k_regimes, trend="c",
                              switching_trend=True, switching_variance=True)
     return np.asarray(model.filter(params).filtered_marginal_probabilities)
 
@@ -110,7 +111,8 @@ def walk_forward(returns: pd.Series) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def walk_forward_density(returns: pd.Series) -> pd.DataFrame:
+def walk_forward_density(returns: pd.Series,
+                         k_regimes: int = ms.N_REGIMES) -> pd.DataFrame:
     """Vintage-correct one-step-ahead VaR, ES and PIT for every live week.
 
     RESEARCH-PROTOCOL step 5. The alignment discipline, stated because this is
@@ -139,17 +141,19 @@ def walk_forward_density(returns: pd.Series) -> pd.DataFrame:
 
     for n, start in enumerate(refit_points):
         try:
-            model, results, _ = ms.fit_markov_switching(returns.iloc[:start])
+            model, results, _ = ms.fit_markov_switching(
+                returns.iloc[:start], k_regimes=k_regimes)
         except (RuntimeError, ValueError):
             failures += 1
             continue
 
         means, sigmas = pr.regime_parameters(model, results)
         transition = pr.transition_matrix(results)
-        filtered = filter_with(returns, np.asarray(results.params, dtype=float))
+        filtered = filter_with(returns, np.asarray(results.params, dtype=float),
+                               k_regimes)
         stop = refit_points[n + 1] if n + 1 < len(refit_points) else len(returns)
 
-        # Index of the wider regime, for reporting the weight only. The density
+        # Index of the widest regime, for reporting the weight only. The density
         # itself never needs it -- see the docstring.
         wide = int(np.argmax(sigmas))
 
@@ -160,8 +164,8 @@ def walk_forward_density(returns: pd.Series) -> pd.DataFrame:
                 "realized": values[t],
                 "refit_end": returns.index[start - 1],
                 "w_wide": float(weights[wide]),
-                "sigma_wide": float(sigmas[wide]),
-                "sigma_calm": float(sigmas[1 - wide]),
+                "sigma_wide": float(sigmas.max()),
+                "sigma_calm": float(sigmas.min()),
                 "pit": pr.mixture_cdf(values[t], weights, means, sigmas),
             }
             for alpha in ALPHAS:
@@ -175,9 +179,9 @@ def walk_forward_density(returns: pd.Series) -> pd.DataFrame:
     return pd.DataFrame(rows).set_index("date")
 
 
-def report_density(ticker: str) -> None:
+def report_density(ticker: str, k_regimes: int = ms.N_REGIMES) -> None:
     print("=" * 76)
-    print(f"WALK-FORWARD PREDICTIVE DENSITY — {ticker}")
+    print(f"WALK-FORWARD PREDICTIVE DENSITY — {ticker}   k={k_regimes}")
     print("=" * 76)
 
     returns = load_returns(ticker)
@@ -185,7 +189,7 @@ def report_density(ticker: str) -> None:
     print(f"  first fit at week {MIN_TRAIN_WEEKS}, refit every {REFIT_EVERY_WEEKS} weeks")
     print("  NO look-ahead: parameters and state at t use only data through t-1.")
 
-    frame = walk_forward_density(returns)
+    frame = walk_forward_density(returns, k_regimes)
     print(f"\n  out-of-sample forecasts: {len(frame)}  "
           f"{frame.index[0].date()} .. {frame.index[-1].date()}")
 
@@ -236,7 +240,8 @@ def report_density(ticker: str) -> None:
               f"{predicted_mean:18.4f} {realized_mean / predicted_mean:7.3f}")
     print("  ratio > 1 means the model UNDERSTATES how bad the bad weeks are.")
 
-    out = DATA_DIR / f"density_{ticker.lower()}.csv"
+    suffix = "" if k_regimes == ms.N_REGIMES else f"_k{k_regimes}"
+    out = DATA_DIR / f"density_{ticker.lower()}{suffix}.csv"
     frame.to_csv(out)
     print(f"\n  series written to {out.relative_to(Path(__file__).parent)}")
 
@@ -324,9 +329,14 @@ def report(ticker: str) -> None:
 def main() -> None:
     args = sys.argv[1:]
     density = bool(args) and args[0].lower() == "density"
-    tickers = [t.upper() for t in (args[1:] if density else args)] or list(TICKERS)
+    rest = args[1:] if density else args
+    k = ms.N_REGIMES
+    if rest and rest[-1].lower().startswith("k="):
+        k = int(rest[-1].split("=")[1])
+        rest = rest[:-1]
+    tickers = [t.upper() for t in rest] or list(TICKERS)
     for ticker in tickers:
-        (report_density if density else report)(ticker)
+        report_density(ticker, k) if density else report(ticker)
         print()
 
 

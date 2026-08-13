@@ -497,6 +497,95 @@ def censored_berkowitz_test(
     )
 
 
+def tick_loss(returns, var, alpha: float = DEFAULT_ALPHA):
+    """Koenker-Bassett asymmetric piecewise-linear loss, per observation.
+
+        L(r, q) = (alpha - 1{r < q}) * (r - q)
+
+    Its expectation is uniquely minimized by the true conditional alpha-quantile.
+    That uniqueness -- "consistency" for the quantile functional -- is what makes
+    a lower average tick loss evidence rather than an arbitrary preference. See
+    RESEARCH-PROTOCOL section 5.4.
+
+    Only DIFFERENCES on the same sample are interpretable. The level carries no
+    meaning on its own, so never quote it alone.
+    """
+    np, pd, _, _, _ = _require_dependencies()
+    _validate_alpha(alpha)
+
+    frame = pd.concat(
+        [pd.Series(returns).rename("r"), pd.Series(var).rename("q")], axis=1
+    ).dropna()
+    if frame.empty:
+        raise ValueError("No overlapping non-missing observations.")
+
+    r = frame["r"].to_numpy(dtype="float64")
+    q = frame["q"].to_numpy(dtype="float64")
+    return pd.Series((alpha - (r < q).astype("float64")) * (r - q), index=frame.index)
+
+
+class DieboldMarianoResult(NamedTuple):
+    n: int
+    mean_difference: float
+    std_error: float
+    statistic: float
+    p_value: float
+    hac_lags: int
+    better: str
+
+
+def diebold_mariano(loss_a, loss_b, hac_lags: int | None = None,
+                    label_a: str = "a", label_b: str = "b") -> DieboldMarianoResult:
+    """Test whether two loss series differ, Newey-West corrected.
+
+    d_t = loss_a - loss_b; H0 is E[d] = 0, equal predictive accuracy. Negative
+    statistic favours `a`. Newey-West is used because loss differences are
+    serially correlated even at h=1 -- volatility clusters, so the periods where
+    one model beats the other come in runs.
+
+    Diebold & Mariano (1995). With estimated parameters and a rolling window,
+    Giacomini & White (2006) is the formally correct reference; the statistic is
+    the same, the null is about the forecasting METHOD rather than the model.
+    """
+    np, pd, _, stats, _ = _require_dependencies()
+
+    frame = pd.concat(
+        [pd.Series(loss_a).rename("a"), pd.Series(loss_b).rename("b")], axis=1
+    ).dropna()
+    n = len(frame)
+    if n < 30:
+        raise ValueError(f"Only {n} overlapping observations; too few for DM.")
+
+    d = (frame["a"] - frame["b"]).to_numpy(dtype="float64")
+    d_bar = float(d.mean())
+
+    lags = int(hac_lags) if hac_lags is not None else int(np.floor(4 * (n / 100) ** (2 / 9)))
+    centered = d - d_bar
+    gamma0 = float(np.dot(centered, centered) / n)
+    variance = gamma0
+    for k in range(1, lags + 1):
+        gamma_k = float(np.dot(centered[k:], centered[:-k]) / n)
+        variance += 2.0 * (1.0 - k / (lags + 1.0)) * gamma_k
+
+    # A negative Newey-West variance is possible with the Bartlett kernel on
+    # short samples; fall back to the uncorrected variance rather than emit nan.
+    if variance <= 0.0:
+        variance = gamma0
+
+    se = float(np.sqrt(variance / n))
+    statistic = d_bar / se if se > 0 else 0.0
+
+    return DieboldMarianoResult(
+        n=n,
+        mean_difference=d_bar,
+        std_error=se,
+        statistic=float(statistic),
+        p_value=float(2.0 * stats.norm.sf(abs(statistic))),
+        hac_lags=lags,
+        better=label_a if d_bar < 0 else label_b,
+    )
+
+
 def _autocorrelations(x, lags: int, np) -> "np.ndarray":
     centered = x - float(np.mean(x))
     denominator = float(np.dot(centered, centered))

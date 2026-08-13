@@ -138,7 +138,7 @@ def _high_variance_regime_index(model, results) -> int:
     params = np.asarray(results.params, dtype=float)
     variances = [
         params[model.param_names.index(f"sigma2[{regime}]")]
-        for regime in range(N_REGIMES)
+        for regime in range(model.k_regimes)
     ]
     return int(np.argmax(variances))
 
@@ -148,6 +148,7 @@ def fit_markov_switching(
     search_reps: int = DEFAULT_SEARCH_REPS,
     maxiter: int = DEFAULT_MAXITER,
     random_seed: int = DEFAULT_RANDOM_SEED,
+    k_regimes: int = N_REGIMES,
 ):
     """Fit the two-regime switching mean/variance model.
 
@@ -163,7 +164,7 @@ def fit_markov_switching(
 
     model = MarkovRegression(
         returns,
-        k_regimes=N_REGIMES,
+        k_regimes=k_regimes,
         trend="c",
         switching_trend=True,
         switching_variance=True,

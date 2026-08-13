@@ -179,6 +179,38 @@ sweep.
 $-6.4\%$. PIT $= 6\times10^{-16}$: the density called it impossible. That is the sample's one clipped
 observation, surfaced by the clip counter rather than swallowed.
 
+### The diagnosis: thin tails INSIDE each regime, not bad regime detection
+
+Found 2026-08-13 by looking at Figure 2 and asking why ordinary weeks were breaching.
+**16 of the 22 breaches happen while the model believes it is calm**, most at $P(\text{wide}) < 0.10$:
+
+| date | realized | its 1% VaR | $P$(wide) |
+|---|---|---|---|
+| 2007-03-02 | −4.67% | −3.00% | 0.005 |
+| 2005-04-15 | −3.32% | −3.03% | 0.008 |
+| 2004-03-12 | −3.32% | −2.93% | 0.008 |
+| 2007-07-27 | −5.62% | −3.04% | 0.007 |
+
+2004 and 2005 are not crises. The calm regime has $\sigma \approx 1.5\%$/week, so a Gaussian puts the
+1% worst week at $-3.5\%$; real quiet markets deliver $-4\%$ and $-5\%$ weeks far more often.
+
+| model state | weeks | breaches | rate | vs promised |
+|---|---|---|---|---|
+| believes calm | 929 | 16 | 1.72% | 1.7x |
+| believes wide | 301 | 6 | 1.99% | 2.0x |
+
+**Both states are broken by roughly the same factor** — the tell that this is the conditional
+*density*, not the regime *classifier*. Three separable failures:
+
+1. **Thin tails** — small breaches ($-3\%$ to $-5.7\%$) in genuinely quiet markets. Majority of cases.
+   Also explains 2008-10-10: $P(\text{wide})=0.995$, VaR $-6.4\%$, realized $-22.1\%$. Fix: fat-tailed
+   regime densities (S4).
+2. **Lateness** — *large* breaches at low $P$(wide) at crisis onset, before the filter switches:
+   2020-02-28 ($-11.8\%$ vs $-4.8\%$, $P=0.10$), 2025-04-04 ($-9.5\%$ vs $-6.1\%$, $P=0.16$).
+   Fix: daily cadence, or a leading input (VIX).
+3. **Neither is fixed by more regimes.** k=3 walk-forward threw `Invalid regime transition
+   probabilities` across the run — numerically fragile, and aimed at the wrong defect anyway.
+
 **Read.** The failure is exactly the one open question 2 predicts — ARCH-LM rejects *after*
 regime-switching, and two conditional variances cannot track scale in the far tail. Three independent
 measures (breach rate, censored $\sigma^2$, ES ratio) agree and all worsen with depth, which is the
@@ -206,6 +238,54 @@ the $-11.8\%$, $-10.0\%$ and $-15.7\%$ weeks all arrive *before* it widens to $-
 specification. DQ is unbuilt, subsamples unrun, and S3 (within-regime ARCH) and S4 (Student-$t$
 regime densities) — preregistered precisely for this failure — do not exist yet. **This is the base
 specification only**, and it fails where the protocol said to look.
+
+## Context rungs — the model does not beat a moving average (2026-08-13)
+
+Protocol step 3, `baselines.py`. Constant (expanding mean/sd) and EWMA
+($\sigma^2_t = \lambda\sigma^2_{t-1} + (1-\lambda)r^2_{t-1}$, $\lambda$ reported as a sweep, never
+tuned) scored by the identical battery on the identical 1,230-week sample.
+
+**Ranking, mean tick loss $\times 10^4$ — lower better:**
+
+| | 10% | 5% | 1% |
+|---|---|---|---|
+| MS model | **42.71** | **27.73** | **9.92** |
+| EWMA 0.94 | 43.77 | 28.54 | 10.77 |
+| constant | 46.38 | 30.20 | 11.10 |
+
+The model wins at every level and **Diebold-Mariano finds none of it significant** (vs EWMA 0.94:
+$p$ = 0.24, 0.30, 0.077). It beats the *constant* significantly at 10% ($p<0.001$) and 5%
+($p=0.011$) — so conditioning on something helps; conditioning on *regimes* specifically is not
+demonstrated.
+
+**Density calibration — EWMA 0.97 beats the model:**
+
+| | Berkowitz $p$ |
+|---|---|
+| EWMA 0.97 | **0.237** passes |
+| EWMA 0.94 | 0.070 |
+| MS model | 0.034 fails |
+| constant | 0.027 fails |
+
+**D2 is NOT triggered** — the model does not *lose*. But "statistically indistinguishable from an
+exponential moving average" is a thin return on a Hamilton filter, post-hoc relabelling, 7.5% vintage
+revision and 1-2% convergence failures.
+
+### The most important number on this page
+
+**Every method breaches ~2x at $\alpha=0.01$:** MS 1.79%, constant 1.87%, EWMA 0.97 2.03%,
+EWMA 0.94 2.36%. What they share is the **Gaussian assumption**. The 1% failure is therefore a
+property of the *data*, not a defect of the regime model, and **no Gaussian-based estimator of any
+complexity can fix it**. This is the strongest evidence yet for fat-tailed conditional densities —
+and it means the fix applies to EWMA too, without a custom Hamilton filter.
+
+### From `figures/rungs_paths_spy.png`
+
+- The model's VaR path is **blocky** — snaps between levels and sits flat, while EWMA glides. The
+  "near-binary by construction" defect, visible. This is also the whipsaw source: 10 of 36
+  elevated-risk episodes are single-week blips.
+- **In 2008 and 2020 EWMA went deeper and faster** — reaching $-16\%$ at the 2008 trough against the
+  model's $-10\%$.
 
 ## Earlier smoke reading — NOT a result
 
