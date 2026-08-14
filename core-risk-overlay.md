@@ -462,6 +462,57 @@ toward zero at exactly the long lags where long memory would appear**. Andersen 
 already `[skim]` in the reading list. The literature's long-memory results are mostly on realized
 volatility from intraday data, which protocol §9 excludes.
 
+## THE DYNAMICS TEST — the model class is closed on both axes (2026-08-14)
+
+**Claim tuple: weekly · h=4 · forward downside semivolatility · SPY 2003-2026, n=307
+non-overlapping. One preregistered input, no sweep.** Run:
+`.venv\Scripts\python.exe dynamics_test.py SPY`.
+
+The first experiment whose **input matches what the model claims to know**. Scale-free by
+construction, so it cannot be passed by a rescaling of VIX:
+
+```
+X[t] = Var_4(t) / Var_1(t)        w_1 = xi[t]' P ,  w_h = w_1 P^(h-1)
+```
+
+X > 1 means the model expects risk to rise; X < 1 means it expects reversion. Pure `P`.
+
+| | coefficient | p |
+|---|---|---|
+| VIX | +0.3473 | 0.0003 |
+| model (Var₄/Var₁) | **−0.0047** | **0.6255** |
+
+R² both 0.1019 · VIX alone 0.1015 · **X alone 0.0339**. Alignment verified adversarially
+(leaky 0.2481 > true 0.1019 > stale 0.0768); c stays insignificant even in the leaky variant.
+
+**Power was reported, not assumed — and it rules out "undetected".** X ranges 0.8019 to 1.3144,
+sd 0.1422, coefficient of variation 0.131; 69.8% of weeks have X > 1. Correlation with VIX is
+only **−0.5324**, the expected mean-reversion signature, so X is not VIX in disguise. A genuinely
+independent, well-varying input with real standalone content that adds **0.0004 of R²**.
+
+**Result, stated absolutely as [[README]] §3 requires.** A two-state Markov-switching model on
+weekly SPY returns provides **no information about forward downside risk beyond what implied
+volatility already prices — on either level (D3) or dynamics (here)**. Predicted in advance,
+both times.
+
+**Why this is a strong negative rather than a weak one:** the prediction was registered before the
+run, the alignment was verified adversarially, power was demonstrated rather than assumed, the
+input was scale-free by construction, and both axes were tested.
+
+**The structural reason, and it is why more modelling cannot fix it.** `F^returns ⊆ F^market`. The
+option market observes the same return path plus everything else. That containment is a property
+of the information set, not of the estimator, so no filter, tail shape, regime count, memory
+structure or frequency escapes it.
+
+**What this does NOT close.** VIX is **SPY-only** implied volatility. A cross-asset measure is a
+genuinely different information set — covariance structure is information a single-asset option
+price cannot contain. That argument is structural and survives every result in this file. It is the
+only thing that does.
+
+**Daily would sharpen these estimates and cannot change them.** The containment argument is
+frequency-invariant. Daily is worth building for the *memory* question; it is not a route back into
+this one, and proposing it as one would be the goalpost-moving this repo keeps catching itself at.
+
 ## Out of scope but measured, so it is not re-derived later
 
 Two runs on hedge economics happened before the scope boundary was re-asserted. The numbers are
@@ -495,16 +546,24 @@ Read [[README]] §§1-5, the **Governing frame** above, then **D3 FIRED** and **
 2. **A real long-memory test.** GPH or local Whittle producing `d` with a standard error, replacing
    the R² race.
 
-**Then the test this project has never run:**
+~~3. Score dynamics against VIX, not levels.~~ **Done 2026-08-14 — c = −0.0047, p = 0.6255.**
+   See **THE DYNAMICS TEST** above. Both axes are now closed.
 
-3. **Score dynamics against VIX, not levels.** Feed the encompassing regression a *persistence*
-   quantity — expected state duration, the shape (not height) of the h-step variance path, the
-   decay rate — instead of `-ES(0.05)`. VIX is a spot price and carries no persistence statement, so
-   this is the one comparison where the model is not structurally outgunned. **This is the live
-   question.** Everything else is bookkeeping.
-4. **Fit the model on daily** and re-measure `RELIABLE_MIN_OBSERVATIONS` (§1.3) — the 520-week
-   figure is weekly and does not transfer. Does a daily-fitted λ₂ reach the data's 212 days, or stay
-   ~35% short?
+**The one direction still open, and the only one:**
+
+3. **Multi-asset.** [[README]] §1 says *systemic* is the operative word and the model has only ever
+   seen SPY. VIX is SPY-only implied volatility, so a cross-asset measure is a genuinely different
+   **information set** rather than a better estimator on the same one — the single argument that
+   survives D3 and the dynamics test. Cheapest first probe is not a multivariate Markov model but the
+   **absorption ratio** (Kritzman, Li, Page & Rigobon 2010): rolling PCA over a small asset panel,
+   fraction of variance in the top eigenvectors, point-in-time. One new column through
+   `encompassing.py`, which already exists and is already validated. If a cheap joint measure adds
+   nothing to VIX, an expensive one almost certainly will not either.
+
+4. **Fit the model on daily** and re-measure `RELIABLE_MIN_OBSERVATIONS` (§1.3) — the 520-week figure
+   is weekly and does not transfer. Worth doing for the **memory** question only. It cannot reopen
+   the encompassing question: containment is frequency-invariant, and treating it as a route back in
+   would be exactly the goalpost-moving this repo keeps catching.
 
 **Deprioritized, not deleted.** S3 (within-regime ARCH), S4 (Student-t regime densities), DQ, the ES
 breach bootstrap and R1-R10 all address **marginal / level** properties. D3 closed the level-based
