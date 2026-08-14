@@ -10,18 +10,46 @@ Tail-risk hedge overlay for a permanently long global equity book. Mandate in [[
 [[docs/RESEARCH-PROTOCOL]]. Mathematics in [[docs/MATH-REFERENCE]]. Time-basis rules in
 [[docs/POINT-IN-TIME-DISCIPLINE]].
 
-## Status
+## Status — 2026-08-13
 
-**Framing settled, naming corrected, evaluation half-built. The model is a candidate under test, not
-a thing being defended.**
+**D3 has fired. The level-based case for this model is closed. The dynamics case has never been
+tested, and that is the whole remaining project.**
 
-The question is fixed and absolute ([[README]] §3): *how well does a Markov-switching model provide
-real-time information about Value at Risk and the tail risk of equity assets?* Scored on every
-observation, no benchmark required. **Real-time** excludes smoothed probabilities by definition.
+Four results landed in one session (all below): the encompassing regression against VIX, the
+hedge-economics bracket, the trigger bracket, and the memory diagnostic — the last of which
+**refuted a confident claim made earlier the same day** and is recorded as such.
 
-[[docs/RESEARCH-PROTOCOL]] is preregistered — estimand, tests, reliability battery, decision
-thresholds, build order. `src/evaluation.py` scores whatever it is handed and knows nothing about
-which model produced it, which is what turns the specification argument into an experiment.
+## Governing frame — read this before proposing any experiment
+
+Three rules, each of which this repo has already broken at least once. They exist because the
+documents kept asserting the right principle while the practice reverted.
+
+**1. The model's content is `P`, not a level.** A Markov-switching model's claim is about
+*persistence* — how long a state lasts, how belief decays, how the forecast reverts. Every test
+run through 2026-08-13, including D3, collapsed it to a **scalar** (a VaR or ES number) and raced
+that against VIX's scalar. VIX is a spot price with no memory structure, so a level-vs-level test
+**structurally cannot see** what this model knows. Protocol §1.2 already said this and every
+subsequent experiment scored levels anyway. Before proposing a test: *what does the model claim to
+know that the comparison object does not?* If a test could be passed by a constant rescaling of
+VIX, it is not testing this model.
+
+**2. The model never decides what, where or how to trade.** It reports risk. Strikes, tenors, roll
+schedules, hedge ratios, premium and P&L are not the working surface — [[README]] §5 has said so
+from the start, and on 2026-08-13 three consecutive runs drifted into option mechanics anyway
+before being stopped. Economic viability is the long-run goal, not the near-term reasoning surface.
+
+**3. Check the data and the frequency before reasoning about model shape.** The weekly series
+cannot resolve volatility memory at all — at n=1750 the ACF band is ±0.0469 and the empirical
+squared-return ACF is inside it by lag 8. A year of argument about regime counts and tail shapes
+happened on a series that could not have settled any of it.
+
+The question is unchanged ([[README]] §3): *how well does a Markov-switching model provide
+real-time information about Value at Risk and the tail risk of equity assets?* **Real-time**
+excludes smoothed probabilities by definition.
+
+[[docs/RESEARCH-PROTOCOL]] is preregistered. `src/evaluation.py` scores whatever it is handed and
+knows nothing about which model produced it, which is what turns the specification argument into
+an experiment.
 
 ## Target
 
@@ -104,7 +132,10 @@ Positions stated, not hedged. None is a tuning question.
 
 | what | where | severity |
 |---|---|---|
-| DQ, tick loss, ES bootstrap unbuilt | `src/evaluation.py` | blocks §5.2-5.4 |
+| **No dynamics test exists** — every experiment scores levels | whole repo | **the live gap** |
+| Daily minimum history still unmeasured; 520 is a weekly figure | `RELIABLE_MIN_OBSERVATIONS` | blocks any daily model fit |
+| Squared daily returns are a noisy variance proxy; attenuates long-lag ACF | `memory_diagnostic.py` | blocks the shape question |
+| DQ, tick loss, ES bootstrap unbuilt | `src/evaluation.py` | deprioritized — level-based (D3) |
 | ~~No vintage-parameter VaR path~~ | ~~`walkforward.py`~~ | **fixed 2026-08-13**, `walkforward.py density` |
 | Base specification's tail is ~2.8x too narrow at $\alpha$=0.05 | model class | the finding, not a bug — S3/S4 exist for it |
 | Parameter look-ahead in the convenience path | `markov_switching.estimate_high_variance_probability` | documented in the docstring; walk-forward path is the honest one |
@@ -333,30 +364,158 @@ is also what the ARCH-LM rejection predicts: two conditional variance values can
 the far tail. Expect the honest walk-forward version to be worse, not better, since look-ahead
 flatters.
 
+## D3 FIRED — the model is nested inside VIX on levels (2026-08-13)
+
+**Claim tuple: weekly · h=4 and h=13 · forward downside semivolatility · SPY 2003-2026, 1,230
+walk-forward OOS forecasts.** Run: `.venv\Scripts\python.exe encompassing.py SPY`.
+
+`RV[t,t+h] = a + b·IV[t] + c·X[t]`, with RV the forward downside semi-volatility
+`sqrt(SUM min(r,0)^2)`, IV log VIX at the same information time, and X the model's own
+`-ES(0.05)` from the walk-forward vintage path.
+
+| h=4, non-overlapping n=307 | coefficient | p |
+|---|---|---|
+| VIX | +0.3616 | 0.0026 |
+| model (−ES 0.05) | **+0.0009** | **0.9935** |
+
+| R² | value |
+|---|---|
+| both together | **0.1015** |
+| VIX alone | **0.1015** |
+| model alone | 0.0471 |
+
+Joint and VIX-alone are **identical to four decimal places**. h=13 agrees: c = −0.0232 (p=0.9277),
+joint 0.1173 against VIX-alone 0.1172.
+
+**Alignment verified adversarially**, because an off-by-one would invalidate it: leaky (window
+starts d−1) R²=0.2488 > true (starts d) 0.1015 > stale (starts d+1) 0.0769. Monotone in the right
+direction; the leak more than doubles R².
+
+**The null arrives in its strong form.** Low power shows up as a large-but-insignificant
+coefficient. c = +0.0009 with p = 0.99 is a coefficient that is actually zero. The model carries
+real downside information (R²=0.047 alone) and it is **strictly nested** inside VIX's.
+
+**Preregistered consequence (§7 D3): no capital is committed.** The result is reported.
+
+**The load-bearing caveat.** X was a *level*. This is a level-vs-level test and it is exactly what
+governing-frame rule 1 warns about. D3 closes the level-based case; it says nothing about
+persistence, which remains untested.
+
+## Memory diagnostic — and a claim of mine that it refuted (2026-08-13)
+
+Run: `.venv\Scripts\python.exe memory_diagnostic.py SPY [--daily]`.
+
+**Deductive result first.** For a two-state switching-variance model with regime variances `v[j]`,
+stationary weights `pi`, and `lam = p00 + p11 − 1`:
+
+```
+Cov(r[t]^2, r[t+k]^2) = pi_0 * pi_1 * (v_0 - v_1)^2 * lam^k
+```
+
+The squared-return ACF decays **geometrically — for any k, any number of regimes, any parameters**.
+That is algebra, not a fitted claim, and it holds at all 95 vintages (λ₂ ∈ [0.8921, 0.9929]).
+
+**Weekly (n=1750, band ±0.0469):** median λ₂ = 0.9126, half-life 7.6 weeks. Model lag-1 ACF 0.1754
+against empirical 0.2776 — the model captures **63% of the one autocorrelation weekly data can
+measure reliably**. Shape test inconclusive: exponential R² 0.4094 against power-law 0.4283, both
+poor, H = 0.524. Empirical ACF falls inside the noise band by lag 8, so **decay shape is not
+identifiable at weekly frequency at all.**
+
+**Daily built and cached** (`data_loader.download_daily_prices` / `load_daily_log_returns`;
+`data/spy_daily.csv`). All 64 checks still pass. n = 8,441, band ±0.0213.
+
+| | weekly | daily |
+|---|---|---|
+| ACF significant to | ~4-7 weeks (20-35 days) | **lag 212 (~10 months)** |
+| fraction of lags significant | — | 54% of lags 1-250 |
+
+Weekly hid ten months of memory behind its noise band. That gain alone justified the frequency
+change.
+
+**But the shape claim was refuted.** I asserted confidently that volatility has power-law memory a
+Markov chain structurally cannot match, and that MSM or HAR was therefore required. At daily
+frequency:
+
+```
+lags 1-250   exponential R2 = 0.7192   power law R2 = 0.6219   H = 0.423
+lags 1- 63   exponential R2 = 0.8644   power law R2 = 0.7719
+lags 1-126   exponential R2 = 0.8094   power law R2 = 0.8264
+```
+
+**Exponential wins**, and H = 0.423 is *below* 0.5 — anti-persistent, the opposite of long memory.
+The gap is one of **duration, not shape**: the model's implied memory reaches ~138 trading days
+against the data's 212, roughly 35% short.
+
+**Three reasons the refutation is itself weak, recorded so neither claim is over-read:**
+
+1. **It flips with the window** — exp / power / exp across 1-63, 1-126, 1-250. Under D4 a verdict
+   that flips on window choice is not reportable as stated. This one flips.
+2. **The ACF is non-monotone at short lags** — 0.2638 at lag 1 *rising* to 0.2858 at lag 5. Neither
+   functional form fits a hump, at exactly the lags carrying the most signal.
+3. **An R² race on log-ACF is not a long-memory test.** GPH log-periodogram regression or local
+   Whittle estimate the fractional integration order `d` *with a standard error*. A proxy was used
+   in place of the test.
+
+**Most likely cause, and it is fixable in scope.** Squared daily returns are a single-draw estimate
+of that day's variance — unbiased but very noisy — and measurement error **attenuates the ACF
+toward zero at exactly the long lags where long memory would appear**. Andersen & Bollerslev (1998),
+already `[skim]` in the reading list. The literature's long-memory results are mostly on realized
+volatility from intraday data, which protocol §9 excludes.
+
+## Out of scope but measured, so it is not re-derived later
+
+Two runs on hedge economics happened before the scope boundary was re-asserted. The numbers are
+recorded so nobody repeats them; **nothing should be built on this strand.**
+
+- `hedge_economics.py` — [[README]] §2's inequality (*"premium drag smaller than the drawdown
+  avoided"*) measured for the first time. Naked SPY 1993-2026: **+10.82% CAGR, −54.6% maxDD**.
+- **A correction is logged inside it.** A first pass priced puts off flat VIX and reported an
+  efficiency of 17.58 for 15% OTM. That was an artifact of ignoring the equity skew. With a
+  strike-dependent skew (0.60 vol points per 1% OTM) it is **3.6**, and at 5-10% OTM the drawdown
+  benefit turns *negative* on the full sample.
+- **The robust half:** the clairvoyant ceiling (expected value of perfect information, Howard 1966)
+  barely moves with pricing — +2.8 to +3.2pp/yr and +18 to +22pp of drawdown across every skew
+  assumption. **Cost of always-on is highly pricing-sensitive; value of timing is not.**
+- `trigger_bracket.py` — payoff per dollar of premium: always-on 0.34, best VIX rule (VIX>30) 0.44,
+  clairvoyant 2.98. Real VIX rules capture **4% (full sample) to 7% (2003+)** of available selection
+  skill, and **no rule beats simply not hedging** on return. Eight rules on ~5 systemic episodes:
+  **power to kill, not to confirm.**
+
 ## Next
 
-Read [[README]] §§1-5 and [[docs/RESEARCH-PROTOCOL]] §§1, 5, 10 — short, and they contain the whole
-framing, then the **First honest result** section above.
+Read [[README]] §§1-5, the **Governing frame** above, then **D3 FIRED** and **Memory diagnostic**.
 
-Step 5 (walk-forward density) was pulled forward ahead of the rest of step 2 to get a real number on
-the board, and it worked — the base specification now has a measured failure mode. The natural next
-move is **S4, Student-$t$ regime densities** (§3), because three independent measures say the tail is
-too thin and $t$ is the one-parameter fix aimed exactly at that. S3 (within-regime ARCH) addresses the
-$(u-0.5)^2$ rejection.
+**Two cheap steps, both aimed at the shape question the daily run left open:**
 
-Remaining in step 2, in order:
+1. **Better volatility proxy, still in scope.** Range-based estimators from daily OHLC — Parkinson
+   (1980), Garman-Klass (1980), Rogers-Satchell (1991), Yang-Zhang (2000). Parkinson alone is ~5x
+   more efficient than close-to-close. Daily data only: no tick data, no Hawkes, nothing §9
+   excludes. Rerun `memory_diagnostic.py --daily` on it. If the memory signal sharpens and
+   lengthens, the attenuation explanation is right and the shape question reopens honestly.
+2. **A real long-memory test.** GPH or local Whittle producing `d` with a standard error, replacing
+   the R² race.
 
-1. **DQ (Engle-Manganelli)** — §5.2. The one that matters and the one that is missing; Christoffersen
-   only asks whether a breach follows a breach. DQ regresses $\mathrm{Hit}_t = I_t - \alpha$ on a
-   constant, lagged hits **and the VaR forecast itself**, catching "breaches too often precisely when
-   it claims risk is high". Report $p \in \{1,4\}$.
-2. **Tick loss + DM/GW** — §5.4.
-3. **ES breach-severity bootstrap** — §5.3. Read the §5.3 caution before writing any of it.
+**Then the test this project has never run:**
 
-Then step 3 (context rungs) shakes out the harness before any model number is quoted.
+3. **Score dynamics against VIX, not levels.** Feed the encompassing regression a *persistence*
+   quantity — expected state duration, the shape (not height) of the h-step variance path, the
+   decay rate — instead of `-ES(0.05)`. VIX is a spot price and carries no persistence statement, so
+   this is the one comparison where the model is not structurally outgunned. **This is the live
+   question.** Everything else is bookkeeping.
+4. **Fit the model on daily** and re-measure `RELIABLE_MIN_OBSERVATIONS` (§1.3) — the 520-week
+   figure is weekly and does not transfer. Does a daily-fitted λ₂ reach the data's 212 days, or stay
+   ~35% short?
 
-Not planned: economic backtesting before the calibration tests pass, statistical jump models, intraday
-data, Hawkes processes, K-means, binary classifiers.
+**Deprioritized, not deleted.** S3 (within-regime ARCH), S4 (Student-t regime densities), DQ, the ES
+breach bootstrap and R1-R10 all address **marginal / level** properties. D3 closed the level-based
+case, so none of them speaks to the untested question. They remain valid research items if the paper
+is written; they are not the path.
+
+**MSM and HAR are parked, not adopted.** They were proposed on a long-memory argument the daily run
+did not support. They come back only if step 1 or 2 shows a power law.
+
+Not planned: economic backtesting, statistical jump models, intraday data, Hawkes processes, K-means,
+binary classifiers.
 
 ## Open governance question
 

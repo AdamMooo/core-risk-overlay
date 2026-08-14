@@ -37,23 +37,15 @@ def _require_dependencies():
     return _DEPS
 
 
-def download_weekly_prices(
+def _download_daily_closes(
     ticker: str = DEFAULT_TICKER,
     start: str | None = None,
     end: str | None = None,
     price_column: str = DEFAULT_PRICE_COLUMN,
 ) -> "pd.Series":
-    """Download daily closes and resample onto a fixed weekly grid.
+    """Download and clean the daily close series. Shared by both frequencies.
 
-    Deliberately does NOT use yfinance's interval="1wk". That anchors weekly
-    bars on each series' own first observation, which makes the grid depend on
-    the request: SPY from 1993-01-01 comes back Monday-anchored, SPY from
-    2010-01-01 comes back Friday-anchored, and the two share zero bars. Two
-    tickers with different inception dates never align at all. Resampling daily
-    closes onto an explicit W-FRI grid is start-date invariant and consistent
-    across tickers, and W-FRI is the actual trading week the strategy runs on.
-
-    `start` also defaults rather than passing None through: yfinance silently
+    `start` defaults rather than passing None through: yfinance silently
     returns only a recent window when no start is given, which looks like valid
     data and is not.
     """
@@ -104,8 +96,49 @@ def download_weekly_prices(
     prices = data[price_column].copy()
     prices.index = pd.to_datetime(prices.index)
     prices = prices.sort_index().dropna().astype("float64")
-    prices = prices.resample(WEEKLY_RULE).last().dropna()
-    prices = prices.rename("weekly_close")
+
+    if prices.empty:
+        raise ValueError(f"No valid daily closing prices available for ticker '{ticker}'.")
+
+    return prices.rename("daily_close")
+
+
+def download_daily_prices(
+    ticker: str = DEFAULT_TICKER,
+    start: str | None = None,
+    end: str | None = None,
+    price_column: str = DEFAULT_PRICE_COLUMN,
+) -> "pd.Series":
+    """Daily closes on the trading-day calendar. No fills, no synthetic bars.
+
+    The unit of observation protocol 1.3 specifies: ~8,400 SPY observations
+    rather than 1,750. Volatility memory is a daily phenomenon and the weekly
+    series lacks the resolution to measure it -- at n=1750 the white-noise ACF
+    band is +/-0.047 and the empirical squared-return ACF falls inside it by
+    lag 8, so decay SHAPE cannot be identified there at all.
+    """
+    return _download_daily_closes(ticker, start, end, price_column)
+
+
+def download_weekly_prices(
+    ticker: str = DEFAULT_TICKER,
+    start: str | None = None,
+    end: str | None = None,
+    price_column: str = DEFAULT_PRICE_COLUMN,
+) -> "pd.Series":
+    """Daily closes resampled onto a fixed weekly grid.
+
+    Deliberately does NOT use yfinance's interval="1wk". That anchors weekly
+    bars on each series' own first observation, which makes the grid depend on
+    the request: SPY from 1993-01-01 comes back Monday-anchored, SPY from
+    2010-01-01 comes back Friday-anchored, and the two share zero bars. Two
+    tickers with different inception dates never align at all. Resampling daily
+    closes onto an explicit W-FRI grid is start-date invariant and consistent
+    across tickers, and W-FRI is the actual trading week the strategy runs on.
+    """
+    _, pd, _ = _require_dependencies()
+    prices = _download_daily_closes(ticker, start, end, price_column)
+    prices = prices.resample(WEEKLY_RULE).last().dropna().rename("weekly_close")
 
     if prices.empty:
         raise ValueError(f"No valid weekly closing prices available for ticker '{ticker}'.")
@@ -136,6 +169,18 @@ def compute_weekly_log_returns(prices: "pd.Series") -> "pd.Series":
     return log_returns
 
 
+def compute_daily_log_returns(prices: "pd.Series") -> "pd.Series":
+    """Daily log returns. Same validation as the weekly path, different label.
+
+    Gaps across weekends and holidays are NOT filled: the return spanning a
+    three-day weekend is a genuine three-calendar-day return and inventing a
+    Sunday bar would fabricate an observation. Trading-day indexing is the
+    calendar protocol 2 specifies.
+    """
+    returns = compute_weekly_log_returns(prices)
+    return returns.rename("daily_log_return")
+
+
 def load_weekly_log_returns(
     ticker: str = DEFAULT_TICKER,
     start: str | None = None,
@@ -150,6 +195,32 @@ def load_weekly_log_returns(
         price_column=price_column,
     )
     return compute_weekly_log_returns(prices)
+
+
+def load_daily_log_returns(
+    ticker: str = DEFAULT_TICKER,
+    start: str | None = None,
+    end: str | None = None,
+    price_column: str = DEFAULT_PRICE_COLUMN,
+) -> "pd.Series":
+    """Return daily log returns. ~8,400 SPY observations rather than 1,750."""
+    prices = download_daily_prices(
+        ticker=ticker,
+        start=start,
+        end=end,
+        price_column=price_column,
+    )
+    return compute_daily_log_returns(prices)
+
+
+def download_daily_vix(
+    start: str | None = None,
+    end: str | None = None,
+) -> "pd.Series":
+    """Daily VIX close as an annualized volatility in percent."""
+    return download_daily_prices(ticker=DEFAULT_VIX_TICKER, start=start, end=end).rename(
+        "daily_vix"
+    )
 
 
 def download_weekly_vix(

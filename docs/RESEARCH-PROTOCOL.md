@@ -447,6 +447,54 @@ report (breach rate by $\alpha$, ES ratio, QQ of $z_t$) and introduces no new me
 
 Every change to §1-§8 after a result exists is logged here with date and reason.
 
+**2026-08-13 — D3 FIRED. §5.5 run; consequence applied.**
+
+`encompassing.py`. Forward downside semivolatility on log VIX and the model's `-ES(0.05)`, weekly,
+$h \in \{4, 13\}$, SPY 2003-2026, 1,230 walk-forward forecasts, non-overlapping stride-$h$ for
+inference per §1.2. At $h=4$, $n=307$: $c = +0.0009$, $p = 0.9935$. Joint $R^2 = 0.1015$ against
+VIX-alone $R^2 = 0.1015$ — identical to four decimals. Model alone $R^2 = 0.0471$. $h=13$ agrees.
+Alignment verified adversarially (leaky 0.2488 > true 0.1015 > stale 0.0769).
+
+**Consequence, as preregistered: no capital is committed.** The model's downside information is
+strictly nested inside implied volatility for this functional at these horizons.
+
+*Scope of the verdict, stated so it is not over-read.* $X$ was a **level**. This tests whether the
+model's *height* adds to VIX's height. It does not test persistence, which is the model's actual
+content and is untested. §1.2's amendment predicted exactly this failure of level-based scoring and
+the run reproduced it. **D3 closes the level-based case only.**
+
+*Consequence for §3.* S3 and S4 address marginal and tail-shape properties — level properties. They
+cannot answer the untested question and are deprioritized rather than retired. §10's build order
+still lists them ahead of any dynamics test and is stale in that respect.
+
+**2026-08-13 — §1.3 daily path built; the frequency decision is now load-bearing and measured.**
+
+`data_loader.download_daily_prices` / `load_daily_log_returns`, cached at `data/spy_daily.csv`.
+All 64 checks pass unchanged.
+
+The weekly series **cannot identify volatility decay shape at all**: at $n = 1{,}750$ the
+white-noise ACF band is $\pm 0.0469$ and the empirical squared-return ACF falls inside it by lag 8.
+At daily frequency ($n = 8{,}441$, band $\pm 0.0213$) the ACF is significant out to **lag 212**,
+about ten months, with 54% of lags 1-250 significant.
+
+*A claim was made and refuted the same day, recorded under §0 rather than quietly dropped.* It was
+asserted that volatility exhibits power-law memory that a finite-state Markov chain structurally
+cannot match, and that MSM (Calvet & Fisher) or HAR (Corsi) was therefore required. On daily SPY
+the **exponential fit wins** ($R^2$ 0.7192 against 0.6219 over lags 1-250; 0.8644 against 0.7719
+over 1-63), and $H = 0.423$ is below 0.5. The measured gap is one of **duration, not shape** — the
+model's implied memory reaches ~138 trading days against the data's 212.
+
+The refutation is itself weak and must not be over-read either: the verdict **flips with the
+window** (exp / power / exp across 1-63, 1-126, 1-250), which is a D4 condition; the ACF is
+non-monotone at lags 1-5; and an $R^2$ race on log-ACF is not a long-memory test — GPH or local
+Whittle, estimating $d$ with a standard error, is. The likely cause is that squared daily returns
+are a noisy variance proxy whose measurement error attenuates the ACF at long lags
+(Andersen & Bollerslev 1998, `[skim]`, already listed in §11).
+
+*Neither claim is settled.* The open item is a better daily volatility proxy — range-based
+estimators from OHLC (Parkinson 1980; Garman-Klass 1980; Rogers-Satchell 1991; Yang-Zhang 2000),
+which stay inside §9's exclusion of intraday data — followed by a real long-memory test.
+
 **2026-08-13 — §1.2, horizon promoted from "secondary, and a gate on nothing" to co-primary.**
 
 *Reason, stated as a structural argument rather than a result.* The distinguishing content of a
