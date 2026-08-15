@@ -5,8 +5,10 @@ Last updated: 2026-08-13
 A systematic tail-risk hedge for a permanently long, globally diversified equity book — and a
 research program testing whether the risk measure it needs can be built honestly.
 
+- **What the problem is — established / falsified / unknown / the decision:** `docs/PROBLEM-MAP.md`
+  (read first; §6 gates what is worth building)
 - **The question and how it gets answered:** `docs/RESEARCH-PROTOCOL.md` (binding, preregistered)
-- **Current state and next build:** `core-risk-overlay.md`
+- **Chronological log:** `core-risk-overlay.md`
 - **Mathematics:** `docs/MATH-REFERENCE.md` · **Time-basis rules:** `docs/POINT-IN-TIME-DISCIPLINE.md`
 - **Width/direction separation (binding):** `docs/TRANSLATION-LAYER.md`
 - **Next experiment, preregistered and blocked:** `docs/STUB-GARCH-ENCOMPASSING.md`

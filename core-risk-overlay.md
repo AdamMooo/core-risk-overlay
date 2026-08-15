@@ -6,17 +6,35 @@ type: project
 
 Last updated: 2026-08-14
 
-Tail-risk hedge overlay for a permanently long global equity book. Mandate in [[README]]. Protocol in
+Tail-risk hedge overlay for a permanently long global equity book. **Problem statement, and the gate
+on what is worth building: [[docs/PROBLEM-MAP]] — read it first.** Mandate in [[README]]. Protocol in
 [[docs/RESEARCH-PROTOCOL]]. Mathematics in [[docs/MATH-REFERENCE]]. Time-basis rules in
 [[docs/POINT-IN-TIME-DISCIPLINE]]. **Width/direction separation, binding, in
 [[docs/TRANSLATION-LAYER]].**
 
-## Status — 2026-08-14
+## Status — 2026-08-15
 
-**Both axes are closed. The model adds nothing to VIX on levels (D3) or on dynamics, for SPY.**
-Two directions survive, and they are different in kind: **multi-asset** (a genuinely different
-*information set*) and the **GARCH specification question** (the same information set, a different
-*estimator* — so containment does not apply). The second is preregistered and blocked; see Next.
+> **SCOPE RESET 2026-08-15. This repo is no longer a signal-discovery engine.** Its job is to state
+> the hedging problem — what is established, what is falsified, what is unknown and *why*, what the
+> decision actually is, and what research would change it. **No signal, measure or estimator is added
+> unless the decision it improves is named first, with a size.** The standing answer lives in
+> **[[docs/PROBLEM-MAP]]** — read that before anything below. This file remains the chronological log.
+
+**The structure map ran (2026-08-15) and it reordered the project.** Tenor is the dominant variable:
+extending 10% OTM outrights from 4w to 52w buys **3-4x the drawdown protection at equal or lower
+cost**. Always-on 52w 5% OTM buys **+24.3pp** of drawdown (2003+) against a *clairvoyant* 4w bound of
++24.7pp — so the protection axis is close to saturated by structure alone, with no signal. Perfect
+foresight at matched structure adds **+1.4pp of drawdown and +8.5pp/yr of premium**: a signal is a
+**cost-reduction device, not a protection device**. Full decomposition and its limits in
+[[docs/PROBLEM-MAP]] §5.
+
+**Both axes of the model question are closed. The model adds nothing to VIX on levels (D3) or on
+dynamics, for SPY.**
+Two directions were held open on structural grounds — **multi-asset** (a different *information set*)
+and the **GARCH specification question** (a different *estimator* on the same set, so containment
+does not apply). Both remain structurally valid and **both are now off the decision path**: the
+structure map bounded what any signal can be worth, and neither is scored against that bound.
+Retained as research items if the paper is written — [[docs/PROBLEM-MAP]] §6.
 
 **What the model IS, now measured rather than assumed** (`state_character.py`, below): a **width
 meter** that separates volatility by ~2.4x out of sample, carries **no direction content**, and
@@ -627,10 +645,12 @@ weekly. Effective sample is far below 1,230 + 898.
 from these tables; for SPY it is already answered **no** on levels (D3) and dynamics, and nothing
 above reopens either. No rule, threshold, sizing or action is proposed.
 
-## Out of scope but measured, so it is not re-derived later
+## Hedge economics — measured before the strand was legitimised (2026-08-13)
 
-Two runs on hedge economics happened before the scope boundary was re-asserted. The numbers are
-recorded so nobody repeats them; **nothing should be built on this strand.**
+Two runs happened while the measure-vs-instrument boundary still applied to everything. That boundary
+was scoped to the research strand on 2026-08-14 and the scope reset of 2026-08-15 makes **this the
+main strand**. The line that used to head this section — *"nothing should be built on this strand"* —
+is **retracted**. It was written when the signal program still looked like the source of value.
 
 - `hedge_economics.py` — [[README]] §2's inequality (*"premium drag smaller than the drawdown
   avoided"*) measured for the first time. Naked SPY 1993-2026: **+10.82% CAGR, −54.6% maxDD**.
@@ -646,22 +666,78 @@ recorded so nobody repeats them; **nothing should be built on this strand.**
   skill, and **no rule beats simply not hedging** on return. Eight rules on ~5 systemic episodes:
   **power to kill, not to confirm.**
 
+## THE STRUCTURE MAP — tenor dominates, and it reorders the project (2026-08-15)
+
+**Claim tuple: weekly marks · full holding period · geometric return and max drawdown · SPY
+1993-2026 and 2003-2026 · ALWAYS-ON, h=1.00, NO signal and NO timing anywhere in the design.**
+Run: `.venv\Scripts\python.exe structure_map.py SPY`. Grid: 4 tenors × 5 strikes × outright/spread,
+skew slope 0.60 primary, 5% offer spread.
+
+**All three registered predictions resolved, and one of them was wrong in a useful direction.**
+
+- **(a) CONFIRMED, unanimously.** **0 of 40** structures beat the naked book on CAGR, in *both*
+  samples. README §2's inequality — "premium drag smaller than the drawdown avoided" — **fails on
+  average at every point in this grid.** The mandate's founding arithmetic does not hold as stated.
+- **(b) SPLIT.** *Long tenor* confirmed decisively. *Deep strike* **refuted** — 30% OTM at 4w and 13w
+  buys **negative** drawdown, and the drawdown-bought table is dominated by *shallow* strikes at long
+  tenor. "Deep OTM is where tail insurance lives" was wrong.
+- **(c) CONFIRMED.** Put spreads top the efficiency table (13.90) and buy 3.3-6.8pp of drawdown
+  against outright's 16.8-24.3pp. Cheap, and capped exactly in the tail the program exists for.
+
+**The result — drawdown bought (pp) @ cost (pp/yr), outright, slope 0.60:**
+
+| strike | sample | 4w | 13w | 26w | 52w |
+|---|---|---|---|---|---|
+| 10% OTM | 1993-2026 | −1.1 @ 3.28 | +1.1 @ 3.39 | **+10.8 @ 2.74** | **+16.8 @ 2.36** |
+| 10% OTM | 2003-2026 | +5.1 @ 2.85 | +5.7 @ 2.98 | **+17.8 @ 2.51** | **+19.9 @ 2.49** |
+| 15% OTM | 2003-2026 | +4.1 @ 0.94 | +3.3 @ 1.64 | +12.5 @ 1.42 | +16.0 @ 1.70 |
+
+**Cost is flat to falling across the row while protection triples.** This is a dominated region of the
+design space, not a trade-off — and the repo sat in it for two years without measuring it.
+
+**Against the clairvoyant bound (2003+, slope 0.60), which is what makes it a project-level finding.**
+Always-on 52w 5% OTM buys **+24.3pp @ 3.74**. The *clairvoyant* 4w 5% bound is **+24.7pp**; the
+clairvoyant 13w 5% bound is **+14.5pp**. **Choosing the tenor correctly with no signal at all delivers
+as much drawdown reduction as perfect foresight at the tenors previously tested.** The apparent value
+of timing was substantially an artifact of holding structure at 4-13 weeks.
+
+At matched structure (13w 5%), perfect foresight adds **+1.4pp of drawdown and +8.46pp/yr of
+premium**. **A signal is a cost-reduction device, not a protection device** — the first statement of
+what a signal is *for* that this repo has derived from the decision rather than from statistics.
+
+**Two things this run refutes about its own predecessor.**
+
+- **Efficiency is not a usable selection metric.** Its denominator goes to zero: at slope 0.00 the
+  grid's best efficiency is **218.23 at a cost of 0.03pp/yr** — a structure that protects nothing.
+  The script's own warning was right and its footer ("eff … is the right metric for comparing
+  STRUCTURES") contradicts it. **Rank on drawdown bought at a stated cost.**
+- **The whole grid is conditional on an unverified skew parameterization**, and it favours the
+  conclusion. `skewed_vol` scales skew as `sqrt(4/tenor)`, so long tenors are assumed to carry far
+  less skew per point of moneyness. The repo has no option chain. Best-efficiency structure swings
+  from 4w to 26w and from eff 218 to 9.22 across slope 0.00→0.80. **This is the single largest
+  caveat on the finding and it now has a cheap fix** — `options-quant` has archived point-in-time SPY
+  chains since 2026-08-14 with 25Δ skew per expiry.
+
+**Not covered, stated so the run is not read as complete:** recycling (`simulate` reinvests passively
+at the next roll; never sized deliberately), the honest competitors (trend sleeve, long duration),
+and the 26w/52w clairvoyant columns, which do not exist.
+
 ## Next
 
-Read [[README]] §§1-5, the **Governing frame** above, then **D3 FIRED** and **Memory diagnostic**.
+**Read [[docs/PROBLEM-MAP]] first.** It is the standing statement of the problem and §6 is the gate
+that decides whether anything below is worth running. Then [[README]] §§1-5 and the **Governing
+frame** above.
 
-**Two cheap steps, both aimed at the shape question the daily run left open:**
+**The gate, in one line: no signal, measure or estimator is built unless it is scored as *premium
+avoided per unit of protection retained*, at 26-52 week tenor, against the §5.1 decomposition.**
 
-1. **Better volatility proxy, still in scope.** Range-based estimators from daily OHLC — Parkinson
-   (1980), Garman-Klass (1980), Rogers-Satchell (1991), Yang-Zhang (2000). Parkinson alone is ~5x
-   more efficient than close-to-close. Daily data only: no tick data, no Hawkes, nothing §9
-   excludes. Rerun `memory_diagnostic.py --daily` on it. If the memory signal sharpens and
-   lengthens, the attenuation explanation is right and the shape question reopens honestly.
-2. **A real long-memory test.** GPH or local Whittle producing `d` with a standard error, replacing
-   the R² race.
+### Superseded by the scope reset — retained as record, not as plan
 
-~~3. Score dynamics against VIX, not levels.~~ **Done 2026-08-14 — c = −0.0047, p = 0.6255.**
-   See **THE DYNAMICS TEST** above. Both axes are now closed.
+Everything from here to the end of this section was the plan as of 2026-08-14, when the signal
+program was still believed to be where the value was. The design work is sound and the reasoning is
+worth keeping — particularly the horizon argument and the asymmetry amendment, which are the two
+best pieces of experimental design in the repo. **None of it is on the decision path**
+([[docs/PROBLEM-MAP]] §6). Do not treat the items below as next actions.
 
 **The stated next research question (2026-08-14), and the constraint that makes it answerable:**
 
@@ -744,7 +820,10 @@ the run carries no information and must not happen. Containment does **not** app
 exactly the same information set as the MS model — which is why this is a real experiment and not
 D3 again.
 
-**The one direction still open, and the only one:**
+**The direction that was open on 2026-08-14 — structurally valid, and now off the decision path.**
+The containment argument against everything else still stands, and multi-asset still escapes it. What
+changed is the *denominator*: the structure map bounded what any signal can be worth, and a
+cross-asset width measure is not scored against that bound. It returns only under the §6 gate.
 
 3. **Multi-asset.** [[README]] §1 says *systemic* is the operative word and the model has only ever
    seen SPY. VIX is SPY-only implied volatility, so a cross-asset measure is a genuinely different
@@ -776,8 +855,28 @@ is written; they are not the path.
 **MSM and HAR are parked, not adopted.** They were proposed on a long-memory argument the daily run
 did not support. They come back only if step 1 or 2 shows a power law.
 
-Not planned: economic backtesting, statistical jump models, intraday data, Hawkes processes, K-means,
-binary classifiers.
+Not planned: statistical jump models, intraday data, Hawkes processes, K-means, binary classifiers.
+*"Economic backtesting" was on this list until 2026-08-15; the structure map is exactly that, and it
+produced the largest effect size in the repo. Removed.*
+
+### The actual next actions (2026-08-15)
+
+In order, and each qualifies under [[docs/PROBLEM-MAP]] §6 because a plausible outcome changes an
+action:
+
+1. **Fit the real skew surface from `options-quant`'s archived SPY chains** and replace
+   `skewed_vol`'s swept slope. The `sqrt(4/tenor)` term is load-bearing *in the direction of the
+   conclusion*; if real 52-week skew is steeper than assumed, the tenor result shrinks or inverts.
+   **This can overturn the largest finding in the repo, which is why it goes first.** Data only —
+   no import, no code dependency, and `options-quant` is not governed by the charter either.
+2. **Extend the clairvoyant grid to 26w and 52w** in `hedge_economics.py`. One line. Until it exists,
+   "timing is worth ~3pp/yr" is a claim about 4w and 13w only, and §5.2 of the problem map stays
+   suggestive rather than settled.
+3. **Decide the objective: options, or drawdown reduction?** If the second, a trend sleeve is the
+   honest competitor and the whole options program is one branch of a comparison never run. A
+   decision for Adam, not a measurement — and it gates how much of the rest is worth doing.
+4. **Specify the recycling rule, then measure it.** README §1 claims monetize-and-rebuy as a source of
+   value; it has never been written as a rule, so it has never been measured.
 
 ## Open governance question
 

@@ -161,17 +161,26 @@ def skewed_vol(base_vix, strike, spot_now, tenor_weeks, slope):
 
 
 def simulate(spot, vix, hedge_ratio, moneyness, tenor, skew_slope=0.0,
-             spread=0.0, foresight=False, trigger=None):
+             spread=0.0, foresight=False, trigger=None, short_moneyness=0.0):
     """Weekly-marked equity curve for a continuously rolled put program.
 
     Self-financing: premium is paid out of the book at each roll, the remainder
     is held in the index, and the payoff lands back in the book at expiry.
 
+    short_moneyness > moneyness turns the outright put into a PUT SPREAD: long
+    at (1 - moneyness), short at (1 - short_moneyness). The short leg is deeper
+    OTM, so under a skew it carries a HIGHER implied vol than the long leg and
+    recoups disproportionately more premium than a flat surface would suggest.
+    That is the whole reason a spread is worth testing in a skewed market. The
+    cost is that the payoff is capped at the distance between the strikes --
+    precisely in the deep tail the program exists to insure. Both legs cross the
+    bid-ask, so `spread` is paid on the long leg and given up on the short.
+
     foresight=True is CLAIRVOYANT and not implementable: it looks at the expiry
-    price before deciding to buy, and skips any block where the put would expire
-    worth less than it cost. It is the strict upper bound on what ANY trigger
-    can achieve at this instrument, strike and tenor -- no signal, however good,
-    beats knowing the answer. Its only purpose is to bound the others.
+    price before deciding to buy, and skips any block where the structure would
+    expire worth less than it cost. It is the strict upper bound on what ANY
+    trigger can achieve at this instrument, strike and tenor -- no signal,
+    however good, beats knowing the answer. Its only purpose is to bound others.
     """
     prices = spot.to_numpy()
     base_vix = vix.to_numpy()
@@ -192,6 +201,7 @@ def simulate(spot, vix, hedge_ratio, moneyness, tenor, skew_slope=0.0,
         value = equity[block_start]
 
         strike = entry_spot * (1.0 - moneyness)
+        short_strike = entry_spot * (1.0 - short_moneyness) if short_moneyness else 0.0
         entry_years = (block_end - block_start) / WEEKS_PER_YEAR
         entry_vol = skewed_vol(
             base_vix[block_start], strike, entry_spot, tenor, skew_slope
@@ -200,9 +210,19 @@ def simulate(spot, vix, hedge_ratio, moneyness, tenor, skew_slope=0.0,
         unit_cost = float(
             black_scholes_put(entry_spot, strike, entry_years, entry_vol)
         ) * (1.0 + spread)
+        if short_strike:
+            short_vol = skewed_vol(
+                base_vix[block_start], short_strike, entry_spot, tenor, skew_slope
+            )
+            unit_cost -= float(
+                black_scholes_put(entry_spot, short_strike, entry_years, short_vol)
+            ) * (1.0 - spread)
 
         contracts = hedge_ratio * value / entry_spot
-        if foresight and max(strike - prices[block_end], 0.0) <= unit_cost:
+        expiry_payoff = max(strike - prices[block_end], 0.0)
+        if short_strike:
+            expiry_payoff -= max(short_strike - prices[block_end], 0.0)
+        if foresight and expiry_payoff <= unit_cost:
             contracts = 0.0
         if fires is not None and not fires[block_start]:
             contracts = 0.0
@@ -218,9 +238,16 @@ def simulate(spot, vix, hedge_ratio, moneyness, tenor, skew_slope=0.0,
             put_value = float(
                 black_scholes_put(prices[t], strike, remaining, mark_vol)
             )
+            if short_strike:
+                short_mark_vol = skewed_vol(
+                    base_vix[t], short_strike, prices[t], tenor, skew_slope
+                )
+                put_value -= float(
+                    black_scholes_put(prices[t], short_strike, remaining, short_mark_vol)
+                )
             equity[t] = shares * prices[t] + contracts * put_value
 
-        payoff_received += contracts * max(strike - prices[block_end], 0.0)
+        payoff_received += contracts * expiry_payoff
         block_start = block_end
 
     curve = pd.Series(equity, index=spot.index)
