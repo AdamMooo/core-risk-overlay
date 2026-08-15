@@ -4,25 +4,34 @@ type: project
 
 # Core-Risk-Overlay
 
-Last updated: 2026-08-13
+Last updated: 2026-08-14
 
 Tail-risk hedge overlay for a permanently long global equity book. Mandate in [[README]]. Protocol in
 [[docs/RESEARCH-PROTOCOL]]. Mathematics in [[docs/MATH-REFERENCE]]. Time-basis rules in
-[[docs/POINT-IN-TIME-DISCIPLINE]].
+[[docs/POINT-IN-TIME-DISCIPLINE]]. **Width/direction separation, binding, in
+[[docs/TRANSLATION-LAYER]].**
 
-## Status — 2026-08-13
+## Status — 2026-08-14
 
-**D3 has fired. The level-based case for this model is closed. The dynamics case has never been
-tested, and that is the whole remaining project.**
+**Both axes are closed. The model adds nothing to VIX on levels (D3) or on dynamics, for SPY.**
+Two directions survive, and they are different in kind: **multi-asset** (a genuinely different
+*information set*) and the **GARCH specification question** (the same information set, a different
+*estimator* — so containment does not apply). The second is preregistered and blocked; see Next.
 
-Four results landed in one session (all below): the encompassing regression against VIX, the
-hedge-economics bracket, the trigger bracket, and the memory diagnostic — the last of which
-**refuted a confident claim made earlier the same day** and is recorded as such.
+**What the model IS, now measured rather than assumed** (`state_character.py`, below): a **width
+meter** that separates volatility by ~2.4x out of sample, carries **no direction content**, and
+reads "wide" when the book is already ~13% below its peak. That description is the honest product
+of this repo to date. It is not a forecast and it is not incremental to VIX.
+
+Prior session (2026-08-13): the encompassing regression against VIX, the hedge-economics bracket,
+the trigger bracket, and the memory diagnostic — the last of which **refuted a confident claim made
+earlier the same day** and is recorded as such.
 
 ## Governing frame — read this before proposing any experiment
 
-Three rules, each of which this repo has already broken at least once. They exist because the
-documents kept asserting the right principle while the practice reverted.
+Rules 1-3 have each been broken by this repo at least once. They exist because the documents kept
+asserting the right principle while the practice reverted. Rule 4 is the one rule added *before* it
+was broken, and it is now binding architecture rather than a preference.
 
 **1. The model's content is `P`, not a level.** A Markov-switching model's claim is about
 *persistence* — how long a state lasts, how belief decays, how the forecast reverts. Every test
@@ -42,6 +51,14 @@ before being stopped. Economic viability is the long-run goal, not the near-term
 cannot resolve volatility memory at all — at n=1750 the ACF band is ±0.0469 and the empirical
 squared-return ACF is inside it by lag 8. A year of argument about regime counts and tail shapes
 happened on a series that could not have settled any of it.
+
+**4. The model measures WIDTH. Direction is a separate layer that does not exist.** Established
+empirically, not assumed: volatility separates 2.4x (SPY) / 1.8x (QQQ) across probability bins and
+replicates, while the drift difference **reverses sign between the two assets** and the down/up
+tail ratio straddles 1.0. So `wide` never licenses `bearish`, `short`, or `to cash`. Sizing on
+width is legitimate **only** as variance targeting, and the reason must be written next to the
+line — identical code, different research obligation. Full contract, forbidden patterns, and the
+status of every "beyond simpler measures" comparison: [[docs/TRANSLATION-LAYER]].
 
 The question is unchanged ([[README]] §3): *how well does a Markov-switching model provide
 real-time information about Value at Risk and the tail risk of equity assets?* **Real-time**
@@ -513,6 +530,103 @@ only thing that does.
 frequency-invariant. Daily is worth building for the *memory* question; it is not a route back into
 this one, and proposing it as one would be the goalpost-moving this repo keeps catching itself at.
 
+## STATE CHARACTERISATION — what the states actually describe (2026-08-14)
+
+**Claim tuple: weekly · h=1 · contemporaneous realized environment (volatility, drift, tail
+asymmetry, episode duration, drawdown position) · SPY 1,230 OOS weeks 2003-2026 and QQQ 898 OOS
+weeks 2009-2026, vintage parameters.** Run: `.venv\Scripts\python.exe state_character.py [SPY|QQQ]`.
+Figure: `figures/state_character_<ticker>.png`.
+
+The first description of the **state** in observable market terms. Everything prior scored the
+**density**; everything known about the regimes came from fitted parameters on a single whole-sample
+fit. No forward window, no regression, no VIX column, no rule.
+
+**Q1 — can the states be told apart? Yes, on width, and it replicates.** Realized volatility is
+monotone across all six probability bins on both assets.
+
+| | realized vol ratio wide/calm | block-bootstrap 95% CI | fitted σ ratio |
+|---|---|---|---|
+| SPY | 2.446 | [1.823, 3.124] | 2.560 |
+| QQQ | 1.791 | [1.316, 2.184] | 2.477 |
+
+Stable across sample halves (SPY 2.559 / 2.372; QQQ 1.714 / 1.638). **The direction was entailed** —
+`w_wide[t]` is driven by `r[t-1]` through the likelihood ratio and volatility clusters — and is
+recorded rather than claimed. The magnitude and the monotonicity were not.
+
+**One thing does not replicate.** On SPY the fitted ratio (2.560) nearly equals the delivered one
+(2.446); on QQQ the fit overstates its own discrimination by 38% (2.477 vs 1.791). "The fit does not
+exaggerate its separation" is a **SPY fact, not a model fact.**
+
+**Q2 — what do they look like? A width axis with no direction content.** This is the sign-blindness
+finding reappearing out-of-sample on the state bands rather than on the fitted parameters:
+
+| | drift, wide − calm | Welch t | down/up at \|r\|≥3%, wide | calm |
+|---|---|---|---|---|
+| SPY | −0.24%/wk | −0.78 | 1.12 | 1.00 |
+| QQQ | +0.46%/wk | +0.91 | 0.83 | 0.90 |
+
+**The two assets disagree on the sign of the drift difference and the down/up ratio straddles 1.0.**
+That is as clean a demonstration as this sample can give that the state is a statement about
+**width, not direction.** The Welch *t* is quoted without a *p*-value on purpose — the observations
+and the band assignment are both autocorrelated, so a nominal *p* would be badly oversized.
+
+**The trap, flagged because the figure makes it inviting.** SPY's `[0.99,1.00)` bin shows −60.9%/yr
+drift on **n=28 weeks**, a handful of overlapping episodes. QQQ's same bin shows **+131%/yr on n=5**.
+Reading either as a directional signal is exactly the error [[README]] §4 names. The figure carries
+a footnote saying so.
+
+**Persistence — the model misdescribes its own.** The one property this model class claims that a
+spot measure lacks:
+
+| | fitted expected duration, wide | realized mean band run | median | 1-week blips |
+|---|---|---|---|---|
+| SPY | 12.9 weeks | 5.1 | 2 | 34.2% |
+| QQQ | 26.7 weeks | 4.3 | 3 | 23.5% |
+
+**The realized run lengths are stable across assets (5.1, 4.3) while the fitted duration parameter is
+not (12.9, 26.7).** SPY's second half is worse than its first (3.2 vs 7.6 weeks). **Caveat that keeps
+this from being a test:** a band crossing is not a state transition, so a threshold on a continuous
+probability necessarily crosses more often than the latent state switches. Part of the gap is
+mechanical and this is an order-of-magnitude reading, not a calibration result.
+
+**Drawdown position — the cleanest replication in the run, and the most decision-relevant table.**
+Depth below the running peak, past data only:
+
+| | mean dd when wide | median | % of wide weeks at a peak | mean dd when calm |
+|---|---|---|---|---|
+| SPY | −15.90% | −13.08% | 10.4% | −3.04% |
+| QQQ | −15.52% | −13.54% | 12.3% | −2.75% |
+
+**By the time the model says "wide", the book is already ~13% below its peak at the median.** This
+is the causal-filter lag of §"Figure 2 makes the causal-filter lag concrete" expressed for the first
+time in the **mandate's own variable** — depth, not variance. Partly mechanical in direction (a wide
+state follows bad returns, which put you below peak); the magnitude is not entailed, and it lands
+within 0.4pp across two assets.
+
+**A prediction of mine, refuted.** I predicted from the saturation finding that the ambiguous band
+would be nearly empty and an abstain path would have nothing to fire on. **It is 17.6% of SPY weeks
+and 13.8% of QQQ weeks**, with only 9.0% / 5.5% of weeks outside `[0.01, 0.99]` and median `w_wide`
+0.073 / 0.030. It is a *state*, not a transit corridor — its transition diagonal is 66.7% / 65.3%,
+median run 3 / 2 weeks. The saturation claim above is about the **extreme top** (top-20 weeks at
+P ≥ 0.99999) and the blocky VaR path, and both stand; what does not stand is the natural reading
+that the signal is effectively binary. Recorded as a correction of a plausible misreading, not of a
+stated claim.
+
+**Stated precisely, because the loose version jumps A→C** (protocol §0.2 P3): what is measured is
+**occupancy** — the ambiguous band is populated and persistent rather than empty. That an abstain
+branch would have something to fire on is **not** evidence that abstaining is useful, which is a
+question C and untouched. An earlier phrasing here — *"the abstain path is available"* — elided the
+two and is retracted.
+
+**QQQ is a weak replication and must not be quoted as an independent one.** Its OOS window starts
+2009-03-06 — the 520-week burn-in swallows the GFC entirely — and QQQ correlates 0.87 with SPY
+weekly. Effective sample is far below 1,230 + 898.
+
+**Scope.** All of the above is measurement and interpretation. Whether the description is
+*incremental* to what a downstream user already observes is **not** asked here and is not answerable
+from these tables; for SPY it is already answered **no** on levels (D3) and dynamics, and nothing
+above reopens either. No rule, threshold, sizing or action is proposed.
+
 ## Out of scope but measured, so it is not re-derived later
 
 Two runs on hedge economics happened before the scope boundary was re-asserted. The numbers are
@@ -549,6 +663,87 @@ Read [[README]] §§1-5, the **Governing frame** above, then **D3 FIRED** and **
 ~~3. Score dynamics against VIX, not levels.~~ **Done 2026-08-14 — c = −0.0047, p = 0.6255.**
    See **THE DYNAMICS TEST** above. Both axes are now closed.
 
+**The stated next research question (2026-08-14), and the constraint that makes it answerable:**
+
+> **Does this representation of width contain information beyond simpler volatility measurements?**
+
+Status of every rung, so none is re-run by accident: **constant — run**, model wins tick loss, DM
+significant at 10% and 5%. **EWMA — run at h=1 and VOID at h=1.** **VIX levels — run, null (D3).**
+**VIX dynamics — run, null.** **GARCH(1,1) — never built, not implemented anywhere in this repo.**
+**ATR / Parkinson / Garman-Klass / Rogers-Satchell / Yang-Zhang — never built**, needs daily OHLC.
+
+**The horizon is the whole design and §0 rule 4 will void the run without it.** EWMA is IGARCH: its
+multi-step variance forecast is a martingale and never reverts. MS reverts toward the stationary
+regime mix at a rate set by the second eigenvalue of `P`. That is the entire structural difference
+and it is **exactly zero at h=1** — so an h=1 rerun measures nothing, whatever it returns. Any
+"beyond simpler measures" test runs at **h > 1** and states the reverting-vs-martingale mechanism in
+its stub. **GARCH(1,1) is the sharper opponent than EWMA**, because GARCH also reverts (toward
+unconditional variance, at rate `alpha + beta`), which isolates the real question: do **discrete
+regimes** add anything over **smooth mean reversion**? Full table in [[docs/TRANSLATION-LAYER]] §5.
+
+**The §0 stub is written and the experiment is BLOCKED, deliberately:
+[[docs/STUB-GARCH-ENCOMPASSING]].** Two findings from writing it, both of which would have wasted
+the run:
+
+- **h > 1 is necessary and not sufficient.** `E_t[sigma2(t+h)]` is *the same functional form* in
+  both models — `long-run level + (geometric rate)^h × current deviation`, with a single
+  state-independent rate in each (`alpha+beta` vs `lam`). A point-forecast variance comparison at
+  any horizon compares two parameterisations of one two-parameter curve: **structurally the h=1
+  EWMA mistake, one level deeper.** The discriminating functional is the **h-step density**, whose
+  shape under MS is a mixture over `2^h` regime paths that no single-regime GARCH can reproduce.
+- **The horizon follows from mixing time, not from taste.** Mixture non-Gaussianity vanishes for
+  h ≪ mixing time (chain barely moves) *and* for h ≫ it (CLT reabsorbs it). Mixing time is
+  `1/(1-lam)` ≈ **11.4 weeks** at the already-published median `lam` = 0.9126 — hence **h=13
+  primary**, with h=4 and h=26 as brackets and a preregistered prediction that any effect is
+  *largest at 13*, which is itself a test of the stated mechanism.
+
+**A third finding, raised against my own stub (§11.1): a null would be CONFOUNDED.** ARCH-LM
+rejects at 55.6 *after* regime switching, so the base specification is known-misspecified in the
+exact dimension under test. A positive result is therefore clean and strong; a null is equally
+consistent with *"the within-regime defect masks what the regimes contribute"* and **no sample size
+separates those.** The literature sharpens this rather than softening it — SWARCH and MS-GARCH both
+put ARCH inside the regimes, so the field largely **skipped this rung because plain MS was already
+understood to be inadequate.** That is simultaneously why the run is not redundant and why its null
+is uninformative. The run is still worth having, as an **asymmetric** test, and a null is reportable
+only as a claim about *this specification*, never about regime structure as such.
+
+**The experiment is now formally ASYMMETRIC** ([[docs/RESEARCH-PROTOCOL]] amendment 2026-08-14,
+stub §11.1-§11.5). `H0_spec` (plain MS adds nothing over GARCH) is testable; `H0_struct` (regime
+structure adds nothing) **is not, at any sample size**. Verdicts are POSITIVE / NULL /
+**INCONCLUSIVE**, assigned before any conclusion is written, and a result failing the power
+requirement is INCONCLUSIVE rather than NULL. **No retroactive repair:** a null does not license
+swapping in SWARCH and rerunning — S3 is a separate stub. And the **positive** branch is confounded
+too: the model switches its **mean** as well as its variance while GARCH's mean is constant, so a
+**common-mean MS variant is required** or a positive is uninterpretable.
+
+**Literature gate — 2026-08-14. Timmermann (2000) READ IN FULL; verdict INFORMS; the run is not
+killed.** The blocker moved from Hamilton & Susmel because a *fact* changed: SWARCH is MS-**ARCH**
+(rung 4), while Timmermann's model (1) is **exactly this repo's specification** (rung 3). Obtained
+free as LSE FMG DP 323. Three consequences, in [[docs/STUB-GARCH-ENCOMPASSING]] §14.3:
+
+- **Skewness requires switching MEANS** — variance switching alone cannot produce it, at any `P`.
+  And standard GARCH without leverage has **zero** skewness (Bollerslev 1986). So plain MS can do
+  something GARCH(1,1) structurally cannot, which is the sharpest mechanism found so far — and it
+  explains the asymmetric PIT QQ panel the repo already had and could not account for.
+- **The §11.3 common-mean control is heavier than it looked:** it forces skewness to exactly zero,
+  removing that entire axis and making a positive result *hardest* on that variant. GJR-GARCH,
+  added earlier for an unrelated reason, is the right opponent for the skewness axis.
+- **Timmermann's own warning lands on our parameters** — MS with small means in all states "may have
+  trouble replicating the skewness found in these data." Ours are +0.36% / −0.26%. **Corollary 1
+  makes this computable in closed form from parameters already fitted at 95 vintages**, which would
+  discharge §9's blocking power requirement before any code exists. Recommended, not done.
+
+**A §0 rule 3 PROCESS FAILURE came out of it, logged in [[docs/RESEARCH-PROTOCOL]] §Amendments.**
+`memory_diagnostic.py`'s 2026-08-13 "deductive result" is Timmermann's Proposition 5 — published
+1999, sitting `[UNREAD]` as row 2 of the reading list, whose own reading-order note already said
+what it contained. The repo's version omits the mean terms and overstates the autocovariance by
+**1.00%** at fitted parameters: negligible numerically, wrong formally, now corrected.
+
+**Still open:** Hamilton & Susmel (1994), lower priority, and Marcucci (2005) full text. §0 rule 3 requires naming the paper that settles it; if one does, rule 2 says
+the run carries no information and must not happen. Containment does **not** apply here — GARCH sees
+exactly the same information set as the MS model — which is why this is a real experiment and not
+D3 again.
+
 **The one direction still open, and the only one:**
 
 3. **Multi-asset.** [[README]] §1 says *systemic* is the operative word and the model has only ever
@@ -559,6 +754,14 @@ Read [[README]] §§1-5, the **Governing frame** above, then **D3 FIRED** and **
    fraction of variance in the top eigenvectors, point-in-time. One new column through
    `encompassing.py`, which already exists and is already validated. If a cheap joint measure adds
    nothing to VIX, an expensive one almost certainly will not either.
+
+   **`state_character.py` now gives this probe a bar to clear that is not a regression.** The
+   single-asset state reads "wide" when the book is already ~13% below its peak at the median, on
+   both SPY and QQQ. A cross-asset measure that fires at the same depth is not worth building
+   whatever its encompassing coefficient does, and that comparison is descriptive, cheap, and
+   available before any regression is run. Note `systemic_state.py` currently threatens this route
+   independently: the expanding-percentile trigger it used is refuted, and the fix (Kritzman's own
+   standardised shift) is unbuilt.
 
 4. **Fit the model on daily** and re-measure `RELIABLE_MIN_OBSERVATIONS` (§1.3) — the 520-week figure
    is weekly and does not transfer. Worth doing for the **memory** question only. It cannot reopen

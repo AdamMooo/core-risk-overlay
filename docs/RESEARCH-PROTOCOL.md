@@ -45,11 +45,21 @@ the experiment does not run. The stub is committed *before* the commit carrying 
    does. §11 is a gate, not a list to admire. A finding rediscovered empirically that was already in
    a cited paper is a process failure and gets logged as one.
 4. **Mechanism for a difference.** For any comparison: state the structural difference between the
-   two objects and **the horizon at which it becomes observable.** If the difference is invisible at
-   the proposed test horizon, the comparison is void and does not run. EWMA is IGARCH — its
+   two objects, **the horizon at which it becomes observable, and the FUNCTIONAL on which it becomes
+   observable.** If the difference is invisible at the proposed horizon *or* invisible in the
+   proposed functional, the comparison is void and does not run. EWMA is IGARCH — its
    multi-step variance forecast is a martingale and never reverts; MS($k$) reverts toward the
    stationary regime mix at a rate set by the second eigenvalue of $P$. That is the whole difference
    between them and it is exactly zero at $h=1$.
+
+   **The functional clause was added 2026-08-14 and it is not redundant with the horizon clause —
+   they catch different failures.** The $h=1$ EWMA comparison was void on *horizon*. The proposed
+   $h=13$ GARCH comparison is void on *functional*: for **any** $h$, both
+   $\mathbb{E}_t[\sigma^2_{t+h}]$ are `long-run level + (geometric rate)^h × current deviation`,
+   a single state-independent rate each — the same two-parameter curve. Moving to $h>1$ does not
+   rescue a point-variance comparison. The models separate only in the **shape of the $h$-step
+   density**, because MS mixes over $2^h$ regime paths and a single-regime GARCH cannot. **Naming
+   the horizon without naming the functional would have licensed the same mistake twice.**
 5. **What would surprise me, and what decision it changes.** Name the outcome that would move a
    decision in §7. If no outcome moves any decision, the run is decoration and does not run.
 
@@ -66,6 +76,101 @@ the experiment does not run. The stub is committed *before* the commit carrying 
 **Standing consequence.** D2 in §7 is written as a tick-loss horse race and inherits this defect: it
 does not name a horizon. It is not actionable until amended, and no D2 verdict may be recorded
 against a $h=1$ comparison.
+
+### 0.2 Standing research principles
+
+Added 2026-08-14. These govern *what to work on and why*, where the five-field stub above governs
+*whether a specific run may happen*. Most were already latent in this document; they are written
+down because a principle that lives only in a conversation stops binding when the conversation ends.
+
+**P1 — The governing question, asked at every stage.**
+
+> **What does this model know that the simpler alternative does not?**
+
+Answerable and convincing → build on it. Not answerable → stop. This is the whole programme in one
+line.
+
+**P2 — Identifiability before implementation.** Ask *what mathematical object actually differs*
+before asking what to run. Two models producing the same functional at the proposed horizon do not
+become distinguishable by collecting more data. **The response to an uninformative experiment is to
+redesign it, not to enlarge it.**
+
+**P3 — Three questions, never collapsed.** (A) What does the model measure? (B) Does the
+measurement carry incremental information? (C) Is that information useful to a portfolio? **A → C
+directly is forbidden.** A statistically interesting representation does not license a rule. Current
+state: A answered (width, not direction — `TRANSLATION-LAYER.md`); B is the live question; C is
+gated on D5 and untouched.
+
+**P4 — Do not optimise toward usefulness.** "Adds nothing beyond GARCH" and "adds something" are
+both successful outcomes. The objective is to discover what information the model contains, not to
+make it win. A result that has to be hunted for is not a result.
+
+**P5 — Mechanism first, then test.** `mechanism → observable consequence → test → falsification
+criterion`. Never start from "what backtest should we run"; start from *what would have to be true
+for this model to carry information the alternative lacks*, then build the **smallest** experiment
+that separates those possibilities.
+
+**P6 — Literature is part of the model, not a citation duty.** It supplies known mechanisms, already-
+tested specifications, redundant comparisons, questionable assumptions, and alternative explanations
+requiring control. **Do not collapse distinct model classes into "regime switching":**
+
+| class | within-regime dynamics | example in the literature |
+|---|---|---|
+| **plain MS** | none — constant variance inside each regime | **what this repo fits** |
+| **GARCH / GJR / EGARCH** | smooth, single regime | the opponent |
+| **SWARCH / MS-GARCH** | ARCH or GARCH *inside* each regime | Hamilton & Susmel (1994); Marcucci (2005); this repo's **S3** |
+
+Conflating row 1 with row 3 misreads a paper as evidence about a model it never fitted. Both
+blocking papers in `STUB-GARCH-ENCOMPASSING.md` §14.2 are row 3.
+
+**P7 — The reason for the code is the hypothesis, not the code.** Identical lines carry different
+claims and need different evidence. `if wide: size *= 0.5` is **variance targeting** (supported) or
+**"wide predicts losses"** (refuted) depending only on the stated reason. **The reason is written
+next to the line, always.** Be most suspicious when a result is attractive: ask whether it measures
+what it appears to.
+
+**P8 — Ask whether the comparison is about information sets or about structure.** If
+$\mathcal{F}^{(A)}_t \neq \mathcal{F}^{(B)}_t$, the result is about *access*, not *estimator
+quality*, and no amount of modelling closes the gap. VIX failed here — it observes the option
+market, so `F^returns ⊆ F^market` and containment is structural. **GARCH does not**: it and the MS
+model compress the *same* return history, each into a one-dimensional statistic, differing only in
+*how*. That is what makes it a legitimate specification comparison and not D3 again.
+
+**P9 — Complexity does not count as evidence.** Each rung must earn its place by incremental
+information:
+
+```
+simple observable  ->  smooth model  ->  regime model  ->  regime + within-state dynamics
+```
+
+An interesting *interpretation* is not a role. If GARCH explains everything the regime state
+explains, the regime model has not earned one. Conversely, a distributional feature GARCH **cannot**
+reproduce is the justification for going further.
+
+**The concrete ladder for this repo, with the status of each rung:**
+
+| rung | specification | status |
+|---|---|---|
+| 0 | **constant** (expanding mean/sd) | **run.** Model beats it on tick loss, DM significant at 10% and 5%. Conditioning on *something* helps. |
+| 1 | **EWMA / IGARCH** | **run at $h=1$ and VOID there** — martingale variance, no reversion, difference from MS exactly zero one step ahead. |
+| 2 | **GARCH(1,1)**, smooth single regime | **never built.** GJR-GARCH(1,1) declared alongside as a stronger opponent, not as the mechanism test. |
+| 3 | **plain MS** — switching mean and variance, no within-regime dynamics | **built and characterised.** What this repo actually fits. |
+| 4 | **SWARCH / MS-GARCH** — ARCH inside each regime | **not built.** This repo's S3. Where Hamilton & Susmel (1994) and Marcucci (2005) both sit. |
+
+**Two rules on the ladder.** (a) **Do not ask a richer rung to rescue a failed experiment
+retroactively** — the order is `experiment → result → diagnosis → new stub → next specification`,
+and a rerun on a richer model prompted by a null is a search for a version that passes. (b) The
+literature's strong evidence for **rung 4** does not settle the behaviour of **rung 3**; it
+constrains interpretation and motivates the next rung if rung 3 fails. Rungs 3 and 4 are different
+models and are never both called "regime switching".
+
+**P10 — Enforce these against whoever proposes the violation, including the person directing the
+work.** Push back, in writing, on: turning width into direction; treating labels as economically
+meaningful without evidence; optimising thresholds before a mechanism exists; running models that
+are structurally indistinguishable at the chosen horizon *or functional*; interpreting a null
+without power; citing a paper without checking what it tested; introducing a rule before the
+measurement's usefulness is established; adding complexity without naming its incremental
+information.
 
 ---
 
@@ -446,6 +551,85 @@ report (breach rate by $\alpha$, ES ratio, QQ of $z_t$) and introduces no new me
 ### Amendments
 
 Every change to §1-§8 after a result exists is logged here with date and reason.
+
+**2026-08-14 — PROCESS FAILURE under §0 rule 3: `memory_diagnostic.py`'s deductive result was
+published in 1999 and sat `[UNREAD]` as row 2 of the reading list.**
+
+§0 rule 3: *"A finding rediscovered empirically that was already in a cited paper is a process
+failure and gets logged as one."* This is that log. Timmermann (1999/2000) was **read in full**
+on 2026-08-14 from the LSE FMG working paper (DP 323).
+
+On 2026-08-13 this repo derived and recorded as a "deductive result — algebra, not a fitted claim":
+
+```
+Cov(r[t]^2, r[t+k]^2) = pi_0 * pi_1 * (v_0 - v_1)^2 * lam^k          (repo, 2026-08-13)
+```
+
+Timmermann's **Proposition 5 / eq. (30)**, for the same model, is:
+
+```
+Cov(y[t]^2, y[t-n]^2) = pi_1 (1 - pi_1) (mu_2^2 - mu_1^2 + sigma_2^2 - sigma_1^2)^2 vec(P^n)' v_1
+```
+
+with first-order case scaling by $(p_{11}+p_{22}-1)$ — the repo's $\lambda$. **Same result.** The
+registry's own reading-order note already said row 2 *"give[s] the h=1 near-equivalence with an
+EWMA analytically"*, and it was not read.
+
+**The repo's version is also formally incomplete:** it drops the mean terms
+$(\mu_2^2 - \mu_1^2)$, which are absent only when the means are common. Our model switches means.
+Measured at the fitted parameters ($\mu = +0.36\%, -0.26\%$; $\sigma = 1.50\%, 3.84\%$) the mean
+contribution is $-6.20\times10^{-6}$ against a variance term of $1.2496\times10^{-3}$, so the
+repo's formula **overstates the autocovariance by 1.00%**. Numerically negligible here; formally
+wrong, and now corrected. No conclusion in the repo changes.
+
+**2026-08-14 — asymmetric interpretation of the MS-vs-GARCH experiment made binding.**
+
+Recorded in full at `STUB-GARCH-ENCOMPASSING.md` §11.1-§11.5; the load-bearing points, so they
+survive independently of that file:
+
+- **$H_0^{\text{spec}}$ and $H_0^{\text{struct}}$ are different hypotheses.** The experiment tests
+  whether *plain MS* adds density information over GARCH. It **cannot** establish that discrete
+  regime structure adds nothing, at any sample size, because the base specification is
+  independently known to be misspecified within regimes (ARCH-LM 55.6, $p = 2.4\times10^{-11}$).
+- **A null is reportable only as** *"no incremental information was detected from this particular
+  plain-MS specification relative to the tested GARCH benchmark."*
+- **No retroactive repair.** A null does not license swapping in SWARCH/MS-GARCH and rerunning.
+  The order is `experiment → result → diagnosis → new stub → next specification`. The S3 question
+  ("does within-regime ARCH recover information plain MS fails to express?") is a *subsequent*
+  experiment.
+- **Three verdicts, assigned before any conclusion is written: POSITIVE / NULL / INCONCLUSIVE.** A
+  result failing the power requirement is **INCONCLUSIVE, never NULL**.
+- **The positive branch is confounded too**, which the amendment as proposed did not cover:
+  `markov_switching.py` fits a **switching mean** as well as a switching variance, while the GARCH
+  benchmark has a constant mean, so a positive could be the mixture *mean* rather than the regime
+  *variance* structure. A **common-mean MS variant is now a required companion**, without which a
+  positive result is not interpretable. §10's criteria amended accordingly.
+- **P9's ladder made concrete** with per-rung status (§0.2). Rungs 3 (plain MS) and 4
+  (SWARCH/MS-GARCH) are never both called "regime switching".
+
+*Not selected on a result* — no code has been run for this comparison.
+
+**2026-08-14 — §0 rule 4 amended to require the FUNCTIONAL; §0.2 standing principles added.**
+
+*Rule 4.* Previously required naming the structural difference and **the horizon** at which it
+becomes observable. It now also requires naming **the functional**. The gap was found while writing
+`STUB-GARCH-ENCOMPASSING.md`: for a Markov-switching model against GARCH(1,1), both
+$\mathbb{E}_t[\sigma^2_{t+h}]$ take the form `long-run level + (geometric rate)^h × current
+deviation` with a single state-independent rate each, **at every $h$**. So a point-variance
+comparison is void on *functional* however the horizon is chosen — the $h=1$ EWMA failure repeated
+on a different axis, and rule 4 as written would not have caught it. The models separate in the
+**shape of the $h$-step density**, where MS mixes over $2^h$ regime paths.
+
+*Not selected on a result* — no code was run and no result exists for this comparison. Logged here
+rather than silently edited because §0 binds itself.
+
+*§0.2.* Ten standing principles governing what to work on, as distinct from the five-field stub
+which governs whether a given run may happen. Includes P6's model-class taxonomy (plain MS vs
+GARCH vs SWARCH/MS-GARCH), which corrects a live conflation risk: both papers blocking the GARCH
+stub fit **within-regime ARCH**, so they are evidence about **S3**, not about the plain
+switching-variance model this repo fits. §11 cites Hamilton & Susmel as answering "the
+specification question" and that phrasing should be re-checked against the paper when it is
+obtained.
 
 **2026-08-13 — D3 FIRED. §5.5 run; consequence applied.**
 

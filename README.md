@@ -8,6 +8,8 @@ research program testing whether the risk measure it needs can be built honestly
 - **The question and how it gets answered:** `docs/RESEARCH-PROTOCOL.md` (binding, preregistered)
 - **Current state and next build:** `core-risk-overlay.md`
 - **Mathematics:** `docs/MATH-REFERENCE.md` · **Time-basis rules:** `docs/POINT-IN-TIME-DISCIPLINE.md`
+- **Width/direction separation (binding):** `docs/TRANSLATION-LAYER.md`
+- **Next experiment, preregistered and blocked:** `docs/STUB-GARCH-ENCOMPASSING.md`
 
 ---
 
