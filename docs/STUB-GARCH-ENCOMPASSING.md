@@ -1,6 +1,18 @@
 # §0 Stub — does discrete regime structure add anything to smooth mean reversion?
 
-Last updated: 2026-08-14 · **Status: PREREGISTERED, NOT IMPLEMENTED. Still blocked — see §14.2.**
+Last updated: 2026-08-15 · **Status: NOT ON THE DECISION PATH. Do not implement.**
+
+> **HARVESTED AND CLOSED 2026-08-15.** This experiment is off the board — see
+> [[docs/PROBLEM-MAP]] §6. Its **horizon reasoning was the best material in the repo and has been
+> harvested** into PROBLEM-MAP §0.2 / §0.3: mixing time `1/(1 - lam2)` ≈ 11.4 weeks ⇒ **h = 13**, the
+> effect vanishing for `h` far below *and* far above mixing time, and the h-step *density* rather
+> than a point forecast being the discriminating functional. **Do not re-derive it here; use §0.3.**
+>
+> The design work below stands and is worth reading — particularly §11.1's asymmetry amendment
+> (a null is confounded by the known ARCH-LM rejection, so verdicts are POSITIVE / NULL /
+> INCONCLUSIVE) and the Timmermann (2000) reading. It is retained as *record*, not as plan.
+>
+> *Prior status: PREREGISTERED, NOT IMPLEMENTED, blocked on Hamilton & Susmel (1994) — see §14.2.*
 
 **Gate status after the 2026-08-14 search:** Marcucci (2005) **INFORMS** (four axis mismatches;
 three design changes taken, §14.2). Hamilton & Susmel (1994) **UNRESOLVED and blocking** — weekly

@@ -6,7 +6,7 @@ A systematic tail-risk hedge for a permanently long, globally diversified equity
 research program testing whether the risk measure it needs can be built honestly.
 
 - **What the problem is — established / falsified / unknown / the decision:** `docs/PROBLEM-MAP.md`
-  (read first; §6 gates what is worth building)
+  (**read first.** §0.0 the objective hierarchy, §0 the board, §0.1 what is rejected)
 - **The question and how it gets answered:** `docs/RESEARCH-PROTOCOL.md` (binding, preregistered)
 - **Chronological log:** `core-risk-overlay.md`
 - **Mathematics:** `docs/MATH-REFERENCE.md` · **Time-basis rules:** `docs/POINT-IN-TIME-DISCIPLINE.md`
