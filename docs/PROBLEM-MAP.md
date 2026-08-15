@@ -12,6 +12,23 @@ question was treated as sufficient reason to build another estimator. Scope rese
 **no signal is added unless we can first name the decision it would improve and by how much.**
 Sections 5 and 6 are the gate.
 
+**Status: GOVERNING.** Confirmed 2026-08-15. This is the research map. Where it and any other
+document disagree about what is worth building, this one wins.
+
+### Standing rules
+
+1. **No research is added because it is technically available.** Availability is not a reason. The
+   §6 gate is: name the decision it improves, and the size of the improvement, *first*.
+2. **The branches closed in §2 and §6 stay closed** — regime-detection, GARCH encompassing, S3
+   within-regime ARCH, S4 Student-t, MSM/HAR, multi-asset — **unless their own documented reopening
+   condition is actually met.** "Structurally valid" is not a reopening condition; it is why they are
+   retained rather than deleted. The reopening condition for the signal family is at the end of §6
+   and is a *quantitative* bar, not an argument.
+3. **Protection economics and signal economics are reported separately** (§5.0). A result about one
+   is never stated in the vocabulary of the other.
+4. **Measurement phases do not optimize.** When a run exists to check whether a prior result survives
+   a better input, it may not tune against that input while measuring it.
+
 ---
 
 ## 1. Established empirically
@@ -122,6 +139,23 @@ Stated as a decision, not a research question.
 > **Given a permanently long global equity book that is never sold, choose a standing put structure
 > (tenor, strike, notional, roll rule) and then decide whether to vary it over time.**
 
+### 5.0 Protection economics and signal economics are separate questions
+
+**Confirmed as binding 2026-08-15.** These decompose the decision and they are at completely
+different stages of evidence. Conflating them is the error the structure map makes *easy*, because
+one set of tables carries both.
+
+| | question | status |
+|---|---|---|
+| **Protection economics** | Is long-dated put protection economically attractive at all — does it buy drawdown at a price worth paying? | **UNRESOLVED.** Every cost number depends on U1, an unverified skew parameterization that favours the conclusion |
+| **Signal economics** | Conditional on a structure, is varying it over time worth anything? | **BOUNDED.** §5.1–5.2: ≤ ~3pp/yr ceiling, real rules capture 4–7%, and the protection axis is near-saturated by structure alone |
+
+**The permitted inference and the forbidden one.** Permitted: *timing appears much less valuable than
+this project assumed.* Forbidden: *therefore buy long-dated protection.* The second does not follow
+and is not supported by anything measured. §1.1 and §5.2 establish a **relative** ordering among
+structures under a fixed pricing assumption; they establish **no absolute** claim that any of them is
+worth buying. E9 points the other way — 0 of 40 beat the naked book on CAGR.
+
 Two axes, and they are **not** symmetric:
 
 | axis | observations available | measured effect size | status |
@@ -172,6 +206,14 @@ The gate. An item qualifies only if a plausible outcome **changes an action**.
    direction of the conclusion*. If real 52-week skew is steeper than the parameterization assumes,
    the tenor result shrinks or inverts. **This can overturn the single largest finding in the repo**,
    which is exactly what makes it worth running first. Data-only; no import, no code dependency.
+
+   > **MEASUREMENT ONLY — binding constraint, 2026-08-15.** While estimating the surface, do not
+   > optimize strikes, tenors, signals or recycling rules, and do not re-rank the §1.1 grid as a
+   > by-product. The deliverable is *a measured surface and a statement of whether the synthetic
+   > tenor result survives it* — nothing else. The question is whether §1.1 stands under realistic
+   > option economics, and that question is destroyed by tuning against the answer while it is being
+   > measured. This is a §5.0 protection-economics question and must not be reported in
+   > signal-economics terms.
 2. **Extend the clairvoyant grid to 26w and 52w (U2).** One line. Completes §5.2 and converts it from
    suggestive to settled. Until it exists, "timing is worth ~3pp/yr" is a claim about 4w and 13w only.
 3. **Resolve the objective in U4: options, or drawdown reduction?** If the mandate is drawdown
