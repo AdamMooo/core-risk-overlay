@@ -15,6 +15,19 @@ Sections 5 and 6 are the gate.
 **Status: GOVERNING.** Confirmed 2026-08-15. This is the research map. Where it and any other
 document disagree about what is worth building, this one wins.
 
+### How to read this
+
+Two parts, doing two different jobs. Do not read them as one list.
+
+| | part | job |
+|---|---|---|
+| **I** | **§0 — the board** | **The forward path. What we are doing next and what it decides.** One screen |
+| **II** | §1–§6 — the evidence base | Why the board looks like that, and what must not be rebuilt. **Past evidence prevents repeated mistakes; it does not set the agenda** |
+
+The archaeology in Part II is governance, not clutter — §2 in particular exists so dead ends are not
+re-proposed. But the forward plan does not answer to it. A finding that does not constrain the next
+decision does not need to be reconciled with.
+
 ### Standing rules
 
 1. **No research is added because it is technically available.** Availability is not a reason. The
@@ -24,18 +37,46 @@ document disagree about what is worth building, this one wins.
    met.** "Structurally valid" is not a reopening condition; it is why they are retained rather than
    deleted. The reopening condition for the signal family is at the end of §6 and is a *quantitative*
    bar, not an argument.
-5. **This repo is not accountable to `regime-detection`.** That was a learning ground — jump models,
-   k-means, lag experiments — and it lives on GitHub. It is not a dependency, not a closed branch of
-   this research, and not a migration risk to be tracked here. **Do not raise it.** More generally:
-   the falsified list in §2 exists to stop work being *re-proposed*, not to make the forward plan
-   answer to the old attempts. A finding that does not constrain the next decision does not need to
-   be reconciled with.
 3. **Protection economics and signal economics are reported separately** (§5.0). A result about one
    is never stated in the vocabulary of the other.
 4. **Measurement phases do not optimize.** When a run exists to check whether a prior result survives
    a better input, it may not tune against that input while measuring it.
+5. **This repo is not accountable to `regime-detection`.** That was a learning ground — jump models,
+   k-means, lag experiments — and it lives on GitHub. It is not a dependency, not a closed branch of
+   this research, and not a migration risk to be tracked here. **Do not raise it.**
 
 ---
+
+# Part I — the forward path
+
+*If you read one screen of this document, read this one.*
+
+## 0. The board
+
+Four steps, in order. Each is carried in full at the §6 reference; nothing here is new.
+
+| # | step | what it decides | ref |
+|---|---|---|---|
+| **1** | **Fit the real SPY skew surface** from `options-quant`'s archived chains | Whether the §1.1 tenor result — the largest finding in the repo — survives realistic option economics. It can overturn it, which is why it is first | §6.1, U1 |
+| **2** | **Extend the clairvoyant grid to 26w and 52w** | Completes §5.2 and converts it from suggestive to settled. One line | §6.2, U2 |
+| **3** | **Decide the objective: options economics or drawdown reduction** | A decision for Adam, not a measurement. Gates how much of the rest is worth doing at all | §6.3, U4 |
+| **4** | **Specify and measure the recycling rule** | README §1 claims monetize-and-rebuy as a source of value; it has never been written as a rule, so it has never been measured | §6.4, U3 |
+
+**Two constraints bind this board.**
+
+- **Step 1 is MEASUREMENT ONLY** (§6.1). No optimizing strikes, tenors, signals or recycling rules
+  while the surface is being estimated, and no re-ranking the §1.1 grid as a by-product.
+- **All four steps are *protection* economics** (§5.0). *Signal* economics is bounded and closed to
+  new work unless §6's quantitative reopening bar is met.
+
+**Nothing else is on the path.** §6 "Does not qualify" says why for each closed branch, and standing
+rule 1 says availability is not a reason to add one.
+
+---
+
+# Part II — the evidence base
+
+*Why the board looks like that. Governance, not agenda.*
 
 ## 1. Established empirically
 
@@ -206,6 +247,8 @@ comparison and remains the live question.
 The gate. An item qualifies only if a plausible outcome **changes an action**.
 
 ### Qualifies
+
+*This is the §0 board, in full. Items 1–4 are the same four steps in the same order.*
 
 1. **Fit the real skew surface from `options-quant` chains (U1).** Every cost figure in §1.1 and §5
    is conditional on a swept assumption, and the `sqrt(4/tenor)` term is load-bearing *in the
