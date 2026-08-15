@@ -25,7 +25,8 @@ Two parts, doing two different jobs. Do not read them as one list.
 | | part | job |
 |---|---|---|
 | **I** | **§0.0 — the hierarchy** | **What the objective is, and why the board is only the route to it.** Read before §0 |
-| **I** | **§0 — the board** | **The forward path. What we are doing next and what it decides.** One screen |
+| **I** | **§0.1 — rejected** | The option-surface branch and the short-horizon framing that produced it |
+| **I** | **§0 / §0.2 — the board** | **The forward path: recover the Hamilton-filter question from the long-horizon objective** |
 | **II** | §1–§6 — the evidence base | Why the board looks like that, and what must not be rebuilt. **Past evidence prevents repeated mistakes; it does not set the agenda** |
 
 The archaeology in Part II is governance, not clutter — §2 in particular exists so dead ends are not
@@ -69,11 +70,14 @@ Stated explicitly because the layer below keeps getting mistaken for the layer a
 | **Research question** | Is there something sufficiently exploitable to support that objective — and if so, where does the value actually sit? | No, but it is *answerable in the negative* |
 | **The board (§0)** | The current best-supported path for investigating that question | **Yes. Evidence, not commitment** |
 
-**The board is a hypothesis about where to look, not a plan of record.** It is where it is because the
-structure map bounded the signal axis and left the pricing assumption unverified — that is the *reason*
-for the four steps, and if the reason stops holding the board changes. **If evidence shows the board is
+**The board is a hypothesis about where to look, not a plan of record. If evidence shows the board is
 wrong, or that some other path has a better chance of producing economic value, change the board.**
 Doing so is the document working, not the document failing.
+
+**This has now happened once, and the worked example is the best argument for the rule.** The board
+was four steps of option-structure work, resting on a short-horizon framing. That framing was
+rejected on 2026-08-15 (§0.1) and the board became the six-item Hamilton-filter recovery (§0). The
+measurements taken under the old board remain true; the *direction* did not survive.
 
 **What this does not license.** Standing rules 1 and 2 still bind. They gate research justified by
 *availability* — "we could build this" — and they are not a licence-in-reverse either: a branch does not
@@ -87,26 +91,91 @@ currently pointing at it. Step 3 exists precisely because the objective is econo
 *shipping a hedge* — if options are the wrong instrument, the objective survives and the instrument does
 not. Reaching that conclusion honestly would be a success of this repo, not a failure of it.
 
-## 0. The board
+## 0.1 REJECTED — the option-surface branch, and the framing that produced it
 
-Four steps, in order. Each is carried in full at the §6 reference; nothing here is new.
+**Decision 2026-08-15, and it replaces the previous board entirely.** The skew/surface branch is
+**rejected as a research direction for this project** — not postponed, not gated on data quality.
 
-| # | step | what it decides | ref |
-|---|---|---|---|
-| **1** | **Fit the real SPY skew surface** from `options-quant`'s archived chains | Whether the §1.1 tenor result — the largest finding in the repo — survives realistic option economics. It can overturn it, which is why it is first | §6.1, U1 |
-| **2** | **Extend the clairvoyant grid to 26w and 52w** | Completes §5.2 and converts it from suggestive to settled. One line | §6.2, U2 |
-| **3** | **Decide the objective: options economics or drawdown reduction** | A decision for Adam, not a measurement. Gates how much of the rest is worth doing at all | §6.3, U4 |
-| **4** | **Specify and measure the recycling rule** | README §1 claims monetize-and-rebuy as a source of value; it has never been written as a rule, so it has never been measured | §6.4, U3 |
+**Why it was wrong, at three levels:**
 
-**Two constraints bind this board.**
+1. **It failed standing rule 1 on its own terms.** The trigger was *`options-quant` started archiving
+   SPY chains on 2026-08-14*. That is availability, not a decision that needed improving. Rule 1
+   exists to catch exactly this and did not fire because the person writing the rule wrote the step.
+2. **We cannot compete where it leads.** Serious work on option pricing needs historical chain depth,
+   execution infrastructure, latency, and a market-maker's information set. We have none of them and
+   acquiring them is not this project.
+3. **It is the wrong problem.** The surface question is *"can we out-price short-dated insurance"* in
+   another costume. [[README]] §2 rejected that on page one. The route back in was through hedge
+   implementation rather than through the research question, which is why it did not look like a
+   repeat.
 
-- **Step 1 is MEASUREMENT ONLY** (§6.1). No optimizing strikes, tenors, signals or recycling rules
-  while the surface is being estimated, and no re-ranking the §1.1 grid as a by-product.
-- **All four steps are *protection* economics** (§5.0). *Signal* economics is bounded and closed to
-  new work unless §6's quantitative reopening bar is met.
+**Consequences, recorded so nothing is silently dropped:**
 
-**Nothing else is on the path.** §6 "Does not qualify" says why for each closed branch, and standing
-rule 1 says availability is not a reason to add one.
+- **The recent surface work is an exploratory detour**, produced by the incorrect short-horizon
+  framing. `structure_map.py` and its measurements stand as *measurements* (E9–E11, F6, F7, §1.1) —
+  they were run honestly and they are true of what they measured. They are **not** a direction.
+- **Protection economics (§5.0) moves to PARKED, not resolved.** Rejecting the surface work means its
+  cost side stays unverified in *both* directions. §1.1's tenor result keeps its caveat permanently
+  and must never be quoted as settled.
+- **The old insurance-framing reopening bar is deleted**, not softened. "Reduce premium paid at fixed
+  protection" presupposed the framing being rejected here. A Hamilton-filter research path does not
+  need a way back in through insurance pricing; it needs its own objective, which is §0.
+
+## 0. The board — recover the Hamilton-filter question from the long-horizon objective
+
+**A failed short-horizon tail-risk test falsified one application of the model. It did not falsify
+the model for the economic problem this project intended to investigate.** Every test to date ran at
+h=1 to h=13 against spot (30-day) VIX on forward downside semivolatility — the claim tuples on D3,
+the dynamics test and the walk-forward density all say so explicitly, and that scoping is what makes
+them re-usable now rather than sunk.
+
+Six items to recover, **in order, and none of them is code.** The validation framework is decided
+*after*, not before — choosing the test first is how this repo arrived at h=1 comparisons that
+theory says are uninformative.
+
+| # | recover | status |
+|---|---|---|
+| **1** | **What state or process is the filter actually meant to identify?** Not "high variance" by fitted argmax — what real thing is it a measurement of | OPEN |
+| **2** | **Over what horizon should that state persist?** Must be answered from the economics, then checked against the model's own mixing time (§0.2) | OPEN — partly derivable |
+| **3** | **How are strengthening, weakening, persistence and decay represented?** The mapping from those words onto `P`, its diagonal, and `lam2` | **derivable now — §0.2** |
+| **4** | **Where does longer-horizon mean reversion fit?** | **derivable now — §0.2** |
+| **5** | **What economic decision would the information ultimately support?** | OPEN — **Adam's to set.** Everything downstream depends on it |
+| **6** | **What out-of-sample result would demonstrate genuine economic value?** | BLOCKED on 1–5 |
+
+**The board is now these six questions.** Changed under standing rule 6 — the previous four steps
+were the best-supported path given the framing, the framing was wrong, so the board moved. That is
+the mechanism working.
+
+## 0.2 What the repo can already answer — items 3 and 4
+
+Derivable from material already in this repo, so the recovery does not start from nothing. Notation
+is `filt[t][j] = P(state j | returns through t)`, transition `p[i->j]`.
+
+| concept | representation | fitted value (weekly SPY) |
+|---|---|---|
+| **persistence** | diagonal of `P`; expected duration `1 / (1 - p[j->j])` | calm 36.1 weeks, wide 12.9 weeks |
+| **strengthening / weakening** | the likelihood-ratio update on `filt[t]` each step | saturating — top-20 weeks sit at `P >= 0.99999` |
+| **decay of belief** | second eigenvalue `lam2 = p00 + p11 - 1`; deviation from the ergodic mix decays as `lam2^h` | median `lam2` = 0.9126 across 95 vintages |
+| **mixing time** | `1 / (1 - lam2)` | **~11.4 weeks** |
+| **mean reversion** | `E_t[sigma2(t+h)] = ergodic level + lam2^h * (current deviation)` | this *is* the model's distinguishing content |
+
+**Two consequences that should shape items 1, 2 and 6.**
+
+- **Mean reversion is the whole structural difference, and it is exactly zero at h=1.** EWMA is
+  IGARCH — its multi-step variance forecast is a martingale and never reverts. MS reverts toward the
+  ergodic mix at `lam2^h`. At one step the two are identical by construction, which is why F10 was
+  declared VOID and why h=1 results carry no information about this model class. **The horizon
+  question in item 2 is not a preference; it is the difference between testing the model and not.**
+- **The model misdescribes its own persistence, and this is a live tension rather than a settled
+  defect.** Fitted duration for the wide state is 12.9 weeks (SPY) / 26.7 (QQQ); *realized* band runs
+  are 5.1 / 4.3 weeks, stable across assets while the fitted parameter is not. Item 1 has to say
+  which of those the state is supposed to be a measurement of.
+
+**The effective-sample constraint, stated up front because it binds item 6.** Longer horizon means
+fewer independent observations from the same history: 1,230 OOS weeks is ~307 non-overlapping at h=4
+(D3's actual n), ~95 at h=13, ~47 at h=26. **The horizon that makes the model testable is the horizon
+that starves the test.** Any answer to item 6 must state its effective n before it is run — see F9
+and the §2 common-cause note.
 
 ---
 
@@ -230,8 +299,8 @@ one set of tables carries both.
 
 | | question | status |
 |---|---|---|
-| **Protection economics** | Is long-dated put protection economically attractive at all — does it buy drawdown at a price worth paying? | **UNRESOLVED.** Every cost number depends on U1, an unverified skew parameterization that favours the conclusion |
-| **Signal economics** | Conditional on a structure, is varying it over time worth anything? | **BOUNDED.** §5.1–5.2: ≤ ~3pp/yr ceiling, real rules capture 4–7%, and the protection axis is near-saturated by structure alone |
+| **Protection economics** | Is long-dated put protection economically attractive at all — does it buy drawdown at a price worth paying? | **UNRESOLVED, and now PARKED** (§0.1). Every cost number depends on U1, an unverified skew parameterization that favours the conclusion — and U1 is no longer being measured. §1.1 therefore keeps its caveat permanently and is never quoted as settled |
+| **Signal economics** | Conditional on a structure, is varying it over time worth anything? | **BOUNDED — at h=1 to h=13, against spot VIX, on forward downside semivolatility.** §5.1–5.2. That scoping is load-bearing: it is a bound on the *tested* application, not on the model class at longer horizon (§0) |
 
 **The permitted inference and the forbidden one.** Permitted: *timing appears much less valuable than
 this project assumed.* Forbidden: *therefore buy long-dated protection.* The second does not follow
@@ -284,29 +353,36 @@ The gate. An item qualifies only if a plausible outcome **changes an action**.
 
 ### Qualifies
 
-*This is the §0 board, in full. Items 1–4 are the same four steps in the same order.*
+*This is the §0 board, in full. It is the six-item Hamilton-filter recovery, and none of it is code.*
 
-1. **Fit the real skew surface from `options-quant` chains (U1).** Every cost figure in §1.1 and §5
-   is conditional on a swept assumption, and the `sqrt(4/tenor)` term is load-bearing *in the
-   direction of the conclusion*. If real 52-week skew is steeper than the parameterization assumes,
-   the tenor result shrinks or inverts. **This can overturn the single largest finding in the repo**,
-   which is exactly what makes it worth running first. Data-only; no import, no code dependency.
+1. **Recover items 1–6 of §0**, in order, then decide the validation framework. The framework is
+   chosen *last* on purpose: this repo's recurring failure is picking a test before stating what the
+   model is supposed to know, which is how it arrived at h=1 comparisons that theory says cannot
+   discriminate (F10) and at level-vs-level tests that structurally could not see persistence.
+2. **Item 5 — the economic decision — is the blocking one and it is Adam's to set**, not a
+   measurement. Items 1–4 can be drafted against the repo's existing material (§0.2); item 6 cannot
+   be written at all until 5 exists, and writing it earlier is how a metric gets invented to fit a
+   model rather than a decision.
 
-   > **MEASUREMENT ONLY — binding constraint, 2026-08-15.** While estimating the surface, do not
-   > optimize strikes, tenors, signals or recycling rules, and do not re-rank the §1.1 grid as a
-   > by-product. The deliverable is *a measured surface and a statement of whether the synthetic
-   > tenor result survives it* — nothing else. The question is whether §1.1 stands under realistic
-   > option economics, and that question is destroyed by tuning against the answer while it is being
-   > measured. This is a §5.0 protection-economics question and must not be reported in
-   > signal-economics terms.
-2. **Extend the clairvoyant grid to 26w and 52w (U2).** One line. Completes §5.2 and converts it from
-   suggestive to settled. Until it exists, "timing is worth ~3pp/yr" is a claim about 4w and 13w only.
-3. **Resolve the objective in U4: options, or drawdown reduction?** If the mandate is drawdown
-   reduction, a trend sleeve is the honest competitor and the entire options program is one branch of
-   a comparison never run. This is not a measurement — it is a decision only the user can make, and
-   it gates how much of §6 is worth doing at all.
-4. **Specify and size the recycling rule (U3).** README §1 claims monetize-and-rebuy as a source of
-   value; it has never been a rule, so it has never been measured.
+### Does not qualify — and why, so it is not re-proposed
+
+- **The option-surface / skew branch. REJECTED 2026-08-15** — see §0.1. Not postponed and not gated on
+  data quality: we lack the chain depth, infrastructure, latency and market-maker information set to
+  compete there, and it is the "out-price the insurance" question [[README]] §2 rejected on page one,
+  re-entering through hedge implementation. **Availability of SPY chains is not a reason** (rule 1).
+- **The remaining structure work** — clairvoyant grid at 26w/52w, recycling rule, the trend-sleeve
+  comparison. These were board items 2–4 under the rejected framing. They are **parked, not
+  falsified**: they measure protection economics, which §5.0 now marks PARKED. They return only if
+  item 5 names a decision they serve.
+- **Any new signal, measure, indicator or estimator** *added alongside* the recovery. The board is six
+  questions; answering them is the work. Rule 1 applies unchanged.
+- **Multi-asset / absorption ratio.** F4 and F5 refuted the trigger and showed the level is half VIX;
+  effective n ≈ 3–6. Unchanged by this redirection.
+- **GARCH encompassing (F11), S3 within-regime ARCH, S4 Student-t, DQ, ES bootstrap, R1–R10.**
+  Unchanged — but note the GARCH stub's *horizon* reasoning (mixing time ⇒ h=13, and the h-step
+  density rather than a point forecast as the discriminating functional) is **the best material in
+  the repo for §0 item 2** and should be harvested there rather than re-derived.
+- **MSM, HAR, daily refit, U6.** Parked with F3, unchanged.
 
 ### Does not qualify — and why, so it is not re-proposed
 
@@ -324,13 +400,17 @@ The gate. An item qualifies only if a plausible outcome **changes an action**.
 - **MSM, HAR, daily refit, U6.** Parked with F3. They serve the memory question, and the memory
   question serves the signal program, which is bounded.
 
-### The one thing that would reopen signal research
+### On reopening bars
 
-A demonstration that some measure reduces **premium paid** at fixed protection, at 26–52 week tenor,
-by more than ~1pp/yr out of sample. That is a well-posed, falsifiable, decision-relevant target, and
-it is the first one this repo has had. Nothing currently in hand suggests it exists — VIX-timed entry
-at long tenor is the obvious first candidate and has not been tried, because the repo spent its
-effort at 4–13 weeks where structure was dominating the answer.
+**The previous one is deleted, not softened.** It read: *reduce premium paid at fixed protection, at
+26–52 week tenor, by more than ~1pp/yr*. It was well-posed, and it presupposed the insurance-pricing
+framing §0.1 rejects — it would have routed the Hamilton filter straight back into the problem this
+redirection exists to leave. **A model does not need a way back in through insurance pricing.**
+
+The replacement is §0 item 6, and it does not exist yet **by design**: the out-of-sample bar that
+would demonstrate genuine economic value cannot be written until item 5 names the economic decision.
+Writing the bar first is how a metric gets invented to fit a model instead of a decision, which is
+the error §2's F-rows were produced by.
 
 ---
 

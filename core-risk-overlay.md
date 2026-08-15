@@ -21,9 +21,17 @@ on what is worth building: [[docs/PROBLEM-MAP]] — read it first.** Mandate in 
 > **[[docs/PROBLEM-MAP]]** — read that before anything below. This file remains the chronological log.
 >
 > **The objective above all of it is unchanged: build an economically valuable tool.** The problem map
-> is the route and the four-step board is the current best-supported path — **evidence, not
-> commitment.** If a better path to economic value appears, the board changes ([[docs/PROBLEM-MAP]]
-> §0.0). "Follow the four steps" is not the goal.
+> is the route and the board is the current best-supported path — **evidence, not commitment.** If a
+> better path to economic value appears, the board changes ([[docs/PROBLEM-MAP]] §0.0).
+>
+> **BOARD CHANGED 2026-08-15, second time today.** The option-surface / skew branch is **REJECTED**
+> ([[docs/PROBLEM-MAP]] §0.1) — we cannot compete on option pricing, and it was the "out-price the
+> insurance" question [[README]] §2 rejected on page one, re-entering through hedge implementation.
+> The structure-map work stands as *measurement* and not as direction. The board is now the six-item
+> **recovery of the Hamilton-filter question from the long-horizon economic objective**
+> ([[docs/PROBLEM-MAP]] §0). **The short-horizon tests falsified one application of the model, not the
+> research question** — every claim tuple in this file says h=1 to h=13 against spot VIX, and that
+> scoping is what makes them re-usable rather than sunk.
 
 **The structure map ran (2026-08-15) and it reordered the project.** Tenor is the dominant variable:
 extending 10% OTM outrights from 4w to 52w buys **3-4x the drawdown protection at equal or lower
