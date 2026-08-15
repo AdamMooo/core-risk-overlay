@@ -760,9 +760,13 @@ S3 was rediscovered empirically instead of read.** That is the failure §0 exist
 - **Rydén, Teräsvirta & Åsbrink (1998)** `[UNREAD]` — a hidden Markov model reproduces most stylized
   facts of daily returns but **fails specifically on the slow decay of squared-return
   autocorrelation.** That is this repo's ARCH-LM rejection of 55.6, published 1998.
-- **Timmermann (2000)** `[UNREAD]` — moments and autocorrelation structure of Markov-switching
-  models in closed form. Gives the $h=1$ near-equivalence with an EWMA analytically, which is the
-  result the rungs spent a run discovering.
+- **Timmermann (2000)** `[READ IN FULL 2026-08-14]` — moments and autocorrelation structure of
+  Markov-switching models in closed form. Gives the $h=1$ near-equivalence with an EWMA
+  analytically, which is the result the rungs spent a run discovering. **Version caveat: what was
+  read is the free author copy — LSE Financial Markets Group DP 323, May 1999 — not the published
+  *J. Econometrics* 96(1), 75-111 article. They may differ.** Findings and the INFORMS adjudication
+  are at `literature/README.md` row 2 and `STUB-GARCH-ENCOMPASSING.md` §14.3; the process
+  failure it exposed is logged under §Amendments above.
 - **Cont (2001)** `[UNREAD]` — the stylized-facts reference. Aggregational Gaussianity (daily returns
   are materially more leptokurtic than weekly), volatility clustering, heavy tails. Settles §1.3's
   frequency trade-off on the specification side.

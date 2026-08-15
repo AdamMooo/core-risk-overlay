@@ -6,15 +6,24 @@ the model to a LEVEL (a VaR or ES scalar) and compared it to VIX's level. VIX is
 point-in-time price with no memory structure, so a level-vs-level test structurally
 cannot see the model's content. That content is in P.
 
-DEDUCTIVE, not fitted. For a two-state switching-variance model with regime
-variances v[j], stationary weights pi, and second eigenvalue lam = p00 + p11 - 1:
+DEDUCTIVE, not fitted. This is Timmermann (2000) Proposition 5 / eq. (30), read
+in full 2026-08-14 -- not a result of this repo. For a two-state model with
+regime means m[j], regime variances v[j], stationary weights pi, and second
+eigenvalue lam = p00 + p11 - 1, writing q[j] = m[j]^2 + v[j] for the regime
+second moment about zero:
 
-    Cov(r[t]^2, r[t+k]^2) = pi_0 * pi_1 * (v_0 - v_1)^2 * lam^k        for k >= 1
+    Cov(r[t]^2, r[t+k]^2) = pi_0 * pi_1 * (q_0 - q_1)^2 * lam^k        for k >= 1
     Var(r[t]^2)           = 3*(pi_0*v_0^2 + pi_1*v_1^2) - (pi_0*v_0 + pi_1*v_1)^2
 
 so
 
-    ACF_model(k) = pi_0*pi_1*(v_0-v_1)^2 * lam^k / Var(r^2)
+    ACF_model(k) = pi_0*pi_1*(q_0-q_1)^2 * lam^k / Var(r^2)
+
+The mean terms matter because THIS MODEL SWITCHES MEANS. Dropping them -- using
+(v_0 - v_1)^2, as this file did until 2026-08-14 -- overstates the autocovariance
+by 1.00% at the fitted SPY parameters. See RESEARCH-PROTOCOL.md section
+Amendments: the uncorrected form was recorded as a deductive result of this repo
+on 2026-08-13, which is a section 0 rule 3 process failure as well as an error.
 
 The lam^k is the entire point. A finite-state Markov chain's squared-return
 autocorrelation decays GEOMETRICALLY -- for any k, any number of regimes, any
@@ -38,10 +47,13 @@ Hurst exponent H = 1 + slope/2 from the power-law fit, and sum of ACF over 104
 lags -- finite for geometric decay, divergent for long memory, which is the formal
 statement of the difference.
 
-Approximation stated: the closed form assumes a common within-regime mean. The
-fitted switching means (~0.3% and ~0.07% weekly) are an order of magnitude below
-the regime sigmas (1.4% and 2.8%), so their contribution to the squared-return
-autocovariance is negligible. Returns are demeaned empirically before the ACF.
+Approximation stated: the autocovariance now carries the mean terms exactly, but
+the Var(r^2) DENOMINATOR still assumes a common within-regime mean -- it uses
+E[r^4|j] = 3*v_j^2 rather than m_j^4 + 6*m_j^2*v_j + 3*v_j^2. That is a constant
+scale on every lag, so it cannot affect the shape question this file exists to
+answer. It is left as-is deliberately: the switching-mean fourth moment is in
+Timmermann's Corollary 1 and should be transcribed from the paper rather than
+re-derived here. Returns are demeaned empirically before the ACF.
 
 Run: .venv\\Scripts\\python.exe memory_diagnostic.py [SPY]
 """
@@ -75,15 +87,19 @@ def load_returns(ticker: str) -> pd.Series:
     return pd.read_csv(path, index_col=0, parse_dates=True).iloc[:, 0].astype("float64")
 
 
-def model_acf(p00: float, p10: float, v0: float, v1: float, lags) -> np.ndarray:
-    """Closed-form squared-return ACF. Label-invariant by construction."""
+def model_acf(p00: float, p10: float, m0: float, m1: float, v0: float, v1: float, lags):
+    """Closed-form squared-return ACF. Label-invariant by construction.
+
+    Timmermann (2000) Proposition 5: the driving term is the difference of the
+    regime SECOND MOMENTS about zero, not the difference of the variances.
+    """
     p01 = 1.0 - p00
     denom = p01 + p10
     pi0 = p10 / denom
     pi1 = p01 / denom
     lam = p00 + (1.0 - p10) - 1.0
 
-    numerator = pi0 * pi1 * (v0 - v1) ** 2
+    numerator = pi0 * pi1 * ((m0**2 + v0) - (m1**2 + v1)) ** 2
     variance = 3.0 * (pi0 * v0**2 + pi1 * v1**2) - (pi0 * v0 + pi1 * v1) ** 2
     return numerator * lam ** np.asarray(lags, dtype="float64") / variance, lam
 
@@ -120,7 +136,9 @@ def report(ticker: str = "SPY") -> None:
     median_idx = (lam_all - lam_all.median()).abs().idxmin()
     row = vintages.loc[median_idx]
     implied, lam = model_acf(
-        row["p[0->0]"], row["p[1->0]"], row["sigma2[0]"], row["sigma2[1]"], lags
+        row["p[0->0]"], row["p[1->0]"],
+        row["const[0]"], row["const[1]"],
+        row["sigma2[0]"], row["sigma2[1]"], lags
     )
 
     print(f"MEMORY DIAGNOSTIC -- {ticker}, {len(returns)} weekly returns "

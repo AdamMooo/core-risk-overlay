@@ -593,6 +593,45 @@ def report_known_limitation() -> None:
     print(f"  up/down probability ratio: {probabilities['melt-up'] / probabilities['crash  ']:.4f}")
 
 
+def check_memory_diagnostic_acf() -> None:
+    """Guards the 2026-08-14 correction to the closed-form squared-return ACF.
+
+    The pre-correction form used (v_0 - v_1)^2 and dropped the mean terms, which
+    Timmermann (2000) Proposition 5 shows belong there whenever the means switch.
+    The numbers below are the fitted SPY parameters quoted in the
+    RESEARCH-PROTOCOL.md amendment, so this check fails if the mean terms are
+    ever dropped again.
+    """
+    import memory_diagnostic as md
+
+    m0, m1 = 0.0036, -0.0026
+    v0, v1 = 0.0150**2, 0.0384**2
+    p00, p10 = 0.9626, 0.05
+    lags = np.arange(1, 6)
+
+    values, lam = md.model_acf(p00, p10, m0, m1, v0, v1, lags)
+    check("memory_diagnostic: lambda is p00 + p11 - 1", np.isclose(lam, 0.9126))
+
+    dropped = (v0 - v1) ** 2
+    kept = ((m0**2 + v0) - (m1**2 + v1)) ** 2
+    check(
+        "memory_diagnostic: dropping the mean terms overstates the acf by 1.00%",
+        np.isclose(dropped / kept, 1.0100, atol=5e-5),
+    )
+
+    swapped, _ = md.model_acf(1.0 - p10, 1.0 - p00, m1, m0, v1, v0, lags)
+    check(
+        "memory_diagnostic: acf is invariant to regime labelling",
+        np.allclose(values, swapped),
+    )
+
+    ratios = values[1:] / values[:-1]
+    check(
+        "memory_diagnostic: decay is geometric at exactly lambda",
+        np.allclose(ratios, lam),
+    )
+
+
 def main() -> None:
     check_data_loader()
     check_vix_alignment()
@@ -606,6 +645,7 @@ def main() -> None:
     check_markov_switching_internals()
     check_markov_switching_validation()
     check_predictive()
+    check_memory_diagnostic_acf()
     report_known_limitation()
 
     print()
