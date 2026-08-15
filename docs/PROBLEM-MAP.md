@@ -135,12 +135,15 @@ theory says are uninformative.
 
 | # | recover | status |
 |---|---|---|
-| **1** | **What state or process is the filter actually meant to identify?** Not "high variance" by fitted argmax — what real thing is it a measurement of | OPEN |
-| **2** | **Over what horizon should that state persist?** Must be answered from the economics, then checked against the model's own mixing time (§0.2) | OPEN — partly derivable |
-| **3** | **How are strengthening, weakening, persistence and decay represented?** The mapping from those words onto `P`, its diagonal, and `lam2` | **derivable now — §0.2** |
-| **4** | **Where does longer-horizon mean reversion fit?** | **derivable now — §0.2** |
-| **5** | **What economic decision would the information ultimately support?** | OPEN — **Adam's to set.** Everything downstream depends on it |
-| **6** | **What out-of-sample result would demonstrate genuine economic value?** | BLOCKED on 1–5 |
+| **5** | **What economic decision would the information support?** | **ANSWERED 2026-08-15 — §0.3.** Equity exposure sizing over months (variance targeting) |
+| **1** | **What state or process is the filter actually meant to identify?** Not "high variance" by fitted argmax — what real thing is it a measurement of | **DRAFTED — §0.3.** Needs Adam's confirmation |
+| **2** | **Over what horizon should that state persist?** From the economics first, then checked against the model's own mixing time | **DRAFTED — §0.3.** h = 13 weeks |
+| **3** | **How are strengthening, weakening, persistence and decay represented?** The mapping onto `P`, its diagonal, and `lam2` | **derivable — §0.2** |
+| **4** | **Where does longer-horizon mean reversion fit?** | **derivable — §0.2** |
+| **6** | **What out-of-sample result would demonstrate genuine economic value?** | **DRAFTED — §0.3.** Blocked on the §0.3 mandate conflict |
+
+*Listed in dependency order rather than numeric order: 5 governs everything, and 6 cannot be written
+until 5 exists.*
 
 **The board is now these six questions.** Changed under standing rule 6 — the previous four steps
 were the best-supported path given the framing, the framing was wrong, so the board moved. That is
@@ -176,6 +179,95 @@ fewer independent observations from the same history: 1,230 OOS weeks is ~307 no
 (D3's actual n), ~95 at h=13, ~47 at h=26. **The horizon that makes the model testable is the horizon
 that starves the test.** Any answer to item 6 must state its effective n before it is run — see F9
 and the §2 common-cause note.
+
+## 0.3 Items 5, 1, 2 and 6 — drafted against the chosen decision
+
+### Item 5 — the economic decision. ANSWERED 2026-08-15.
+
+> **How much of the book sits in risk assets over the coming weeks-to-quarters —** `w_equity[t]`,
+> revised at a monthly cadence, conditioned on the filtered state.
+
+This is **variance targeting**, and it is the one use of a width measure that
+[[docs/TRANSLATION-LAYER]] rule 4 already permits: *"sizing on width is legitimate **only** as
+variance targeting."* Chosen over hedge-notional sizing, which would have re-entered the option
+economics §0.1 rejects.
+
+**The comparator is a constant-weight book — not VIX, not an option price.** That single change takes
+the project out of the "beat the market's insurance price" game, which is where containment
+(`F_returns ⊆ F_market`) bites. Containment is a statement about *information*; it says the option
+market knows everything returns know. It does **not** say a returns-based estimator cannot improve a
+*portfolio decision* against a naive alternative, because the naive alternative is not the option
+market. **D3 and the dynamics test are unaffected and remain true — they are simply about a different
+question.**
+
+### The sample-size consequence, and it is the first good news on this axis
+
+The wall that killed three previous strands was: *anything whose value depends on counting systemic
+drawdowns has effective n ≈ 10–15.* **This decision does not depend on counting crises.** It depends
+on counting **regime episodes**, and the repo has already measured those — **~36 elevated-risk
+episodes** in the OOS sample (of which ~10 are single-week blips, so ~26 substantive).
+
+`36 >> 5`. That is not abundance, and it does not make the test easy. But it is a different order of
+magnitude from every previous strand, and it is the strongest structural argument for this choice.
+
+### Item 1 — what the filter is meant to identify. DRAFTED.
+
+> **The persistent component of the conditional variance of the book's returns** — persistent enough
+> to still be true at a monthly rebalancing cadence, net of turnover cost.
+
+This resolves the §0.2 tension between fitted duration (12.9w SPY / 26.7w QQQ) and realized band runs
+(5.1w / 4.3w): **a band crossing is not a state transition.** A threshold on a continuous probability
+necessarily crosses more often than the latent state switches, so part of that gap is mechanical. The
+object of interest is the latent state's persistence, and the operational test is **not** whether the
+label matches anything — it is whether conditioning exposure on it beats constant exposure.
+
+### Item 2 — the horizon. DRAFTED: h = 13 weeks primary, 26 as bracket.
+
+Two independent derivations agree, which has not happened before in this repo:
+
+- **From the economics:** monthly revision, weeks-to-quarters holding period → one quarter.
+- **From the model:** mixing time `1/(1 - lam2)` ≈ **11.4 weeks** at median `lam2` = 0.9126. The
+  distinguishing effect vanishes for `h` much less than mixing time (the chain barely moves) *and*
+  for `h` much greater (the ergodic distribution reabsorbs it), so it is largest near it.
+
+That convergence is itself a check: if the economics had demanded h=1, this model class would have
+been the wrong tool regardless of how it tested.
+
+### Item 6 — the out-of-sample bar. DRAFTED, and blocked on the conflict below.
+
+The metric must be a **portfolio outcome**, not a statistical one. Walk-forward, vintage parameters,
+filtered never smoothed — the existing `walkforward.py` discipline carries over unchanged.
+
+| element | specification | why |
+|---|---|---|
+| **primary** | realized geometric return and drawdown of the state-conditioned book vs constant-weight | the objective is economic value (§0.0) |
+| **matched exposure** | compare at **equal average `w_equity`** over the sample | otherwise the result is just a beta bet, not conditioning skill |
+| **net of costs** | turnover charged at a stated rate | monthly rebalancing is not free and the effect size is not large |
+| **the honest competitor** | **trailing realized-volatility targeting**, same information set, far cheaper | this is the rung that matters. VIX is *not* the comparator here |
+| **effective n** | ~36 regime episodes / ~95 non-overlapping quarters — **stated before the run** | F9's lesson, applied in advance |
+
+**Why the honest competitor is the whole test.** Realized-vol targeting is the EWMA analogue, and
+EWMA is IGARCH: its multi-step variance forecast is a **martingale and never reverts**. MS reverts
+toward the ergodic mix at `lam2^h`. At h=1 those are identical, which is why F10 was VOID. **At h=13
+they are not** — and that difference is the model's entire claim. So this comparison, at this
+horizon, is the first test in the repo whose null and alternative actually differ structurally.
+
+### THE BLOCKING CONFLICT — item 5 versus the mandate
+
+> [[README]] §1: *"The portfolio is long equities and stays long… Nothing here ever recommends selling
+> the core."* Variance targeting **varies `w_equity`**. Reducing it means selling the core.
+
+This is a direct contradiction and it must be resolved before item 6 can be built. It is not a
+technicality — it decides what the tool is. Three resolutions, all legitimate, none chosen:
+
+1. **Amend the mandate.** "Never sold" was written against panic-selling and market timing to cash.
+   A 1.0 → 0.7 variance-targeted range is different in degree; whether it is different in *kind* is
+   Adam's call.
+2. **Target on new capital only.** Vary the deployment rate of inflows, never the existing core.
+   Preserves the mandate exactly, and cuts effective n hard.
+3. **Implement the exposure change through the overlay** rather than by selling. This is what an
+   overlay *is* — but it re-enters option economics, and would need an explicit firewall against
+   §0.1's rejected framing.
 
 ---
 
