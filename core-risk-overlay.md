@@ -878,13 +878,15 @@ action:
 4. **Specify the recycling rule, then measure it.** README §1 claims monetize-and-rebuy as a source of
    value; it has never been written as a rule, so it has never been measured.
 
-## Open governance question
+## Registration
 
-Not in [[INDEX]] nor the repo table in [[CLAUDE]], so charter status is undeclared. Related: the
-`regime-detection` repo is **no longer on disk** — it is not under `systematic-investing-research/`
-and the four governance docs [[CLAUDE]] says live in `regime-detection/governance/` are gone with it.
-GitHub (`AdamMooo/regime-detection`, private) should still have them. A read-only assessment survives
-at [[portfolio-sprint/assessments/regime-detection]].
+Not in [[INDEX]] nor the repo table in [[CLAUDE]] — worth adding when convenient, not a blocker.
+
+**`regime-detection` is not this repo's problem and is not to be raised here.** It was a learning
+ground — jump models, k-means, lag experiments — it lives on `AdamMooo/regime-detection`, and it will
+be revisited on its own terms. This repo is an extension, not a successor, and owes it no
+reconciliation. Raised three times on 2026-08-15 as a "migration risk"; that was wrong each time and
+is exactly the reflex [[docs/PROBLEM-MAP]] standing rule 5 now forbids.
 
 ## Related
 

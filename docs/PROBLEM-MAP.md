@@ -19,11 +19,17 @@ document disagree about what is worth building, this one wins.
 
 1. **No research is added because it is technically available.** Availability is not a reason. The
    §6 gate is: name the decision it improves, and the size of the improvement, *first*.
-2. **The branches closed in §2 and §6 stay closed** — regime-detection, GARCH encompassing, S3
-   within-regime ARCH, S4 Student-t, MSM/HAR, multi-asset — **unless their own documented reopening
-   condition is actually met.** "Structurally valid" is not a reopening condition; it is why they are
-   retained rather than deleted. The reopening condition for the signal family is at the end of §6
-   and is a *quantitative* bar, not an argument.
+2. **The branches closed in §2 and §6 stay closed** — GARCH encompassing, S3 within-regime ARCH, S4
+   Student-t, MSM/HAR, multi-asset — **unless their own documented reopening condition is actually
+   met.** "Structurally valid" is not a reopening condition; it is why they are retained rather than
+   deleted. The reopening condition for the signal family is at the end of §6 and is a *quantitative*
+   bar, not an argument.
+5. **This repo is not accountable to `regime-detection`.** That was a learning ground — jump models,
+   k-means, lag experiments — and it lives on GitHub. It is not a dependency, not a closed branch of
+   this research, and not a migration risk to be tracked here. **Do not raise it.** More generally:
+   the falsified list in §2 exists to stop work being *re-proposed*, not to make the forward plan
+   answer to the old attempts. A finding that does not constrain the next decision does not need to
+   be reconciled with.
 3. **Protection economics and signal economics are reported separately** (§5.0). A result about one
    is never stated in the vocabulary of the other.
 4. **Measurement phases do not optimize.** When a run exists to check whether a prior result survives
