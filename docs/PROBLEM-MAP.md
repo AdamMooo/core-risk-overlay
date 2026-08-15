@@ -2,6 +2,9 @@
 
 Last updated: 2026-08-15
 
+**The objective is unchanged and sits above everything in this file: build an economically valuable
+tool.** This document is the route, not the destination — see §0.0.
+
 **What this document is.** The standing answer to *what is the problem, where do we stand, and what
 would have to be true for the next piece of research to matter.* It is organised by epistemic status,
 not by date. [[core-risk-overlay]] is the chronological log and keeps that job; this file is the
@@ -21,6 +24,7 @@ Two parts, doing two different jobs. Do not read them as one list.
 
 | | part | job |
 |---|---|---|
+| **I** | **§0.0 — the hierarchy** | **What the objective is, and why the board is only the route to it.** Read before §0 |
 | **I** | **§0 — the board** | **The forward path. What we are doing next and what it decides.** One screen |
 | **II** | §1–§6 — the evidence base | Why the board looks like that, and what must not be rebuilt. **Past evidence prevents repeated mistakes; it does not set the agenda** |
 
@@ -44,12 +48,44 @@ decision does not need to be reconciled with.
 5. **This repo is not accountable to `regime-detection`.** That was a learning ground — jump models,
    k-means, lag experiments — and it lives on GitHub. It is not a dependency, not a closed branch of
    this research, and not a migration risk to be tracked here. **Do not raise it.**
+6. **The board is not the objective** (§0.0). Economic value is. If the evidence says the board is
+   wrong, or that another path has a better chance of producing economic value, **change the board** —
+   at the §6 bar, not on assertion. Rules 1–2 prevent research being *added* on availability; they
+   never make the four steps an end in themselves.
 
 ---
 
 # Part I — the forward path
 
 *If you read one screen of this document, read this one.*
+
+## 0.0 The hierarchy — what is the objective and what is merely the route
+
+Stated explicitly because the layer below keeps getting mistaken for the layer above.
+
+| level | statement | revisable? |
+|---|---|---|
+| **Objective** | **Build an economically valuable tool** — a hedge that measurably improves the outcome of a permanently long global equity book | **No.** This is the point of the repo |
+| **Research question** | Is there something sufficiently exploitable to support that objective — and if so, where does the value actually sit? | No, but it is *answerable in the negative* |
+| **The board (§0)** | The current best-supported path for investigating that question | **Yes. Evidence, not commitment** |
+
+**The board is a hypothesis about where to look, not a plan of record.** It is where it is because the
+structure map bounded the signal axis and left the pricing assumption unverified — that is the *reason*
+for the four steps, and if the reason stops holding the board changes. **If evidence shows the board is
+wrong, or that some other path has a better chance of producing economic value, change the board.**
+Doing so is the document working, not the document failing.
+
+**What this does not license.** Standing rules 1 and 2 still bind. They gate research justified by
+*availability* — "we could build this" — and they are not a licence-in-reverse either: a branch does not
+reopen because someone asserts it might be valuable. **The bar for changing the board is the same bar as
+§6: name the decision it improves and the size of the improvement.** The difference is only that a
+*better* answer to that question replaces a step, rather than being added alongside it.
+
+**And the negative is a permitted outcome.** "No economically valuable tool exists at this instrument,
+for this book" is a real possible answer, and E9 (0 of 40 structures beat the naked book on CAGR) is
+currently pointing at it. Step 3 exists precisely because the objective is economic value rather than
+*shipping a hedge* — if options are the wrong instrument, the objective survives and the instrument does
+not. Reaching that conclusion honestly would be a success of this repo, not a failure of it.
 
 ## 0. The board
 

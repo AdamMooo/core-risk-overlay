@@ -19,6 +19,11 @@ on what is worth building: [[docs/PROBLEM-MAP]] — read it first.** Mandate in 
 > decision actually is, and what research would change it. **No signal, measure or estimator is added
 > unless the decision it improves is named first, with a size.** The standing answer lives in
 > **[[docs/PROBLEM-MAP]]** — read that before anything below. This file remains the chronological log.
+>
+> **The objective above all of it is unchanged: build an economically valuable tool.** The problem map
+> is the route and the four-step board is the current best-supported path — **evidence, not
+> commitment.** If a better path to economic value appears, the board changes ([[docs/PROBLEM-MAP]]
+> §0.0). "Follow the four steps" is not the goal.
 
 **The structure map ran (2026-08-15) and it reordered the project.** Tenor is the dominant variable:
 extending 10% OTM outrights from 4w to 52w buys **3-4x the drawdown protection at equal or lower
