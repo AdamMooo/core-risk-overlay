@@ -1,3 +1,31 @@
+> # CLOSURE NOTE — 2026-08-17
+>
+> **This preregistration was never executed, and never will be. It is kept because it is good work
+> and because a reader six months from now deserves to know why it was not run.**
+>
+> **The question it was designed to answer.** Does *discrete regime structure* add density
+> information beyond *smooth mean reversion* — plain Markov-switching against GARCH(1,1) at h=13,
+> scored on the h-step density rather than a point variance forecast?
+>
+> **Why that question is now closed.** Not because it was answered. Because the program it served
+> was retired on 2026-08-17. It asks whether one public return-volatility estimator improves on
+> another, and D3 and F2 had already shown the whole family to be nested inside a free benchmark for
+> the decision at hand. Even a clean POSITIVE would have moved no decision — it would have improved
+> the losing side of a comparison already lost. Its own §11.1 also establishes that a NULL is
+> confounded by the ARCH-LM rejection at any sample size, so one arm of the experiment was
+> uninterpretable before it started.
+>
+> **What was harvested before closure.** The horizon reasoning — mixing time `1/(1-lam2)` ≈ 11.4
+> weeks, the effect vanishing both far below and far above it, and the h-step density rather than a
+> point forecast as the discriminating functional. It was the best experimental design in the repo.
+>
+> **What remains valuable here.** §9's effective-sample discipline (stated before the run, in
+> advance of the p-value) and §11.1's asymmetric-verdict rule (POSITIVE / NULL / **INCONCLUSIVE**,
+> with a power statement required before interpretation). Both were carried into the active
+> program's seven-field gate. Read them as method, not as a queued experiment.
+
+---
+
 # §0 Stub — does discrete regime structure add anything to smooth mean reversion?
 
 Last updated: 2026-08-15 · **Status: NOT ON THE DECISION PATH. Do not implement.**

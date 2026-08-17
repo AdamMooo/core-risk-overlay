@@ -32,7 +32,7 @@ from scipy import stats
 import evaluation as ev
 import predictive as pr
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.parent
 DATA_DIR = ROOT / "data"
 FIGURE_DIR = ROOT / "figures"
 

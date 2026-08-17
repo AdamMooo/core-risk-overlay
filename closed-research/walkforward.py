@@ -41,7 +41,7 @@ MIN_TRAIN_WEEKS = 520          # 10 years; see markov_switching.RELIABLE_MIN_OBS
 REFIT_EVERY_WEEKS = 13         # quarterly, a realistic operational cadence
 STATE_THRESHOLD = 0.50        # the 0.5 convention used throughout the docs;
                               # tiering is out of scope (RESEARCH-PROTOCOL section 9)
-DATA_DIR = Path(__file__).parent / "data"
+DATA_DIR = Path(__file__).parent.parent / "data"
 
 
 def load_returns(ticker: str) -> pd.Series:
@@ -243,7 +243,7 @@ def report_density(ticker: str, k_regimes: int = ms.N_REGIMES) -> None:
     suffix = "" if k_regimes == ms.N_REGIMES else f"_k{k_regimes}"
     out = DATA_DIR / f"density_{ticker.lower()}{suffix}.csv"
     frame.to_csv(out)
-    print(f"\n  series written to {out.relative_to(Path(__file__).parent)}")
+    print(f"\n  series written to {out.relative_to(Path(__file__).parent.parent)}")
 
 
 def report(ticker: str) -> None:
@@ -323,7 +323,7 @@ def report(ticker: str) -> None:
 
     out = DATA_DIR / f"walkforward_{ticker.lower()}.csv"
     ok[["refit_end", "n_obs", "hv_regime", "llf", *pnames]].to_csv(out, index=False)
-    print(f"\n   parameter path written to {out.relative_to(Path(__file__).parent)}")
+    print(f"\n   parameter path written to {out.relative_to(Path(__file__).parent.parent)}")
 
 
 def main() -> None:

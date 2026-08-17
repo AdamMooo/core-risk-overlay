@@ -80,7 +80,7 @@ from encompassing import (
     univariate_r_squared,
 )
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.parent
 DATA_DIR = ROOT / "data"
 HORIZON = 4
 

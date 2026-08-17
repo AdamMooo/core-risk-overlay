@@ -191,7 +191,7 @@ import pandas as pd
 
 import data_loader as dl
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.parent
 DATA_DIR = ROOT / "data"
 
 PANEL = ("SPY", "QQQ", "EFA", "EEM")

@@ -107,7 +107,7 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 import numpy as np
 import pandas as pd
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.parent
 DATA_DIR = ROOT / "data"
 WEEKS_PER_YEAR = 52.0
 

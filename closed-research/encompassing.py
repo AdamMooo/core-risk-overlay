@@ -78,7 +78,7 @@ import pandas as pd
 import data_loader as dl
 import evaluation as ev
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.parent
 DATA_DIR = ROOT / "data"
 
 PRIMARY_HORIZON = 4

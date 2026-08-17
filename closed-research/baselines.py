@@ -39,7 +39,7 @@ from scipy import stats
 
 import evaluation as ev
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.parent
 DATA_DIR = ROOT / "data"
 ALPHAS = (0.10, 0.05, 0.01)
 LAMBDAS = (0.90, 0.94, 0.97)
