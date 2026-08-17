@@ -1,85 +1,84 @@
-"""How good would a trigger have to be? The README 2 inequality, measured.
+r"""Engine of the intervention-design program: priced put programs on a real path.
 
-README 2 is the foundation of this project:
+ACTIVE. Charter: ../CHARTER.md. This file owns `simulate` -- the self-financing,
+weekly-marked equity curve for a continuously rolled put program -- and
+`summarize`, which reduces that curve to outcomes. Everything the active program
+measures runs through here.
 
-    "Truncating the left tail raises the geometric return even at negative
-     expected value, PROVIDED premium drag is smaller than the drawdown
-     avoided."
+It was written on 2026-08-13 to answer a question that is now closed ("how good
+would a trigger have to be?"). The machinery survived the program that
+commissioned it; the framing did not. What follows is the current reading.
 
-That is a quantitative claim and neither side of it has ever been computed. This
-script computes both, with NO model, NO signal and NO regime state -- so its
-answer cannot be contaminated by anything the rest of the repo believes.
+THREE MECHANISMS, AND THEY ARE NOT ONE EFFECT. The measured tenor result is a
+composite of three separable claims with completely different assumption costs.
+Do not quote it undifferentiated.
 
-It sweeps one number: the fraction of the book hedged, CONTINUOUSLY, with no
-timing whatsoever. h=0 is the naked long book. h=1 is fully insured at all
-times. The curve between them brackets every possible overlay, because any
-triggered program is a time-average of points on this curve.
+  M1  STRIKE ANCHORING.  `simulate` re-strikes to the NEW spot at every roll, so
+      short-tenor protection chases the market down and never spans the full
+      peak-to-trough distance. A long-dated put struck at the peak spans it.
+      Depends on the price path ALONE -- no option pricing. Testable on any
+      index, any history, with no option data.
 
-Read it like this:
+  M2  ROLL-COST AVOIDANCE.  Not repurchasing at elevated IV after the first
+      shock. Depends entirely on `skewed_vol`'s sqrt(4/tenor) term, which is an
+      ASSUMPTION and one that favours the conclusion. The SPY chain archive
+      begins 2026-08-14 and cannot cover 2008, so M2 is NOT VERIFIABLE on the
+      historical sample -- a surface fit can reject the shape, never confirm the
+      cost. Formally asymmetric.
 
-  argmax at h > 0   ->  an ALWAYS-ON hedge already beats the naked book, and the
-                        entire signal program was never needed. Stop and buy.
-  argmax at h = 0   ->  hedging costs more than it saves on average, and the
-                        gap at the best h is exactly how much drag a triggered
-                        program must avoid to be worth building. That number
-                        converts "is my trigger good enough" from an argument
-                        into arithmetic.
+  M3  MARK-TO-MARKET.  `equity[t]` includes the put's mark, so a long-dated
+      put's rising mark mechanically reduces measured `max_drawdown`. Depends on
+      pricing AND on a monetisation policy.
 
---- protocol 0 stub -----------------------------------------------------------
+CORRECTION, 2026-08-17. This docstring previously claimed: "Monetisation is
+automatic ... the payoff lands in the portfolio at expiry and is reinvested at
+the next roll -- which is exactly 'sell the inflated puts and buy the core at
+the discount'". THAT IS FALSE, and it is the single sentence that kept the gap
+invisible. The payoff lands at EXPIRY. Selling into the peak of implied
+volatility is a different action, at a different time, for a different amount.
+`simulate` implements NO monetisation rule. The mandate's value story requires
+one. Measuring the difference is E0, and it must run before any number produced
+by this file is interpreted.
 
-1. CLAIM TUPLE   weekly * full holding period * geometric return and max
-                 drawdown * SPY, 1993-2026 (2003-2026 reported alongside for
-                 comparability with the D3 sample). No signal is evaluated, so
-                 no claim is made about any measure.
+EFFECTIVE SAMPLE. `summarize` returns `max_drawdown` as a single `.min()` of the
+drawdown series. On this sample that statistic is set by one episode
+(Oct 2007 - Mar 2009), and the 1993- and 2003- "samples" share it entirely. The
+cost side is well sampled -- premium is paid ~1700 times. THE BENEFIT SIDE HAS
+EFFECTIVE n = 1. No hypothesis may assert a magnitude from it.
 
-2. PREDICTION    h=0 wins on geometric return and h=1 wins on drawdown, because
-                 index put protection is well documented as expensive on
-                 average (Ilmanen 2012). The INTERESTING quantity is not which
-                 wins but the SIZE of the gap -- that is the number the project
-                 has been missing and the reason no next step felt right.
-
-3. LITERATURE    Ilmanen (2012) for the skeptical case. This is a descriptive
-                 measurement of a specific book, not a test of that literature.
-
-4. MECHANISM     Not a comparison of two estimators, so 0.4 does not apply. It
-                 is a cost/benefit characterisation of the DECISION, which is
-                 what should have preceded choosing a model class at all.
-
-5. SURPRISE      argmax at h>0 ends the signal program outright. A small gap at
-                 the best h makes a weak trigger viable. A large gap kills the
-                 overlay concept regardless of trigger quality. All three move a
-                 decision, and they are the only three outcomes.
-
--------------------------------------------------------------------------------
+ROLL PHASE IS A HIDDEN PARAMETER. Blocks walk a fixed calendar grid from index
+0, so a 52-week program makes 33 decisions in 33 years and the phase of every
+roll relative to the crisis is set by the sample's first date. Unswept. E1.
 
 PRICING IS DELIBERATELY OPTIMISTIC FOR THE HEDGE. Puts are priced Black-Scholes
-off VIX. VIX is a ~30-day at-the-money-ish variance rate, and out-of-the-money
-index puts trade at HIGHER implied vol than that -- the equity skew, routinely
-3-6 vol points for 10% OTM. Pricing off VIX therefore UNDERSTATES what the
-hedge costs. That bias is chosen on purpose: if the hedge loses money at an
-optimistically cheap price, it loses by more in reality, and the conclusion is
-safe in the direction that matters. `--skew` adds vol points back as a
-sensitivity and should be read as the realistic case.
+off VIX, a ~30-day at-the-money-ish variance rate; OTM index puts trade richer.
+Pricing off VIX therefore UNDERSTATES cost, and the bias is chosen so that a
+hedge which loses at an optimistically cheap price loses by more in reality.
+`--skew` adds vol points back. A flat 5% offer spread is applied at every tenor,
+which is a second optimistic assumption: 52-week SPY puts are thinner than
+4-week, so the true spread rises with tenor and points the same way as skew.
 
-r = 0. Over 4-13 week tenors the rate effect on a 10% OTM put is small next to
-the skew error already acknowledged above.
-
-Monetisation is automatic, not modelled separately: a put's payoff lands in the
-portfolio at expiry and is reinvested at the next roll -- which is exactly
-"sell the inflated puts and buy the core at the discount" from README 6.
+r = 0. Over these tenors the rate effect is small next to the skew error above.
 
 The book is marked WEEKLY with the outstanding put revalued at the current spot
-and VIX, so max drawdown reflects the hedge's mid-life mark rather than only
-its value at expiry. Marking only at roll dates would flatter both series.
+and VIX, so max drawdown reflects the hedge's mid-life mark rather than only its
+value at expiry -- see M3, which is precisely what that choice creates.
 
-Run: .venv\\Scripts\\python.exe hedge_economics.py [SPY] [--skew 4]
+TWO CONSTANTS CARRY PROVENANCE FROM THE CLOSED PROGRAM. Neither is changed here;
+changing them is an experiment, not a migration.
+  SUBSAMPLE_START = 2003-01-24 is the closed model's 520-week burn-in. The
+    active program has no burn-in and no reason to inherit it. Open, E1/E2.
+  TENOR_WEEKS = (4, 13) is why the clairvoyant ceiling exists only at the
+    tenors the structure map says are dominated. Extending it is E3.
+
+Run: .venv\Scripts\python.exe research/hedge_economics.py [SPY] [--skew 4]
 """
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import numpy as np
 import pandas as pd
@@ -87,7 +86,7 @@ from scipy import stats
 
 import data_loader as dl
 
-ROOT = Path(__file__).parent
+ROOT = Path(__file__).parent.parent
 DATA_DIR = ROOT / "data"
 
 WEEKS_PER_YEAR = 52.0

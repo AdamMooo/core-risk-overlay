@@ -1,77 +1,70 @@
-"""What is the best hedge STRUCTURE, given no signal at all?
+r"""The structure grid: what a put program buys, given no signal at all.
 
-This is the first experiment written for the LIVE HEDGE rather than for the
-research question, and the scope boundary in README 2 -- "the model answers
-when, never what to buy or how much" -- is deliberately set aside. The reason is
-arithmetic, not preference. Everything inside that boundary has now been
-measured as nearly worthless: a CLAIRVOYANT trigger is worth ~+3pp/yr, real VIX
-rules capture 4-7% of that, and no rule beat simply not hedging on return.
-Everything that moved the numbers was outside it -- correcting the equity skew
-alone took hedge efficiency from 17.58 to 3.6.
+ACTIVE. Charter: ../CHARTER.md. Sweeps tenor x strike x outright/spread with
+NO timing anywhere in the design, and reports outcomes against the naked book.
 
-THE ASYMMETRY THAT MOTIVATES THE WHOLE DESIGN. Premium drag is measurable to
-high precision: it is paid every roll, thousands of times, over thirty years.
-Timing benefit depends on ~10-15 systemic drawdowns in all of SPY history and is
-structurally unmeasurable -- the wall this repo has now hit from three unrelated
-directions (containment, the trigger bracket, and the absorption ratio's
-effective sample size of ~6). So build the side that can be measured. That means
-holding the signal FIXED and sweeping structure, which is the exact opposite of
-everything attempted here so far.
+WHAT IT ESTABLISHED (2026-08-15), and it reordered the project:
+  E9   0 of 40 structures beat the naked book on CAGR, in both samples. The
+       founding inequality -- "premium drag smaller than the drawdown avoided"
+       -- fails on average at every point in this grid. The overlay is a
+       PURCHASE of drawdown reduction at a price, not a positive-carry device.
+  E10  Tenor dominates: extending 10% OTM outrights from 4w to 52w buys 3-4x
+       the drawdown at flat-to-falling cost.
+  F6   Deep OTM refuted -- 30% OTM at 4w/13w buys NEGATIVE drawdown.
+  F7   Efficiency is not a usable metric; its denominator goes to zero.
+  F12  Put spreads cap the payoff exactly in the tail the program exists for.
 
---- protocol 0 stub, fixed before the run -------------------------------------
+WHAT IT DOES NOT ESTABLISH, and this is the correction of 2026-08-17. The stub
+below already said the benefit side has ~10 observations. It has fewer. Ranking
+is on `max_drawdown`, a single `.min()` set by one episode (Oct 2007 - Mar
+2009) which BOTH samples share entirely. So:
+
+  - the ORDERING (long tenor spans a multi-month drawdown, short tenor
+    re-strikes downward through it) is a structural mechanism and is probably
+    robust -- it is arithmetic about where the strike sits;
+  - the MAGNITUDES (+16.8, +19.9, +24.3pp) are one draw of one statistic at one
+    arbitrary roll phase, and are NOT identified. Do not quote them as effects.
+
+Three further conditions on every row, none of them swept here:
+  - ROLL PHASE. Blocks walk a fixed grid from index 0; at 52w that is 33
+    decisions in 33 years. E1 sweeps it.
+  - M3. Ranking is on MARKED wealth including the put's mark, under no
+    monetisation rule. E0 decomposes it.
+  - M2. Cost rests on skewed_vol's sqrt(4/tenor), an assumption favouring the
+    conclusion, and on a tenor-flat offer spread. Neither is verifiable on this
+    sample.
+
+--- protocol 0 stub, fixed before the original run ----------------------------
 
 1. CLAIM TUPLE   weekly marks * full holding period * geometric return and max
                  drawdown * SPY 1993-2026, subsample 2003-2026 * ALWAYS-ON,
-                 h=1.00, NO signal and NO timing anywhere in the design. No
-                 claim is made about any measure, indicator or regime state.
+                 h=1.00, NO signal and NO timing anywhere in the design.
 
-2. PREDICTION    (a) NO structure beats the naked book on CAGR. README 2's
-                 inequality fails on average at every point in this grid;
-                 Ilmanen (2012) is the skeptical prior and the repo has already
-                 measured h=0 winning on return.
-                 (b) Efficiency is maximised at LONG tenor and DEEP strike --
-                 52 weeks, 20-30% OTM. Skew scales as sqrt(4/tenor) in
-                 `skewed_vol`, so long-dated is far cheaper per unit of calendar
-                 time, and deep OTM is where tail insurance actually lives.
-                 (c) PUT SPREADS cut cost more than a flat surface implies,
-                 because the short leg sits deeper on the skew and is sold rich.
-                 But they cap the payoff exactly in the deep tail the program
-                 exists for, so they should look good on premium and bad on
-                 drawdown bought -- efficiency a wash or worse.
+2. PREDICTION    (a) NO structure beats the naked book on CAGR. CONFIRMED.
+                 (b) Efficiency maximised at long tenor AND deep strike. SPLIT
+                 -- long tenor confirmed, deep strike refuted.
+                 (c) Put spreads look good on premium, bad on drawdown bought.
+                 CONFIRMED.
 
 3. LITERATURE    Ilmanen (2012) on the cost of index put protection. Israelov
-                 (2017), "Pathetic Protection", on rolled-put drag specifically.
-                 Both [UNREAD] and recorded as such -- the 2026-08-14 lesson is
-                 that an [UNREAD] tag on the paper whose construction you need
-                 is itself the defect.
+                 (2017), "Pathetic Protection", on rolled-put drag. Both
+                 [UNREAD] and recorded as such.
 
 4. MECHANISM     Not a comparison of estimators. A cost characterisation of a
                  DECISION whose cost side has ~1700 weekly observations and
-                 whose benefit side has ~10. Only the first is being measured.
+                 whose benefit side has ~10 -- in fact one, see above.
 
-5. SURPRISE      A structure beating naked on CAGR ends the signal program
-                 outright -- buy it and stop. Efficiency flat across the grid
-                 means structure does not matter either, and the honest answer
-                 for real money becomes "do not hedge with options". A strong
-                 interior optimum is the first actionable result in the repo.
+5. SURPRISE      A structure beating naked on CAGR would have ended the signal
+                 program outright. None did.
 
-WHAT THIS RUN DOES NOT COVER, stated so it is not mistaken for complete:
-  - RECYCLING. README 1 monetises the hedge in a crash and buys the core back
-    lower. `simulate` reinvests the payoff at the next roll, which is a passive
-    version of that. Sizing the buyback deliberately is untested and may matter
-    more than any strike choice here.
-  - THE HONEST COMPETITORS. A trend-following sleeve or long duration are what a
-    real book would use instead of puts, and they carry positive or neutral
-    carry rather than bleed. Not compared. Doing so needs data this repo lacks.
-
-Run: .venv\\Scripts\\python.exe structure_map.py [SPY] [--slope 0.6]
+Run: .venv\Scripts\python.exe research/structure_map.py [SPY] [--slope 0.6]
 """
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 import pandas as pd
 
@@ -187,8 +180,9 @@ def main() -> None:
               f"{tag}")
 
     print("\ncost = pp/yr of CAGR given up vs the naked book.  ddBought = pp of max")
-    print("drawdown avoided.  eff = ddBought per pp of cost, and is roughly invariant")
-    print("to h, which is why it is the right metric for comparing STRUCTURES.")
+    print("drawdown avoided.  eff = ddBought per pp of cost and is REFUTED as a")
+    print("selection metric (F7): its denominator goes to zero, so a structure")
+    print("protecting nothing scores best.  Rank on ddBought at a stated cost.")
 
 
 if __name__ == "__main__":
