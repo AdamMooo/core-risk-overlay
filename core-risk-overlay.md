@@ -12,51 +12,30 @@ on what is worth building: [[docs/PROBLEM-MAP]] — read it first.** Mandate in 
 [[docs/POINT-IN-TIME-DISCIPLINE]]. **Width/direction separation, binding, in
 [[docs/TRANSLATION-LAYER]].**
 
-## Status — 2026-08-15
+## Status - 2026-08-17
 
-> **SCOPE RESET 2026-08-15. This repo is no longer a signal-discovery engine.** Its job is to state
-> the hedging problem — what is established, what is falsified, what is unknown and *why*, what the
-> decision actually is, and what research would change it. **No signal, measure or estimator is added
-> unless the decision it improves is named first, with a size.** The standing answer lives in
-> **[[docs/PROBLEM-MAP]]** — read that before anything below. This file remains the chronological log.
+> **PROGRAM TRANSITION 2026-08-17. The prediction/regime program is CLOSED.** It is preserved,
+> self-contained and reproducible, at [[closed-research/README]] -- completed research, not obsolete
+> code, and not an active branch. The active program is **drawdown intervention design**: [[CHARTER]],
+> which is the only research question and the only experiment queue in this repository.
 >
-> **The objective above all of it is unchanged: build an economically valuable tool.** The problem map
-> is the route and the board is the current best-supported path — **evidence, not commitment.** If a
-> better path to economic value appears, the board changes ([[docs/PROBLEM-MAP]] §0.0).
+> **Why.** The model's forward-downside information is nested inside VIX on levels (D3) and dynamics
+> (F2); the clairvoyant ceiling bounds any timing rule near +3pp/yr where it has been measured; and
+> the variable that dominated outcomes -- option tenor -- had been fixed by assumption while the
+> variable that did not got the research. *The old program's failure was in what it held constant,
+> never in how carefully it measured.* Full amendment, including the precise scope of the closure and
+> what is prohibited from reopening: [[docs/PROBLEM-MAP]] Part I.
 >
-> **BOARD CHANGED 2026-08-15, second time today.** The option-surface / skew branch is **REJECTED**
-> ([[docs/PROBLEM-MAP]] §0.1) — we cannot compete on option pricing, and it was the "out-price the
-> insurance" question [[README]] §2 rejected on page one, re-entering through hedge implementation.
-> The structure-map work stands as *measurement* and not as direction. The board is now the six-item
-> **recovery of the Hamilton-filter question from the long-horizon economic objective**
-> ([[docs/PROBLEM-MAP]] §0). **The short-horizon tests falsified one application of the model, not the
-> research question** — every claim tuple in this file says h=1 to h=13 against spot VIX, and that
-> scoping is what makes them re-usable rather than sunk.
-
-**The structure map ran (2026-08-15) and it reordered the project.** Tenor is the dominant variable:
-extending 10% OTM outrights from 4w to 52w buys **3-4x the drawdown protection at equal or lower
-cost**. Always-on 52w 5% OTM buys **+24.3pp** of drawdown (2003+) against a *clairvoyant* 4w bound of
-+24.7pp — so the protection axis is close to saturated by structure alone, with no signal. Perfect
-foresight at matched structure adds **+1.4pp of drawdown and +8.5pp/yr of premium**: a signal is a
-**cost-reduction device, not a protection device**. Full decomposition and its limits in
-[[docs/PROBLEM-MAP]] §5.
-
-**Both axes of the model question are closed. The model adds nothing to VIX on levels (D3) or on
-dynamics, for SPY.**
-Two directions were held open on structural grounds — **multi-asset** (a different *information set*)
-and the **GARCH specification question** (a different *estimator* on the same set, so containment
-does not apply). Both remain structurally valid and **both are now off the decision path**: the
-structure map bounded what any signal can be worth, and neither is scored against that bound.
-Retained as research items if the paper is written — [[docs/PROBLEM-MAP]] §6.
-
-**What the model IS, now measured rather than assumed** (`state_character.py`, below): a **width
-meter** that separates volatility by ~2.4x out of sample, carries **no direction content**, and
-reads "wide" when the book is already ~13% below its peak. That description is the honest product
-of this repo to date. It is not a forecast and it is not incremental to VIX.
-
-Prior session (2026-08-13): the encompassing regression against VIX, the hedge-economics bracket,
-the trigger bracket, and the memory diagnostic — the last of which **refuted a confident claim made
-earlier the same day** and is recorded as such.
+> **The closure is scoped, not universal.** It covers public return-volatility estimators, for
+> decision purposes, on SPY, against VIX, at h=4 and h=13. Credit, funding, breadth and positioning
+> were never tested -- out of scope, not refuted. And the EVPI ceiling exists only at 4w/13w, the
+> tenors the structure map says are dominated; [[CHARTER]] E3 closes that corner or shows it
+> undecidable.
+>
+> **The founding arithmetic is withdrawn.** [[README]] §2 held that premium drag would be smaller than
+> the drawdown avoided. E9 measured it: 0 of 40 structures beat the naked book on CAGR, both samples.
+> The overlay is a **purchase** of a different outcome path at a cost in compound return. That is
+> price discovery, and it moves preference explicitly downstream of research.
 
 ## Governing frame — read this before proposing any experiment
 
@@ -737,159 +716,28 @@ and the 26w/52w clairvoyant columns, which do not exist.
 
 ## Next
 
-**Read [[docs/PROBLEM-MAP]] first.** It is the standing statement of the problem and §6 is the gate
-that decides whether anything below is worth running. Then [[README]] §§1-5 and the **Governing
-frame** above.
+**There is no queue in this file.** [[CHARTER]] §9 is the single experiment queue, and two documents
+proposing next steps is how a second research program starts.
 
-**The gate, in one line: no signal, measure or estimator is built unless it is scored as *premium
-avoided per unit of protection retained*, at 26-52 week tenor, against the §5.1 decomposition.**
+**PROGRAM TRANSITION 2026-08-17.** The prediction/regime program is **closed** and preserved,
+reproducible, at [[closed-research/README]]. The active program is **drawdown intervention design**:
+[[CHARTER]]. The full reasoning, the scope of the closure, and what is prohibited from reopening are
+recorded as a dated amendment in [[docs/PROBLEM-MAP]] Part I.
 
-### Superseded by the scope reset — retained as record, not as plan
+Everything above this line is the chronological record and stands as written, with one standing
+caveat that attaches to the structure-map entry and to every number derived from it:
 
-Everything from here to the end of this section was the plan as of 2026-08-14, when the signal
-program was still believed to be where the value was. The design work is sound and the reasoning is
-worth keeping — particularly the horizon argument and the asymmetry amendment, which are the two
-best pieces of experimental design in the repo. **None of it is on the decision path**
-([[docs/PROBLEM-MAP]] §6). Do not treat the items below as next actions.
+> **The benefit side has effective n = 1.** `summarize` returns `max_drawdown` as a single `.min()`,
+> and on both reported samples that statistic is set by the same episode (Oct 2007 - Mar 2009). The
+> **orderings** are probably robust; the **magnitudes** are one draw at one unswept roll phase and are
+> not identified. [[CHARTER]] E1 and E2 test exactly this, and E0 tests whether the reduction is cash
+> or a mark at all.
 
-**The stated next research question (2026-08-14), and the constraint that makes it answerable:**
-
-> **Does this representation of width contain information beyond simpler volatility measurements?**
-
-Status of every rung, so none is re-run by accident: **constant — run**, model wins tick loss, DM
-significant at 10% and 5%. **EWMA — run at h=1 and VOID at h=1.** **VIX levels — run, null (D3).**
-**VIX dynamics — run, null.** **GARCH(1,1) — never built, not implemented anywhere in this repo.**
-**ATR / Parkinson / Garman-Klass / Rogers-Satchell / Yang-Zhang — never built**, needs daily OHLC.
-
-**The horizon is the whole design and §0 rule 4 will void the run without it.** EWMA is IGARCH: its
-multi-step variance forecast is a martingale and never reverts. MS reverts toward the stationary
-regime mix at a rate set by the second eigenvalue of `P`. That is the entire structural difference
-and it is **exactly zero at h=1** — so an h=1 rerun measures nothing, whatever it returns. Any
-"beyond simpler measures" test runs at **h > 1** and states the reverting-vs-martingale mechanism in
-its stub. **GARCH(1,1) is the sharper opponent than EWMA**, because GARCH also reverts (toward
-unconditional variance, at rate `alpha + beta`), which isolates the real question: do **discrete
-regimes** add anything over **smooth mean reversion**? Full table in [[docs/TRANSLATION-LAYER]] §5.
-
-**The §0 stub is written and the experiment is BLOCKED, deliberately:
-[[docs/STUB-GARCH-ENCOMPASSING]].** Two findings from writing it, both of which would have wasted
-the run:
-
-- **h > 1 is necessary and not sufficient.** `E_t[sigma2(t+h)]` is *the same functional form* in
-  both models — `long-run level + (geometric rate)^h × current deviation`, with a single
-  state-independent rate in each (`alpha+beta` vs `lam`). A point-forecast variance comparison at
-  any horizon compares two parameterisations of one two-parameter curve: **structurally the h=1
-  EWMA mistake, one level deeper.** The discriminating functional is the **h-step density**, whose
-  shape under MS is a mixture over `2^h` regime paths that no single-regime GARCH can reproduce.
-- **The horizon follows from mixing time, not from taste.** Mixture non-Gaussianity vanishes for
-  h ≪ mixing time (chain barely moves) *and* for h ≫ it (CLT reabsorbs it). Mixing time is
-  `1/(1-lam)` ≈ **11.4 weeks** at the already-published median `lam` = 0.9126 — hence **h=13
-  primary**, with h=4 and h=26 as brackets and a preregistered prediction that any effect is
-  *largest at 13*, which is itself a test of the stated mechanism.
-
-**A third finding, raised against my own stub (§11.1): a null would be CONFOUNDED.** ARCH-LM
-rejects at 55.6 *after* regime switching, so the base specification is known-misspecified in the
-exact dimension under test. A positive result is therefore clean and strong; a null is equally
-consistent with *"the within-regime defect masks what the regimes contribute"* and **no sample size
-separates those.** The literature sharpens this rather than softening it — SWARCH and MS-GARCH both
-put ARCH inside the regimes, so the field largely **skipped this rung because plain MS was already
-understood to be inadequate.** That is simultaneously why the run is not redundant and why its null
-is uninformative. The run is still worth having, as an **asymmetric** test, and a null is reportable
-only as a claim about *this specification*, never about regime structure as such.
-
-**The experiment is now formally ASYMMETRIC** ([[docs/RESEARCH-PROTOCOL]] amendment 2026-08-14,
-stub §11.1-§11.5). `H0_spec` (plain MS adds nothing over GARCH) is testable; `H0_struct` (regime
-structure adds nothing) **is not, at any sample size**. Verdicts are POSITIVE / NULL /
-**INCONCLUSIVE**, assigned before any conclusion is written, and a result failing the power
-requirement is INCONCLUSIVE rather than NULL. **No retroactive repair:** a null does not license
-swapping in SWARCH and rerunning — S3 is a separate stub. And the **positive** branch is confounded
-too: the model switches its **mean** as well as its variance while GARCH's mean is constant, so a
-**common-mean MS variant is required** or a positive is uninterpretable.
-
-**Literature gate — 2026-08-14. Timmermann (2000) READ IN FULL; verdict INFORMS; the run is not
-killed.** The blocker moved from Hamilton & Susmel because a *fact* changed: SWARCH is MS-**ARCH**
-(rung 4), while Timmermann's model (1) is **exactly this repo's specification** (rung 3). Obtained
-free as LSE FMG DP 323. Three consequences, in [[docs/STUB-GARCH-ENCOMPASSING]] §14.3:
-
-- **Skewness requires switching MEANS** — variance switching alone cannot produce it, at any `P`.
-  And standard GARCH without leverage has **zero** skewness (Bollerslev 1986). So plain MS can do
-  something GARCH(1,1) structurally cannot, which is the sharpest mechanism found so far — and it
-  explains the asymmetric PIT QQ panel the repo already had and could not account for.
-- **The §11.3 common-mean control is heavier than it looked:** it forces skewness to exactly zero,
-  removing that entire axis and making a positive result *hardest* on that variant. GJR-GARCH,
-  added earlier for an unrelated reason, is the right opponent for the skewness axis.
-- **Timmermann's own warning lands on our parameters** — MS with small means in all states "may have
-  trouble replicating the skewness found in these data." Ours are +0.36% / −0.26%. **Corollary 1
-  makes this computable in closed form from parameters already fitted at 95 vintages**, which would
-  discharge §9's blocking power requirement before any code exists. Recommended, not done.
-
-**A §0 rule 3 PROCESS FAILURE came out of it, logged in [[docs/RESEARCH-PROTOCOL]] §Amendments.**
-`memory_diagnostic.py`'s 2026-08-13 "deductive result" is Timmermann's Proposition 5 — published
-1999, sitting `[UNREAD]` as row 2 of the reading list, whose own reading-order note already said
-what it contained. The repo's version omits the mean terms and overstates the autocovariance by
-**1.00%** at fitted parameters: negligible numerically, wrong formally, now corrected.
-
-**Still open:** Hamilton & Susmel (1994), lower priority, and Marcucci (2005) full text. §0 rule 3 requires naming the paper that settles it; if one does, rule 2 says
-the run carries no information and must not happen. Containment does **not** apply here — GARCH sees
-exactly the same information set as the MS model — which is why this is a real experiment and not
-D3 again.
-
-**The direction that was open on 2026-08-14 — structurally valid, and now off the decision path.**
-The containment argument against everything else still stands, and multi-asset still escapes it. What
-changed is the *denominator*: the structure map bounded what any signal can be worth, and a
-cross-asset width measure is not scored against that bound. It returns only under the §6 gate.
-
-3. **Multi-asset.** [[README]] §1 says *systemic* is the operative word and the model has only ever
-   seen SPY. VIX is SPY-only implied volatility, so a cross-asset measure is a genuinely different
-   **information set** rather than a better estimator on the same one — the single argument that
-   survives D3 and the dynamics test. Cheapest first probe is not a multivariate Markov model but the
-   **absorption ratio** (Kritzman, Li, Page & Rigobon 2010): rolling PCA over a small asset panel,
-   fraction of variance in the top eigenvectors, point-in-time. One new column through
-   `encompassing.py`, which already exists and is already validated. If a cheap joint measure adds
-   nothing to VIX, an expensive one almost certainly will not either.
-
-   **`state_character.py` now gives this probe a bar to clear that is not a regression.** The
-   single-asset state reads "wide" when the book is already ~13% below its peak at the median, on
-   both SPY and QQQ. A cross-asset measure that fires at the same depth is not worth building
-   whatever its encompassing coefficient does, and that comparison is descriptive, cheap, and
-   available before any regression is run. Note `systemic_state.py` currently threatens this route
-   independently: the expanding-percentile trigger it used is refuted, and the fix (Kritzman's own
-   standardised shift) is unbuilt.
-
-4. **Fit the model on daily** and re-measure `RELIABLE_MIN_OBSERVATIONS` (§1.3) — the 520-week figure
-   is weekly and does not transfer. Worth doing for the **memory** question only. It cannot reopen
-   the encompassing question: containment is frequency-invariant, and treating it as a route back in
-   would be exactly the goalpost-moving this repo keeps catching.
-
-**Deprioritized, not deleted.** S3 (within-regime ARCH), S4 (Student-t regime densities), DQ, the ES
-breach bootstrap and R1-R10 all address **marginal / level** properties. D3 closed the level-based
-case, so none of them speaks to the untested question. They remain valid research items if the paper
-is written; they are not the path.
-
-**MSM and HAR are parked, not adopted.** They were proposed on a long-memory argument the daily run
-did not support. They come back only if step 1 or 2 shows a power law.
-
-Not planned: statistical jump models, intraday data, Hawkes processes, K-means, binary classifiers.
-*"Economic backtesting" was on this list until 2026-08-15; the structure map is exactly that, and it
-produced the largest effect size in the repo. Removed.*
-
-### The actual next actions (2026-08-15)
-
-In order, and each qualifies under [[docs/PROBLEM-MAP]] §6 because a plausible outcome changes an
-action:
-
-1. **Fit the real skew surface from `options-quant`'s archived SPY chains** and replace
-   `skewed_vol`'s swept slope. The `sqrt(4/tenor)` term is load-bearing *in the direction of the
-   conclusion*; if real 52-week skew is steeper than assumed, the tenor result shrinks or inverts.
-   **This can overturn the largest finding in the repo, which is why it goes first.** Data only —
-   no import, no code dependency, and `options-quant` is not governed by the charter either.
-2. **Extend the clairvoyant grid to 26w and 52w** in `hedge_economics.py`. One line. Until it exists,
-   "timing is worth ~3pp/yr" is a claim about 4w and 13w only, and §5.2 of the problem map stays
-   suggestive rather than settled.
-3. **Decide the objective: options, or drawdown reduction?** If the second, a trend sleeve is the
-   honest competitor and the whole options program is one branch of a comparison never run. A
-   decision for Adam, not a measurement — and it gates how much of the rest is worth doing.
-4. **Specify the recycling rule, then measure it.** README §1 claims monetize-and-rebuy as a source of
-   value; it has never been written as a rule, so it has never been measured.
+The four "actual next actions" previously listed here — fit the real skew surface, extend the
+clairvoyant grid, decide the objective, specify recycling — were written on 2026-08-15 under the
+framing this transition replaces. They are not deleted from the project: the clairvoyant extension is
+[[CHARTER]] E3, the surface is E5 (reclassified as procurement, never prediction), and recycling is
+E6. The objective question is answered by [[CHARTER]] §1.
 
 ## Registration
 

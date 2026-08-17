@@ -1,16 +1,24 @@
 # Point-in-Time Discipline
 
-Last updated: 2026-08-12
+Last updated: 2026-08-17. **Binding on the active program.**
 
-Standing rules for this repo. Companion to [[MATH-REFERENCE]] (§2.7 has the mechanism).
+Standing rules for this repo. Companion to [[CHARTER]] and [[docs/RESEARCH-PROTOCOL]].
 
 ## The rule
 
-> **Every input to the signal at week `t` must have been knowable at week `t`.**
+> **Every input to a reported number must have been knowable at the time the number claims to
+> describe — and every researcher choice must have been fixed before the result it selects among was
+> seen.**
 
-No exceptions, no "it's probably fine," no "the effect is small." The overlay exists to tell us
-what to do *next*, so any number that could not have been computed in real time is not evidence —
-it is a description of history.
+Two clauses, because the second is the one this program is exposed to. The first is classical
+look-ahead: a quantity computed from the future. The second is **selection on outcome**: a threshold,
+an offset, a parameter or a sample boundary chosen after seeing which value gives the answer. The
+closed program's risk was almost entirely the first. **The active program's risk is almost entirely
+the second**, because its interventions are fixed rules rather than filters, so there is no state to
+leak — but there are many knobs, and one realized path to turn them against.
+
+No exceptions, no "it's probably fine," no "the effect is small." A number that could not have been
+produced without knowing the answer is not evidence; it is a description of history.
 
 ## Why this file exists
 
@@ -48,33 +56,58 @@ plausible next change introduces it. **ACCEPTED** = present, understood, judged 
 | 7 | **Full-sample scaling / standardization.** No scaler exists in the pipeline today. | **N/A** | — | If one is ever added, fit it on the training window only. |
 | 8 | **Survivorship bias.** Single liquid ETF, no universe selection. | **N/A** | `src/data_loader.py` | Becomes live the moment this goes multi-asset or screens a universe. |
 
+**Rows 1-8 were written for the closed prediction program.** Rows 1, 2, 4 and 5 concern a filter that
+no longer runs in the active tree and are retained for provenance; 2b, 6, 7 and 8 are general data
+discipline and still bind. Row 3 (signal/execution timing) is **N/A** in the active program, which has
+no signal.
+
+### Rows 9-13 — the active program's own channels
+
+Added 2026-08-17 with the transition. **Every one is selection on outcome rather than classical
+look-ahead, and none of them is caught by rows 1-8.** These are the channels that make the difference
+between an experiment and a search.
+
+| # | Channel | Status | Where | Fix |
+|---|---|---|---|---|
+| 9 | **Roll-phase selection.** Blocks walk a fixed calendar grid from index 0, so at 52 weeks the program makes 33 decisions in 33 years and the phase of every roll relative to the crisis is set by the sample's first date. Choosing the offset that maximises the effect is choosing the answer. | **OPEN** | `research/hedge_economics.py` `simulate` | E1 sweeps offsets `1..tau-1` and reports the **spread** as a `Psi` coordinate. No single phase may be quoted without it. |
+| 10 | **Episode-threshold selection.** The depth `theta` defining "an excursion worth counting" is ours to pick, and it changes `n`. | **OPEN** | `research/pathfunctionals.py` `excursions` | `theta` is declared in the experiment's stub before the run, with a sensitivity band, not chosen from the result. |
+| 11 | **CDaR `alpha` selection.** `alpha` interpolates from a well-sampled statistic to an n=1 one. Picking the `alpha` that gives the answer is the same defect one level up. | **OPEN** | `research/pathfunctionals.py` `cdar` | Report the **whole curve**, always. The `alpha` at which the estimate destabilises is an output, not a choice. |
+| 12 | **Pricing-assumption selection.** `skewed_vol` scales skew as `sqrt(4/tenor)`, which makes long tenor cheap and **favours the conclusion**, and a flat 5% offer spread is applied at every tenor when long-dated puts are thinner. Sweeping and then quoting the favourable slope is selection. | **ACCEPTED and declared** | `research/hedge_economics.py` `skewed_vol` | Dominance must hold **across the whole sweep**, not at the primary slope. E5 can reject the shape; it cannot confirm historical costs, because the chain archive begins 2026-08-14. |
+| 13 | **Monetisation fitted to the path.** A rule `rho` that references the realized trough is clairvoyant, and it will look excellent. | **LATENT** — no rule exists yet, and the first one written is where this bites | E6 | `rho` is causal: it may use only information available at the decision date. The clairvoyant version is computed **separately and labelled as a bound**, never as a policy. |
+
+**Row 13 has a precedent worth naming.** The closed program's own EVPI construction is exactly the
+honest form of this: `simulate(foresight=True)` looks at the expiry price before buying, is documented
+as not implementable, and exists only to bound others. Any monetisation work follows that pattern.
+
 ## Pre-flight checklist
 
-Run this before any backtest number is quoted, written down, or acted on:
+Run this before any number is quoted, written down, or acted on:
 
-- [ ] Every probability in the signal path is **filtered**, never smoothed
-- [ ] Parameters used at week `t` were fitted only on data up to and including `t`
-- [ ] The bar that generated the signal had **closed** before the signal timestamp
-- [ ] The execution price is timestamped at or after the signal
-- [ ] No threshold, scaler, or hyperparameter was chosen using data after the decision date
+- [ ] Every input was knowable at the time the number claims to describe
+- [ ] **Roll phase was swept, not chosen**, and its spread is reported alongside the estimate
+- [ ] **Episode threshold and CDaR `alpha` were declared in the stub**, before the result was seen
+- [ ] The pricing sweep was reported **whole**, not at its most favourable slope
+- [ ] Any monetisation rule uses only information available at its decision date
+- [ ] The claim tuple and the **effective n per coordinate** are attached
+- [ ] No magnitude is asserted from a population that is not identified
 - [ ] Someone asked out loud: *"is this too good?"*
 
 ## The smell test
 
 **If a backtest looks excellent on the first run, assume leakage until proven otherwise.**
 
-Strategy-specific tell: a risk measure that reliably rises *before* crashes rather than *during*
-them is the signature of a smoother, not a forecast. Real-time regime detection is late and
-hesitant by construction — the filter needs to actually observe bad returns before it can raise the
-probability. A crisis indicator that anticipates crises has read the answer sheet.
+**Tells specific to the active program.** There is no filter to leak, so watch the knobs instead:
 
-Concrete illustration from the synthetic fixture in `checks.py`, week 99 — the last calm week
-before the crash:
+- **A result that is stable in its central estimate and unreported in its spread.** If an effect
+  survives one roll phase and the other 51 were never run, the spread *is* the result.
+- **A statistic whose effective n was never stated.** Max drawdown on this sample is one episode. Any
+  ranking on it is a ranking of how one crisis happened to align with one calendar.
+- **A monetisation rule that performs beautifully.** Selling near the trough is trivially optimal in
+  hindsight and impossible in advance. If `rho` looks excellent, check what date it references.
+- **A pricing assumption quoted at its primary value.** The skew sweep exists because the shape is
+  unknown; reporting the slope that flatters the conclusion is the same defect as picking a threshold.
 
-```
-filtered  high-variance probability = 0.0059   <-  0.6%, what we could actually have known
-smoothed  high-variance probability = 0.2008   <- 20.1%, after peeking at week 100
-```
-
-Same model, same week. The 34x gap is the Kim smoother's backward revision, and it grows as calm
-persistence is pinned higher — see [[MATH-REFERENCE]] §2.7.
+**The honest form is already in the repo and should be copied.** `simulate(foresight=True)` peeks at
+expiry before buying, says so in its own docstring, and exists solely to bound what any rule could
+achieve. A clairvoyant quantity that is *labelled* as a bound is one of the most useful things here.
+The same quantity presented as a strategy would be the worst.
