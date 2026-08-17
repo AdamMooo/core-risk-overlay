@@ -10,7 +10,7 @@ Tail-risk hedge overlay for a permanently long global equity book. **Problem sta
 on what is worth building: [[docs/PROBLEM-MAP]] — read it first.** Mandate in [[README]]. Protocol in
 [[docs/RESEARCH-PROTOCOL]]. Mathematics in [[docs/MATH-REFERENCE]]. Time-basis rules in
 [[docs/POINT-IN-TIME-DISCIPLINE]]. **Width/direction separation, binding, in
-[[docs/TRANSLATION-LAYER]].**
+[[closed-research/docs/TRANSLATION-LAYER]].**
 
 ## Status - 2026-08-17
 
@@ -68,7 +68,7 @@ replicates, while the drift difference **reverses sign between the two assets** 
 tail ratio straddles 1.0. So `wide` never licenses `bearish`, `short`, or `to cash`. Sizing on
 width is legitimate **only** as variance targeting, and the reason must be written next to the
 line — identical code, different research obligation. Full contract, forbidden patterns, and the
-status of every "beyond simpler measures" comparison: [[docs/TRANSLATION-LAYER]].
+status of every "beyond simpler measures" comparison: [[closed-research/docs/TRANSLATION-LAYER]].
 
 The question is unchanged ([[README]] §3): *how well does a Markov-switching model provide
 real-time information about Value at Risk and the tail risk of equity assets?* **Real-time**
