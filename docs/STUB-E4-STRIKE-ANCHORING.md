@@ -212,6 +212,30 @@ Reported **per market and per episode**, never pooled into a single number witho
 The unconditional all-starts fraction is reported as *context only* and is explicitly labelled
 description, not inference.
 
+### 8.1 Amendment, made BEFORE any code ran — ties, and the asymmetry they create
+
+Noticed while writing the implementation and recorded here rather than discovered afterwards. **No
+run has happened at the time of this amendment** (git history is the evidence: the stub commit
+precedes `research/anchoring.py` entirely).
+
+**The defect.** `P_A >= P_R` counts a tie as a vote FOR M1, and the overwhelmingly common case is
+`P_A = P_R = 0` — any start whose horizon sits in rising or flat prices. Episode windows include
+their recovery leg, so they contain many such starts. The preregistered rule is therefore **biased
+toward M1 surviving**, and the bias grows with how much of an episode window is recovery.
+
+**What changes, and what does not.**
+
+- **The kill condition is unchanged and still keys on the preregistered rule.** Changing a verdict
+  rule while writing the code that will test it is exactly the move [[RESEARCH-PROTOCOL]] §0 exists
+  to prevent, and the rule was fixed in advance.
+- **Two additional numbers are reported beside it, as `Psi`:** the count of **informative starts**
+  (at least one leg strictly positive) and the vote **among informative starts only**.
+- **The verdict is asymmetric, and this is now stated in advance.** Because the rule is biased toward
+  survival: **a KILL is strong evidence and a SURVIVAL is weak.** If M1 survives under the
+  preregistered rule but loses the informative-start vote, that is reported as **survival on a biased
+  rule, contradicted on the diagnostic** — and it is not to be quoted as M1 holding.
+
+
 ## 9. Exact outputs, and the stopping rule
 
 ```
