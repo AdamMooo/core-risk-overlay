@@ -177,6 +177,7 @@ Claims that survived a preregistered run with adversarial alignment checks. Each
 | E10 | **Tenor is the dominant structural variable and the effect is monotone and large** — see §1.1 | `structure_map.py` | `[I]` |
 | E11 | Correcting the equity skew moved hedge efficiency **17.58 → 3.6**; at 5–10% OTM the drawdown benefit turned *negative* on the full sample | `hedge_economics.py` | `[I]` |
 | E12 | **The drawdown reduction is predominantly a mark.** Same path, same contracts, one accounting change: 82% (1993–) and 85% (2003–) of the 52w reduction is unrealised mark; the cash-recognised reduction is ~+3pp and flat from 26w to 52w | `m3_decomposition.py` | `[I]` |
+| E13 | **The tenor magnitude is alignment-dependent.** Sweeping every roll offset: the 52w phase spread is 12.5–14.1pp against a tenor effect of +1.8 to +18.0pp. R = 1.85 / 6.82 in cash (KILLED), 0.71 / 0.85 in marks (MARGINAL). In cash the *sign* flips with the calendar, −6.3 to +7.8pp | `phase_sweep.py` | `[I]` |
 
 ### 1.1 The tenor result — the largest measured effect in the repo
 
@@ -203,6 +204,17 @@ the program deepens the worst drawdown by about 5pp, because premium is paid con
 payoff lands after the trough. The monotone climb across the marked row is a mark that grows with
 the length of the block interior — 51 unrecognised weeks at 52w against three at 4w. **Read the
 marked row as the ordering and the cash row as the size.**
+
+**And E1 (2026-08-18) removes the size from both rows.** Sweeping every roll offset — 4, 13, 26
+and 52 alignments, no selection — the 52-week cell ranges **+10.3 to +23.0** marked and **−6.3 to
++7.8 cash** on the full sample, against a published +16.8 / +3.0. The phase spread is 0.71 to 0.85
+of the whole tenor effect in marks and **1.85 to 6.82 of it in cash**. The published alignment was
+never chosen: it fell out of the sample's first date, and on the 2003– sample it is the *second
+lowest of 52*. **What survives is the ordering in marks — long tenor beats short at 56 of 56
+alignments — and nothing quantitative in either accounting.** One further caution from E1's `Psi`
+column: on the full sample at 26w and 52w the hedged book's max drawdown is set in **2003** while
+the naked book's is set in 2009, so the marked difference there is taken between two *different
+episodes*. [[STUB-E1-ROLL-PHASE]] §10.4.
 
 **And the ordering is not ours.** Israelov (2017), *Pathetic Protection*, sweeps 20 / 63 / 250
 business-day maturities and reports that *"longer-dated options do a less bad job of protecting a

@@ -167,7 +167,7 @@ def skewed_vol(base_vix, strike, spot_now, tenor_weeks, slope):
 
 def simulate(spot, vix, hedge_ratio, moneyness, tenor, skew_slope=0.0,
              spread=0.0, foresight=False, trigger=None, short_moneyness=0.0,
-             mark_hedge=True):
+             mark_hedge=True, phase=0):
     """Weekly-marked equity curve for a continuously rolled put program.
 
     Self-financing: premium is paid out of the book at each roll, the remainder
@@ -181,6 +181,13 @@ def simulate(spot, vix, hedge_ratio, moneyness, tenor, skew_slope=0.0,
     cost is that the payoff is capped at the distance between the strikes --
     precisely in the deep tail the program exists to insure. Both legs cross the
     bid-ask, so `spread` is paid on the long leg and given up on the short.
+
+    phase moves the roll grid and nothing else: at phase p the first block is a
+    stub of p weeks, so rolls land at {p, p+tenor, ...} while the sample, the
+    naked book and the price path are untouched. p = 0 is the historical
+    behaviour exactly. It exists because the alignment of rolls against the one
+    episode that sets every drawdown number was never chosen -- it fell out of
+    the sample's first date. E1.
 
     mark_hedge=False switches the ACCOUNTING, not the position. The book then
     carries the hedge at zero inside a block and recognises it only at expiry,
@@ -207,9 +214,20 @@ def simulate(spot, vix, hedge_ratio, moneyness, tenor, skew_slope=0.0,
     premium_paid = 0.0
     payoff_received = 0.0
 
+    # E1. `phase` moves the ROLL GRID without moving the sample: the first block
+    # is a stub of `phase` weeks, so rolls land at {phase, phase+tenor, ...} and
+    # the naked book is identical across every phase. phase == tenor is phase 0,
+    # which is why the modulo is the definition rather than a guard.
+    stub = phase % tenor
     block_start = 0
     while block_start < n - 1:
-        block_end = min(block_start + tenor, n - 1)
+        is_stub = bool(stub) and block_start == 0
+        span = stub if is_stub else tenor
+        block_end = min(block_start + span, n - 1)
+        # The stub is genuinely a shorter-dated option and is priced as one. A
+        # TRUNCATED FINAL block is not -- it keeps the nominal tenor's skew
+        # scaling, which is the pre-existing convention and is left alone.
+        skew_tenor = span if is_stub else tenor
         entry_spot = prices[block_start]
         value = equity[block_start]
 
@@ -217,7 +235,7 @@ def simulate(spot, vix, hedge_ratio, moneyness, tenor, skew_slope=0.0,
         short_strike = entry_spot * (1.0 - short_moneyness) if short_moneyness else 0.0
         entry_years = (block_end - block_start) / WEEKS_PER_YEAR
         entry_vol = skewed_vol(
-            base_vix[block_start], strike, entry_spot, tenor, skew_slope
+            base_vix[block_start], strike, entry_spot, skew_tenor, skew_slope
         )
         # Bought at the offer, not the mid.
         unit_cost = float(
@@ -225,7 +243,7 @@ def simulate(spot, vix, hedge_ratio, moneyness, tenor, skew_slope=0.0,
         ) * (1.0 + spread)
         if short_strike:
             short_vol = skewed_vol(
-                base_vix[block_start], short_strike, entry_spot, tenor, skew_slope
+                base_vix[block_start], short_strike, entry_spot, skew_tenor, skew_slope
             )
             unit_cost -= float(
                 black_scholes_put(entry_spot, short_strike, entry_years, short_vol)
@@ -247,13 +265,13 @@ def simulate(spot, vix, hedge_ratio, moneyness, tenor, skew_slope=0.0,
 
         for t in range(block_start + 1, block_end + 1):
             remaining = (block_end - t) / WEEKS_PER_YEAR
-            mark_vol = skewed_vol(base_vix[t], strike, prices[t], tenor, skew_slope)
+            mark_vol = skewed_vol(base_vix[t], strike, prices[t], skew_tenor, skew_slope)
             put_value = float(
                 black_scholes_put(prices[t], strike, remaining, mark_vol)
             )
             if short_strike:
                 short_mark_vol = skewed_vol(
-                    base_vix[t], short_strike, prices[t], tenor, skew_slope
+                    base_vix[t], short_strike, prices[t], skew_tenor, skew_slope
                 )
                 put_value -= float(
                     black_scholes_put(prices[t], short_strike, remaining, short_mark_vol)

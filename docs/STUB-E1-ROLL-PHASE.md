@@ -203,6 +203,152 @@ Six blocks, per sample. Nothing else is printed and nothing else is computed.
 follow-on experiment triggered automatically.** Anything E1 turns up that is interesting and outside
 this list goes to [[PARKED]].
 
+---
+--- RESULTS RULE. Everything above was committed 2026-08-18 in 2eb1b1e, before
+--- `research/phase_sweep.py` existed. Nothing above it has been edited since.
+---
+
+# §10 Results — 2026-08-18
+
+Run: `.venv\Scripts\python.exe research/phase_sweep.py SPY`.
+Implementation: `hedge_economics.simulate(..., phase=p)` — the roll grid moves, the sample does not.
+Checks: 42 passing, five of them new and specific to the phase mechanic. Run before and after.
+
+**One deviation from the stub's §9 output list, declared here.** Block 4 carries one added column:
+the **year the hedged book's max drawdown is set in**, modal across phases. [[CHARTER]] §2 forbids
+reporting a `Phi` row without its `Psi`, and this particular `Psi` turned out to be load-bearing —
+see §10.4. No other block changed and nothing else was computed.
+
+## 10.1 The verdicts, against the rule fixed in §8
+
+| sample | accounting | effect (52w−4w @ p=0) | spread at 52w | R | **verdict** |
+|---|---|---|---|---|---|
+| 1993– | marked | +18.0 | 12.7 | **0.71** | MARGINAL |
+| 1993– | **cash** | +7.6 | 14.1 | **1.85** | **KILLED** |
+| 2003– | marked | +14.7 | 12.5 | **0.85** | MARGINAL |
+| 2003– | **cash** | +1.8 | 12.6 | **6.82** | **KILLED** |
+
+**H2's phase clause is killed under cash accounting in both samples, and marginal under marked in
+both.** Nothing here reaches the preregistered SURVIVES threshold of `R <= 1/3` anywhere.
+
+The same ratio in the coordinate declared as the artifact check, `CDaR_0.05`: **0.79** and **1.41**
+(1993–), **1.14** and **4.10** (2003–). **The phase sensitivity is not a max-drawdown artifact** — it
+is at least as large in the well-sampled coordinate, and on the 2003– sample under marked accounting
+the CDaR ratio (1.14) would flip that cell's verdict from MARGINAL to KILLED. The rule keyed on max
+drawdown, so the recorded verdict stands as MARGINAL; the CDaR number is reported beside it and not
+substituted for it.
+
+## 10.2 The ordering
+
+```
+separation = min over phases of bought(52w)  -  max over phases of bought(4w)
+
+1993-   marked   +6.0pp   (min 52w +10.3  vs  max 4w  +4.4)   survives every alignment
+1993-   cash     -9.0pp   (min 52w  -6.3  vs  max 4w  +2.7)   PHASE-DEPENDENT
+2003-   marked  +13.1pp   (min 52w +18.7  vs  max 4w  +5.6)   survives every alignment
+2003-   cash     -7.5pp   (min 52w  -4.8  vs  max 4w  +2.7)   PHASE-DEPENDENT
+```
+
+**In marks, long tenor beats short tenor at every one of the 56 alignments tested, in both samples.**
+In cash it does not: there exist alignments at which a 4-week program buys more drawdown reduction
+than a 52-week one, in both samples.
+
+## 10.3 What the headline number actually ranges over
+
+52-week, 10% OTM, the cell [[PROBLEM-MAP]] §1.1 publishes:
+
+| | published (p=0) | min | max | range |
+|---|---|---|---|---|
+| 1993– marked | +16.8 | +10.3 | +23.0 | 12.7 |
+| 1993– **cash** | +3.0 | **−6.3** | **+7.8** | 14.1 |
+| 2003– marked | +19.9 | +18.7 | +31.1 | 12.5 |
+| 2003– **cash** | +3.0 | **−4.8** | **+7.8** | 12.6 |
+
+> **In cash, the sign of the 52-week result is set by the roll calendar.** The same program, the same
+> path, the same contracts: at one arbitrary offset it removes 7.8pp of drawdown and at another it
+> adds 6.3pp.
+
+**The published alignment is not a flattering one.** On the 2003– sample, `p = 0` gives +19.9 — the
+*second lowest of 52*. The original result was never cherry-picked. It was arbitrary, which is the
+finding.
+
+## 10.4 The `Psi` column, which changes how §10.1 should be read
+
+The naked book's max drawdown is set in **2009**, in both samples. The hedged book's is not:
+
+| tenor | acct | modal episode, 1993– | modal episode, 2003– |
+|---|---|---|---|
+| 4w | marked | 2009 (4/4) | 2009 (4/4) |
+| 13w | marked | 2009 (6/13) | 2009 (13/13) |
+| 26w | marked | **2003 (25/26)** | 2009 (26/26) |
+| 52w | marked | **2003 (51/52)** | 2009 (39/52) |
+| 52w | cash | 2009 (37/52) | 2009 (39/52) |
+
+**On the full sample, in marks, at 26 and 52 weeks, "drawdown bought" is a difference between two
+different episodes.** The hedged book's worst drawdown is the 2000–03 decline — which a rolled put
+program barely touches — while the naked book's is 2008–09. So `+16.8pp` does not mean "the 2008
+drawdown was 16.8pp shallower". It means **the 2008 trough was pushed below the 2003 trough, and the
+statistic then stopped measuring 2008 at all.**
+
+This is the extreme-value pathology the charter names, appearing in the wild: `max` is censored from
+below by the next-deepest episode, so protection beyond that point is invisible in the coordinate,
+and the reported number is bounded by the distance between two unrelated episodes.
+
+**The 2003– subsample is the control, and it is why this does not explain the result away.** That
+sample excludes the dot-com decline, the episodes match (2009 for both books at 13w, 26w, and 39/52
+phases at 52w), and the marked ratio there is **0.85** — still MARGINAL, still nowhere near
+SURVIVES. **The phase sensitivity is real and is not an artifact of episode switching.**
+
+## 10.5 Predictions, scored
+
+- **`R(52w) > 1` under marked accounting on the full sample — REFUTED.** It came in at 0.71.
+  *Post-hoc, and labelled as such:* §10.4 supplies the reason — on the full sample the marked
+  statistic is pinned to the 2003 trough, so no alignment can push it much further and the spread is
+  compressed by censoring. The prediction was about the 2008 window; the coordinate had stopped
+  reporting on the 2008 window.
+- **`separation > 0` marked and `<= 0` cash — CONFIRMED**, both samples, both signs as predicted.
+- **"Spread grows with tenor", asserted in §2 as derivable and carrying no information — REFUTED,
+  and it should never have been called derivable.** Full-sample marked spreads run 11.8 (4w), 12.6
+  (13w), **14.1 (26w)**, 12.7 (52w). Not monotone, and the widest is 26w. Block length bounds *how
+  far* an alignment can slip; it does not determine how much the outcome moves, because that depends
+  on the fine structure of the decline — whether a given window happens to contain October 2008.
+  **A 4-week program has a spread of 11.8pp on four alignments.** Filed as a §2 error, not a finding.
+
+## 10.6 What E1 establishes, and what it does not
+
+**Establishes.**
+
+- **The tenor result is materially dependent on an arbitrary roll-calendar alignment.** Killed in
+  cash in both samples; marginal in marks in both; never survives.
+- **In cash, even the sign is alignment-dependent** at 52 weeks, and the tenor *ordering* is
+  alignment-dependent too.
+- **In marks, the ordering is robust** to alignment — 56 of 56 alignments — while its magnitude is
+  not.
+- **Roll phase must be a declared coordinate of every future row.** It was never chosen; it fell out
+  of the sample's first date.
+
+**Does not establish.**
+
+- **Nothing about a second crisis.** The 52 phases are 52 overlapping views of one episode. Per §7,
+  no standard error, no confidence interval, no mean-as-estimate has been computed, and none may be.
+  **Effective n on the benefit side is still 1.** The spread does not make the published number
+  uncertain — it makes it arbitrary.
+- **Nothing about timing, signals or conditioning.** No rule here conditions on anything; the phase
+  is swept exhaustively, not selected. The prediction program stays closed.
+- **No new magnitude.** E1 produces no number that may be quoted as an effect. It removes one.
+
+## 10.7 Consequences booked
+
+1. [[CHARTER]] §4 — H2's phase clause: **killed in cash, marginal in marks.** The tenor-ordering
+   clause of H2 survives in marks only.
+2. [[PROBLEM-MAP]] §1.1 — the tenor table carries the phase range and the episode `Psi`; E10's
+   magnitude is withdrawn from quotation in both accountings.
+3. [[CHARTER]] §9 — E1 closed. **No experiment is triggered automatically.** E2 and E3 stay where
+   they are, and the decision about what runs next is recorded as open.
+4. One observation belongs to E2 and is parked there rather than pursued here: max drawdown is
+   censored from below by the next-deepest episode, which is an argument about the *coordinate* and
+   is exactly what E2's per-excursion depths and CDaR curve exist to replace.
+
 ## Related
 
 - [[CHARTER]] §4 H2 — the hypothesis · §9 E1 — the queue entry

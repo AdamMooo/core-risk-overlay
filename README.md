@@ -122,11 +122,12 @@ result: [[docs/STUB-E0-M3-DECOMPOSITION]] §9.
 | component | state |
 |---|---|
 | `src/data_loader.py` | working — daily and weekly returns, VIX, start-date invariant, explicit calendar |
-| `research/hedge_economics.py` | working — priced rolled put programs, weekly marks, clairvoyant (EVPI) bound. **Benefit-side effective n = 1; roll phase unswept** |
+| `research/hedge_economics.py` | working — priced rolled put programs, weekly marks, clairvoyant (EVPI) bound. Carries the two switches E0 and E1 rest on: `mark_hedge` and `phase`. **Benefit-side effective n = 1** |
 | `research/structure_map.py` | working — tenor × strike × outright/spread grid, no timing anywhere |
 | `research/pathfunctionals.py` | working — drawdown process, excursions, CDaR curve, time under water |
 | `research/m3_decomposition.py` | working — E0, the marked-versus-cash accounting decomposition. **H3 rejected 2026-08-18** |
-| `checks.py` | 37 checks, all passing — six of them the E0 accounting invariant |
+| `research/phase_sweep.py` | working — E1, the roll-phase sweep. **H2's phase clause killed in cash, marginal in marks, 2026-08-18** |
+| `checks.py` | 42 checks, all passing — six for the E0 accounting invariant, five for the E1 roll-phase grid |
 | `closed-research/` | 81 checks passing; D3 and F2 verified reproducible after the transition |
 
 No live path exists and none is designed. The decision layer — preferences, sizing, tax, whether to run

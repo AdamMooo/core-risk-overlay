@@ -107,7 +107,7 @@ important lesson carried out of the closed program.
 | | hypothesis | kill condition | assumption cost |
 |---|---|---|---|
 | **H1** | Strike anchoring (M1) dominates re-striking for a multi-month drawdown at equal premium budget | ordering flips in >= 1/3 of episodes | **price paths only.** No option data |
-| **H2** | The tenor ordering survives on `CDaR_alpha` and per-excursion depths, and the phase spread is small relative to the effect | sign flips across excursions, or phase spread > effect | free |
+| **H2** | The tenor ordering survives on `CDaR_alpha` and per-excursion depths, and the phase spread is small relative to the effect | **PHASE CLAUSE RESOLVED 2026-08-18 (E1): KILLED in cash** (R = 1.85 and 6.82), **MARGINAL in marks** (0.71, 0.85), never SURVIVES. The *ordering* holds at 56 of 56 alignments in marks and is alignment-dependent in cash. The excursion clause is still open and belongs to E2 | free |
 | **H3** | ~~M3 is not the dominant source of the measured drawdown reduction~~ **REJECTED 2026-08-18 (E0)** — the gap is 82% (1993–) and 85% (2003–) of the 52w reduction, and exceeds the reduction entirely at 13w | marked-versus-cash gap exceeds half the measured reduction | free |
 | **H4** | Timing value at 26w and 52w does not exceed the 4w/13w EVPI ceiling | it materially exceeds it — in which case the branch is *undecidable* at n=33, not open | one line |
 | **H5** | The long-tenor cost advantage is not an artifact of `sqrt(4/tenor)` or a tenor-flat spread | a plausibly steeper long-tenor skew reverses the cost ordering. **Asymmetric: rejection clean, confirmation impossible** | archived chains |
@@ -185,10 +185,13 @@ Extends the closed program's five-field stub, which is the best process asset it
 built to allow. The queue order is unchanged; what changed is that E6 now gates the interpretation
 of every row above it, and E1 inherited E0's urgency.
 
+**E1 closed 2026-08-18 and triggered nothing automatically.** E2 and E3 stand where they were;
+what runs next is an open decision, deliberately not taken inside the experiment that preceded it.
+
 | | experiment | why here |
 |---|---|---|
 | **E0** | ~~M3 decomposition~~ **RAN 2026-08-18. H3 REJECTED.** 82% of the 52w reduction is mark; +16.8pp becomes +3.0pp in cash; the cash reduction is flat from 26w to 52w and negative at 4w/13w. [[docs/STUB-E0-M3-DECOMPOSITION]] | It ran first, and it was right to. Every magnitude in the repo now carries an accounting label, and E6 stopped being optional |
-| **E1** | Roll-phase sweep, offsets 1..tau-1 — **NEXT, promoted by E0 and RESPECIFIED by Israelov (2017).** That misalignment with the expiration cycle degrades protection is now *cited*, so demonstrating it carries no information (§8 field 2). E1 measures what the paper does not give: the **phase spread relative to the effect**, a `Psi` coordinate, which is what H2 turns on | free, no distributional assumption, attacks n=1 in its most acute form |
+| **E1** | ~~Roll-phase sweep~~ **RAN 2026-08-18. H2's phase clause killed in cash, marginal in marks.** In cash the *sign* of the 52w result is set by the roll calendar (−6.3 to +7.8pp). Phase is now a declared coordinate of every row. [[docs/STUB-E1-ROLL-PHASE]] | it cost one parameter and removed a magnitude the repo had published for three days |
 | **E2** | Per-excursion depths and the `CDaR_alpha` curve | free; the sample-size problem becomes an output |
 | **E3** | Clairvoyant bound at 26w and 52w (`TENOR_WEEKS`) | one line; closes or renders undecidable the old program's last open corner |
 | **E4** | M1 payoff-only anchoring test, S&P 1927+ and cross-market | the only real escape from one episode; needs no option data |

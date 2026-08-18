@@ -827,6 +827,75 @@ mixed and worth having in full:
   possible combination to have skipped.
 
 
+## E1 — THE TENOR MAGNITUDE IS ALIGNMENT-DEPENDENT (2026-08-18)
+
+**Claim tuple: weekly marks · full holding period · drawdown bought versus the naked book, on max
+drawdown and on `CDaR_0.05` · SPY 1993-2026 and 2003-2026, one path · ALWAYS-ON h=1.00, 10% OTM, no
+signal and no conditioning of any kind.** Preregistered in [[docs/STUB-E1-ROLL-PHASE]], committed
+before the code existed. Run: `.venv\Scripts\python.exe research/phase_sweep.py SPY`.
+
+**E1 asked one question and answered it.** `simulate` walked blocks from index 0, so the alignment of
+every roll against the 2007-09 decline was set by the sample's first date and nothing else. The sweep
+moves the roll grid without moving the sample -- at phase `p` the first block is a stub of `p` weeks
+-- and reports the resulting spread **relative to the tenor effect it is supposed to qualify**. Every
+offset, no selection: 4 + 13 + 26 + 52 alignments per accounting per sample.
+
+**Verdicts against the rule fixed before the run:**
+
+| sample | acct | effect | spread at 52w | R | verdict |
+|---|---|---|---|---|---|
+| 1993- | marked | +18.0 | 12.7 | 0.71 | MARGINAL |
+| 1993- | **cash** | +7.6 | 14.1 | **1.85** | **KILLED** |
+| 2003- | marked | +14.7 | 12.5 | 0.85 | MARGINAL |
+| 2003- | **cash** | +1.8 | 12.6 | **6.82** | **KILLED** |
+
+Nothing anywhere reached the preregistered SURVIVES threshold of `R <= 1/3`. In `CDaR_0.05`, the
+declared artifact check, the ratios are 0.79 / 1.41 and 1.14 / 4.10 -- **the sensitivity is not a
+max-drawdown artifact**, and on the 2003- marked cell the CDaR ratio would have flipped MARGINAL to
+KILLED. The rule keyed on max drawdown, so the recorded verdict stands and the CDaR number is
+reported beside it.
+
+> **In cash, the sign of the 52-week result is set by the roll calendar.** Same program, same path,
+> same contracts: at one arbitrary offset it removes 7.8pp of drawdown, at another it adds 6.3pp.
+> Published cell: +3.0.
+
+**The ordering, which is the part that survives.** `separation = min_p bought(52w) - max_p
+bought(4w)`: **+6.0pp** (1993-) and **+13.1pp** (2003-) in marks -- long tenor beats short at **56 of
+56 alignments tested**. In cash it is **-9.0pp** and **-7.5pp**: there are alignments at which a
+4-week program buys more than a 52-week one. **Combined with E0, the only claim left standing about
+tenor is a marked-accounting ordering. Every magnitude, in both accountings, is gone.**
+
+**The published number was never cherry-picked -- it was arbitrary.** On the 2003- sample `p = 0`
+gives +19.9, the *second lowest of 52* alignments.
+
+**One diagnostic that changes how the marked column should be read.** The naked book's max drawdown
+is set in 2009. The hedged book's, on the full sample at 26w and 52w in marks, is set in **2003** --
+in 25 of 26 and 51 of 52 phases. So `+16.8pp` never meant "the 2008 drawdown was 16.8pp shallower".
+It meant the 2008 trough was pushed below the 2003 trough, after which the statistic stopped
+measuring 2008 at all: **max drawdown is censored from below by the next-deepest episode.** The 2003-
+subsample is the control -- it excludes the dot-com decline, its episodes match, and its marked ratio
+is still 0.85. The phase sensitivity is real and is not an artifact of episode switching. The
+coordinate problem itself is parked to E2, which exists to replace this coordinate.
+
+**Predictions, scored.** `R(52w) > 1` in marks on the full sample: **REFUTED** at 0.71, and the
+post-hoc reason is the censoring above -- the prediction was about the 2008 window, and the
+coordinate had stopped reporting on it. `separation > 0` marked and `<= 0` cash: **CONFIRMED**, both
+samples. And a claim the stub called *derivable* -- that spread grows with tenor -- is **REFUTED**:
+full-sample marked spreads run 11.8 (4w), 12.6 (13w), **14.1 (26w)**, 12.7 (52w). A four-week program
+has an 11.8pp spread over four alignments. Block length bounds how far an alignment can slip; it does
+not determine how much the outcome moves, because that depends on whether a given window happens to
+contain October 2008. Filed as an error in the stub's §2, not as a finding.
+
+**What it does not establish.** Nothing about a second crisis: the 52 phases are 52 overlapping views
+of one episode, no standard error was computed and none may be, and **effective n on the benefit side
+is still 1**. Nothing about timing or signals -- the phase is swept exhaustively, never selected, and
+the prediction program stays closed. And no new magnitude: E1 produces no quotable number. It removes
+one.
+
+**E1 triggered nothing automatically.** E2 and E3 stand where they were; what runs next is an open
+decision, deliberately not taken inside the experiment that preceded it.
+
+
 ## Next
 
 **There is no queue in this file.** [[CHARTER]] §9 is the single experiment queue, and two documents

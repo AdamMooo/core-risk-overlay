@@ -1,7 +1,8 @@
 """Regression checks for active infrastructure.
 
-Covers src/data_loader.py, research/pathfunctionals.py, and the accounting
-invariant of research/hedge_economics.py:simulate on which E0's verdict rests. The prediction program's checks live in
+Covers src/data_loader.py, research/pathfunctionals.py, and the two invariants
+of research/hedge_economics.py:simulate that E0 and E1 rest on -- the accounting
+switch and the roll-phase grid. The prediction program's checks live in
 closed-research/checks.py and are frozen there.
 
 Plain-script smoke test (no pytest). Synthetic data, no network, deterministic.
@@ -197,6 +198,59 @@ def check_mark_hedge_accounting() -> None:
     )
 
 
+def check_roll_phase() -> None:
+    """The E1 invariant: phase moves the ROLL GRID and nothing else.
+
+    If phase also moved the sample, the start date or the naked baseline, the
+    spread it produces would be a mixture of alignment and sample and would
+    answer no question at all.
+    """
+    index = pd.date_range("2024-01-05", periods=41, freq="W-FRI")
+    shock = np.concatenate([np.full(12, 0.004), np.full(10, -0.045), np.full(18, 0.010)])
+    spot = pd.Series(100.0 * np.exp(np.concatenate([[0.0], shock.cumsum()])), index=index)
+    vix = pd.Series(0.20, index=index)
+    tenor = 8
+
+    base, prem, pay = he.simulate(spot, vix, 1.0, 0.10, tenor, 0.6, 0.05)
+    zero, prem0, pay0 = he.simulate(spot, vix, 1.0, 0.10, tenor, 0.6, 0.05, phase=0)
+    check(
+        "hedge_economics: phase=0 reproduces the unphased curve exactly",
+        base.equals(zero) and prem == prem0 and pay == pay0,
+    )
+    wrapped, _, _ = he.simulate(spot, vix, 1.0, 0.10, tenor, 0.6, 0.05, phase=tenor)
+    check("hedge_economics: phase=tenor is phase=0", base.equals(wrapped))
+
+    shifted, _, _ = he.simulate(spot, vix, 1.0, 0.10, tenor, 0.6, 0.05, phase=3)
+    # A phase parameter that silently did nothing would pass every other check.
+    check(
+        "hedge_economics: a non-zero phase DOES move the curve",
+        float((base - shifted).abs().max()) > 1e-6,
+    )
+
+    # The design's precondition: the sample does not move, so the baseline the
+    # sweep measures against is one baseline. Equality is to double precision --
+    # re-basing shares at different boundaries reorders the rounding, nothing more.
+    naked = [
+        he.simulate(spot, vix, 0.0, 0.10, tenor, 0.6, 0.05, phase=p)[0]
+        for p in range(tenor)
+    ]
+    check(
+        "hedge_economics: the naked book is invariant to phase",
+        all(bool(np.allclose(naked[0], n, atol=1e-12)) for n in naked[1:]),
+    )
+
+    # Rolls must land ON the phase. E0 proved the two accountings coincide only
+    # at roll boundaries, so their agreement is a direct read of the grid.
+    cash, _, _ = he.simulate(
+        spot, vix, 1.0, 0.10, tenor, 0.6, 0.05, mark_hedge=False, phase=3
+    )
+    interior = (shifted.iloc[1:3] - cash.iloc[1:3]).abs().max()
+    check(
+        "hedge_economics: the first roll lands on the phase, not on the tenor",
+        np.isclose(shifted.iloc[3], cash.iloc[3], atol=1e-12) and interior > 1e-9,
+    )
+
+
 def _raises(call) -> bool:
     try:
         call()
@@ -210,6 +264,7 @@ def main() -> None:
     check_vix_alignment()
     check_pathfunctionals()
     check_mark_hedge_accounting()
+    check_roll_phase()
 
     print()
     if FAILURES:

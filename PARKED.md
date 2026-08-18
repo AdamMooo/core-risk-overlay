@@ -33,6 +33,13 @@ the seven-field gate, including a reopening condition where one is stated.
 | **Horizon-scaled moneyness.** Israelov (2017) sets each maturity's strike to the median drawdown over a horizon equal to the option's life — 4.8% / 9.2% / 18.2% OTM at 20 / 63 / 250 days — where our grid holds the strike fixed across tenors | it is a different experiment, not a better version of ours: comparing tenors at fixed moneyness and at horizon-scaled moneyness ask different questions, and the second needs its own gate | fold into E7, where matched outlay already forces the equalisation question to be answered explicitly |
 | **Cash accounting as the default for the whole grid.** E0 leaves `mark_hedge=True` the default and reports both | switching the default would silently restate every published number, and the cash curve is not the truth either — the realizable path lies between the two | E6. Once `rho` is specified, `kappa` is the number that belongs in `Phi`, and neither endpoint is |
 
+## Parked from E1 (2026-08-18)
+
+| item | why parked | what would unpark it |
+|---|---|---|
+| **Max drawdown is censored from below by the next-deepest episode.** E1's `Psi` column: on the full sample the 52w hedged book's max drawdown is set in 2003 in 51 of 52 phases while the naked book's is set in 2009, so `bought` is a difference between two different episodes and protection beyond the 2003 depth is invisible in the coordinate | it is an argument about the *coordinate*, and the coordinate already has a replacement queued. Chasing it here would be E2 done badly, inside E1 | **E2**, which exists to replace max drawdown with per-excursion depths and the CDaR curve. It should report episode identity per excursion, which dissolves the problem rather than correcting for it |
+| **Phase as a reported coordinate rather than a swept one.** Every future row could carry its phase range instead of a point | that is a reporting convention, and conventions adopted mid-program silently restate old numbers | when E2 fixes the objective coordinate. Convention changes ride with coordinate changes, not separately |
+
 ## Parked from the closed program — reclassified, not reopened
 
 These are **not** revivals of the prediction question. Each is a different *use* of material the
