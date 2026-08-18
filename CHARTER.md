@@ -188,6 +188,39 @@ of every row above it, and E1 inherited E0's urgency.
 **E1 closed 2026-08-18 and triggered nothing automatically.** E2 and E3 stand where they were;
 what runs next is an open decision, deliberately not taken inside the experiment that preceded it.
 
+### 9.1 Status of the tenor claim after E0 and E1
+
+Recorded here because two results have now landed on one claim and the parts must not travel
+together.
+
+**KILLED — the magnitude, in both accountings.** *"Extending tenor buys three to four times the
+protection for the same money or less"* (E10) is withdrawn as a quantity. E0 removed 82–85% of it
+as unrealised mark; E1 showed the remainder is smaller than the spread produced by an arbitrary
+roll-calendar offset, and that in cash the sign itself is alignment-dependent. **No number
+describing how much drawdown a tenor buys may be quoted from this repository.**
+
+**PRESERVED — the ordering, and only as a structural result.** A long-dated put struck near a peak
+spans a multi-month decline; a short-dated program re-strikes downward through it and never spans
+the peak-to-trough distance. That is **M1**, it is arithmetic about where the strike sits, it needs
+no pricing and no distributional assumption, and it held at **56 of 56 alignments** under marked
+accounting in both samples.
+
+**The preserved part is a claim about contract geometry. It is NOT an economic benefit, and it may
+not be used as evidence of one.** Three reasons, each independent:
+
+- E0: the reduction it describes is 82–85% unrealised mark, and the cash-recognised reduction is
+  flat from 26w to 52w — the ordering that survives in marks is nearly absent in cash.
+- E1: under cash accounting the ordering does **not** survive alignment (separation −9.0pp and
+  −7.5pp) — so the surviving ordering exists only in the accounting the investor cannot bank.
+- E9: no structure in the grid beats the naked book on compound return. A better-ordered purchase
+  is still a purchase.
+
+**Permitted sentence:** *at long tenor the contract spans a decline that short tenor re-strikes
+through, and this holds at every alignment tested in marks.* **Forbidden sentence:** anything of
+the form *therefore long tenor is worth X*, or *therefore long tenor is the better hedge*, in any
+accounting. The structural ordering and the economic case are separate objects; E10 became a
+problem precisely by letting one stand in for the other.
+
 | | experiment | why here |
 |---|---|---|
 | **E0** | ~~M3 decomposition~~ **RAN 2026-08-18. H3 REJECTED.** 82% of the 52w reduction is mark; +16.8pp becomes +3.0pp in cash; the cash reduction is flat from 26w to 52w and negative at 4w/13w. [[docs/STUB-E0-M3-DECOMPOSITION]] | It ran first, and it was right to. Every magnitude in the repo now carries an accounting label, and E6 stopped being optional |
