@@ -18,8 +18,9 @@ WHY CDaR AND NOT MAX DRAWDOWN. `max(D)` is an extreme-value functional; on one
 path it has effective n = 1 and no useful sampling distribution. Conditional
 Drawdown-at-Risk (Chekhlov, Uryasev & Zabarankin 2005) is the mean of the worst
 alpha-fraction of the drawdown process under its occupation measure. It is
-coherent, convex, and computed from the WHOLE path, so its effective sample is
-the number of distinct excursions rather than one.
+coherent and computed from the WHOLE path, so its effective sample is the number
+of distinct excursions rather than one. (Their convexity result is in the
+PORTFOLIO WEIGHTS and licenses nothing here -- MATH-REFERENCE §4.1.)
 
     alpha -> 1    average drawdown (the pain index): well sampled
     alpha -> 0    max drawdown: n = 1
@@ -106,6 +107,24 @@ def _build(d: pd.Series, idx, lo: int, hi: int, recovered: bool) -> Excursion:
         recovery=hi - (lo + t),
         recovered=recovered,
     )
+
+
+def depth_in_window(wealth: pd.Series, start, end) -> float:
+    """Deepest drop from the running maximum measured WITHIN [start, end].
+
+    E2. Measuring one book inside ANOTHER book's episode window is what turns a
+    per-episode comparison into an estimand: both books are asked the same
+    question about the same calendar interval, each from its own peak inside it.
+
+    The alternative -- reusing each book's GLOBAL running maximum -- is what
+    broke `max(D)` in the first place. It imports a peak set outside the window,
+    so the hedged book and the naked book can end up describing different
+    events, which is precisely the defect E1 surfaced and this repairs.
+    """
+    window = wealth.loc[start:end]
+    if window.empty:
+        raise ValueError(f"empty window: {start} .. {end}")
+    return float((1.0 - window / window.cummax()).max())
 
 
 def cdar(wealth: pd.Series, alpha: float) -> float:

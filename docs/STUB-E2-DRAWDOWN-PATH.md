@@ -213,6 +213,179 @@ New code: `research/path_outcomes.py`, and one function in `pathfunctionals` —
 mechanic. Both get tests. Nothing else is added, and **no experiment is triggered automatically when
 E2 finishes.**
 
+---
+--- RESULTS RULE. Everything above was committed 2026-08-18 in cfa4ad2, before
+--- `research/path_outcomes.py` existed. Nothing above it has been edited since.
+---
+
+# §10 Results — 2026-08-18
+
+Run: `.venv\Scripts\python.exe research/path_outcomes.py SPY`.
+New code: `research/path_outcomes.py` and `pathfunctionals.depth_in_window`. Checks: **46 passing**,
+four of them new and specific to window-matched depth. Run before and after.
+
+## 10.1 The answer
+
+> **In marks, a tenor ordering survives per-episode and survives on the drawdown curve only in the
+> region where that curve has collapsed onto one or two episodes. In cash, no tenor ordering survives
+> anywhere on the path, at any `q`, in either sample.**
+
+## 10.2 V1 — the CDaR ordering, phase-robust
+
+`separation(q) = min over phases of bought(52w, q) − max over phases of bought(4w, q)`, in pp.
+Positive means the ordering holds at *every* alignment tested.
+
+| sample | acct | worst 1% | 5% | 10% | 25% | 50% | 100% |
+|---|---|---|---|---|---|---|---|
+| 1993– | marked | **+2.0** | **+0.5** | **+0.2** | **+0.2** | −0.2 | −0.1 |
+| 1993– | cash | −8.0 | −7.4 | −5.6 | −3.8 | −3.4 | −2.0 |
+| 2003– | marked | **+8.9** | **+4.0** | −0.2 | −3.1 | −2.7 | −1.5 |
+| 2003– | cash | −9.3 | −8.7 | −7.6 | −7.2 | −5.6 | −3.1 |
+
+**Surviving set: `q <= 25%` marked (1993–), `q <= 5%` marked (2003–), and NOWHERE in cash, both
+samples.**
+
+**Two honest qualifications on the marked row, neither of which changes the verdict.**
+
+1. **The margins at 5%, 10% and 25% on the full sample are +0.5, +0.2 and +0.2pp**, on a coordinate
+   whose values run to 10pp. That is survival by the letter of a rule fixed in advance, and it is not
+   a robust ordering in any other sense. The rule stands as preregistered; the margin is reported
+   beside it.
+2. **V1 is deliberately asymmetric and its asymmetry grows with tenor.** It takes the worst of 52
+   alignments against the best of 4, so the long tenor is given 52 chances to fail and the short one
+   4 chances to succeed. This is the conservative direction, it was chosen before the run, and it
+   means a *failure* at some `q` is weaker evidence than a *survival* at that `q`.
+
+## 10.3 The `Psi` column, which is what the CDaR curve was built to produce
+
+Distinct naked episodes contributing observations to the worst `q%` of the hedged book's drawdown
+process, phase 0. This is the effective `n` of the coordinate, measured rather than argued.
+
+| curve | 1% | 5% | 10% | 25% | 50% | 100% |
+|---|---|---|---|---|---|---|
+| naked, 1993– | 2 | 2 | 3 | 7 | 9+ | 9+ |
+| 52w marked, 1993– | **1** | **2** | **2** | 5 | 9+ | 9+ |
+| naked, 2003– | **1** | 2 | 3 | 6+ | 6+ | 6+ |
+| 52w marked, 2003– | **1** | **1** | 2 | 6+ | 6+ | 6+ |
+
+> **Line these up against §10.2 and the result reads itself: the ordering survives exactly where the
+> coordinate rests on one or two episodes, and fails exactly where the coordinate is well sampled.**
+> On the 2003– sample the two surviving points (`q` = 1%, 5%) are the two points where the marked
+> tail collapses onto a **single episode**. At `q >= 50%`, where all nine episodes and the time
+> between them contribute, the separation is negative in every sample and both accountings.
+
+This is the sample-size problem converted into an output, which is the entire reason `CDaR_q` was
+specified as a curve rather than a point. It did not need to be argued from the outside; the
+coordinate reported it about itself.
+
+## 10.4 V2 and V3 — the episode-matched coordinate
+
+Episodes defined once on the **naked** book; both books measured inside the same windows, each from
+its own peak within the window. Counts over (episode × 52w-phase × 4w-phase) triples.
+
+| sample | thr | acct | **V2** `52w >= 4w` | verdict | **V3** `52w reduces depth at all` |
+|---|---|---|---|---|---|
+| 1993– | 10% | marked | 1758/1872 = **93.9%** | **SURVIVES** | 450/468 = **96.2%** |
+| 1993– | 10% | cash | 1139/1872 = **60.8%** | MARGINAL | 77/468 = **16.5%** |
+| 1993– | 20% | marked | 771/832 = **92.7%** | **SURVIVES** | 206/208 = **99.0%** |
+| 1993– | 20% | cash | 460/832 = **55.3%** | MARGINAL | 58/208 = **27.9%** |
+| 2003– | 10% | marked | 1146/1248 = **91.8%** | **SURVIVES** | 299/312 = **95.8%** |
+| 2003– | 10% | cash | 670/1248 = **53.7%** | MARGINAL | 76/312 = **24.4%** |
+| 2003– | 20% | marked | 563/624 = **90.2%** | **SURVIVES** | 154/156 = **98.7%** |
+| 2003– | 20% | cash | 299/624 = **47.9%** | **KILLED** | 31/156 = **19.9%** |
+
+**H2's excursion clause survives in marks and does not in cash.** Marked sign-consistency is 90–94%
+across both thresholds and both samples — genuinely consistent, and it is the strongest positive
+result the intervention side of this repository has produced.
+
+**V3 is the number that stops V2 from being read as good news.** In cash the 52-week programme
+reduces episode depth in **16.5% to 27.9%** of pairs — which is to say **it deepens the episode
+between roughly three-quarters and five-sixths of the time.** V2's cash figure of 53–61% is
+therefore an ordering *between two harms*: 52w is less bad than 4w about as often as a coin, and both
+are usually negative.
+
+**Why V1 and V2 diverge, since both are phase-aware.** V1 is a worst-case test (min over one grid
+against max over another); V2 is a count over all pairs. A coordinate can be consistently ordered in
+92% of pairs and still have its worst alignment fall below the other tenor's best. Both were
+preregistered, both are reported, and neither is a correction of the other.
+
+## 10.5 The episodes themselves, phase 0, threshold 10%, full sample
+
+Depth reduction in pp, each book measured inside the naked book's window:
+
+| episode | naked depth | 4w marked | 4w cash | 52w marked | **52w cash** |
+|---|---|---|---|---|---|
+| 1998-07 → 1998-11 | 17.6% | −1.0 | −1.0 | +5.0 | **−0.0** |
+| 1999-07 → 1999-11 | 11.7% | +0.4 | −0.9 | +2.2 | **−0.0** |
+| 2000-03 → 2006-11 | 45.7% | −8.3 | −8.5 | +7.9 | **−2.0** |
+| 2007-10 → 2012-08 | 54.6% | +5.1 | +1.1 | +19.9 | **+3.0** |
+| 2015-07 → 2016-05 | 11.2% | −2.1 | −2.4 | −0.7 | **−6.1** |
+| 2018-09 → 2019-04 | 17.1% | +0.6 | −0.7 | +2.1 | **+0.0** |
+| 2020-02 → 2020-07 | 31.8% | +6.6 | −1.0 | +24.9 | **−0.0** |
+| 2021-12 → 2023-12 | 23.9% | −3.2 | −3.7 | +11.2 | **−2.6** |
+| 2025-02 → 2025-06 | 16.9% | +2.8 | −0.3 | +11.3 | **−0.0** |
+
+**In marks the 52-week column is positive in 8 of 9 episodes** — that is V2's consistency, visible.
+**In cash the same column is one episode.** 2008 gives +3.0pp; 2020, the second-deepest event in the
+sample and the one a put programme is imagined for, gives **−0.0pp**; three episodes are negative.
+The 2020 row is the clearest single statement of E0's finding in episode form: **+24.9pp of marked
+protection through February–March 2020 converted to nothing in cash**, because the option's value was
+never realized before the market recovered past it.
+
+## 10.6 Predictions, scored
+
+- **"Marked survives at small `q`, at risk at large `q`" — CONFIRMED**, and more sharply than
+  predicted: it fails from `q >= 50%` (1993–) and from `q >= 10%` (2003–).
+- **"Cash fails at every `q`" — CONFIRMED**, both samples, all six points, with no margin close to
+  zero.
+- **"Episode sign-consistency `>= 2/3` marked, `< 1/2` cash" — SPLIT.** Marked confirmed (90–94%).
+  Cash came in at 47.9–60.8%: below the SURVIVES line everywhere, but only *at* the KILLED line at
+  one of four cells. **Recorded as MARGINAL where the rule says marginal.** The prediction was
+  directionally right and too strong.
+- **The genuinely uncertain case named in §2 — whether the marked ordering holds at `q` = 50% and
+  100% — resolved NO in both samples.** That is where the run carried its information, and it is the
+  half of the curve that is well sampled.
+
+## 10.7 What E2 establishes, and what it does not
+
+**Establishes.**
+
+- **The estimand is repaired.** Both coordinates compare like with like: `CDaR_q` integrates one
+  path's own process, and episode-matched depths put both books inside the same windows. Neither can
+  silently change which event it describes, which `max(D)` did in 51 of 52 alignments.
+- **No tenor ordering survives in cash anywhere on the drawdown path**, at any `q`, in either sample,
+  at either episode threshold — and in cash the long-tenor programme *deepens* episodes in 72–84% of
+  pairs.
+- **In marks, the ordering survives per-episode (90–94%)** and, on the CDaR curve, only where `Psi`
+  shows the coordinate resting on one or two episodes.
+- **Therefore the structural ordering preserved in [[CHARTER]] §9.1 needs a qualifier it did not
+  have.** It is an episode-level, marked-accounting regularity. It is not a property of the drawdown
+  path as a whole, and where the path is well sampled it is absent.
+
+**Does not establish.**
+
+- **No magnitude, and no population claim.** One path. Episodes are not exchangeable — 1998, 2008,
+  2020 and 2022 differ in structure, monetary regime and options-market depth — and phases are not
+  independent. The V2/V3 fractions are counts of a deterministic sensitivity, exactly as declared in
+  §7: **no standard error, no test statistic, and none may be derived from them.** Effective n on the
+  benefit side is still 1.
+- **Nothing about whether the intervention is worth its cost.** E2 measured depth only. Cost, outlay
+  matching and monetisation are E6 and E7 and are untouched.
+- **Nothing about instruments other than the rolled outright put**, and nothing about timing: no rule
+  here conditions on anything.
+- **Nothing that promotes `q = 1%` to a preferred coordinate.** The surviving points are the
+  *least* identified ones on the curve; that is the finding, not a selection criterion.
+
+## 10.8 Consequences booked
+
+1. [[CHARTER]] §9.1 — the preserved structural ordering gains its qualifier: episode-level, marked
+   only, absent where the coordinate is well sampled.
+2. [[CHARTER]] §4 — H2 resolved on both clauses: **excursion clause SURVIVES in marks, KILLED/MARGINAL
+   in cash; phase clause already killed by E1.**
+3. [[PROBLEM-MAP]] — E14 recorded; §1.1's rider extended to say the ordering does not hold on the
+   well-sampled part of the path.
+4. **No experiment is triggered.** E3 is not started. The queue decision is recorded as open.
+
 ## Related
 
 - [[CHARTER]] §4 H2 — the excursion clause · §9 E2 — the queue entry · §9.1 — the claim's split status

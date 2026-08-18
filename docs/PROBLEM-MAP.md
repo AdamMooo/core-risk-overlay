@@ -178,6 +178,7 @@ Claims that survived a preregistered run with adversarial alignment checks. Each
 | E11 | Correcting the equity skew moved hedge efficiency **17.58 → 3.6**; at 5–10% OTM the drawdown benefit turned *negative* on the full sample | `hedge_economics.py` | `[I]` |
 | E12 | **The drawdown reduction is predominantly a mark.** Same path, same contracts, one accounting change: 82% (1993–) and 85% (2003–) of the 52w reduction is unrealised mark; the cash-recognised reduction is ~+3pp and flat from 26w to 52w | `m3_decomposition.py` | `[I]` |
 | E13 | **The tenor magnitude is alignment-dependent.** Sweeping every roll offset: the 52w phase spread is 12.5–14.1pp against a tenor effect of +1.8 to +18.0pp. R = 1.85 / 6.82 in cash (KILLED), 0.71 / 0.85 in marks (MARGINAL). In cash the *sign* flips with the calendar, −6.3 to +7.8pp | `phase_sweep.py` | `[I]` |
+| E14 | **No tenor ordering survives in cash anywhere on the drawdown path.** With the estimand repaired — `CDaR(worst q%)` and episodes matched on the naked book — the ordering survives in marks per-episode (90–94% of pairs) and on the curve only where `Psi` shows 1–2 episodes driving it; in cash it survives at no `q`, and 52w deepens episodes in 72–84% of pairs | `path_outcomes.py` | `[I]` |
 
 ### 1.1 The tenor result — the largest measured effect in the repo
 
@@ -215,6 +216,15 @@ alignments — and nothing quantitative in either accounting.** One further caut
 column: on the full sample at 26w and 52w the hedged book's max drawdown is set in **2003** while
 the naked book's is set in 2009, so the marked difference there is taken between two *different
 episodes*. [[STUB-E1-ROLL-PHASE]] §10.4.
+
+**E2 (2026-08-18) repaired that estimand and the ordering did not survive the repair.** Measuring
+`CDaR(worst q%)` — which integrates the whole path — and matching episodes on the naked book so
+both books are measured inside the same windows: **the ordering survives at no `q` in cash, in
+either sample**, and in marks only at `q <= 25%` (1993–) and `q <= 5%` (2003–) — precisely the
+`q` where the `Psi` column shows the coordinate collapsing onto one or two episodes. Where the
+coordinate is well sampled the ordering is absent. Per-episode it does hold in marks (52w ≥ 4w in
+90–94% of episode × phase pairs), but in cash the 52-week programme **deepens** episodes in 72–84%
+of pairs. [[STUB-E2-DRAWDOWN-PATH]] §10.
 
 **And the ordering is not ours.** Israelov (2017), *Pathetic Protection*, sweeps 20 / 63 / 250
 business-day maturities and reports that *"longer-dated options do a less bad job of protecting a

@@ -107,7 +107,7 @@ important lesson carried out of the closed program.
 | | hypothesis | kill condition | assumption cost |
 |---|---|---|---|
 | **H1** | Strike anchoring (M1) dominates re-striking for a multi-month drawdown at equal premium budget | ordering flips in >= 1/3 of episodes | **price paths only.** No option data |
-| **H2** | The tenor ordering survives on `CDaR_alpha` and per-excursion depths, and the phase spread is small relative to the effect | **PHASE CLAUSE RESOLVED 2026-08-18 (E1): KILLED in cash** (R = 1.85 and 6.82), **MARGINAL in marks** (0.71, 0.85), never SURVIVES. The *ordering* holds at 56 of 56 alignments in marks and is alignment-dependent in cash. The excursion clause is still open and belongs to E2 | free |
+| **H2** | ~~The tenor ordering survives on `CDaR_alpha` and per-excursion depths, and the phase spread is small relative to the effect~~ **FULLY RESOLVED 2026-08-18. Phase clause KILLED (E1).** Excursion clause: **SURVIVES in marks** (52w ≥ 4w in 90–94% of episode×phase pairs) and **MARGINAL/KILLED in cash** (48–61%). CDaR clause: the ordering survives only at `q` where `Psi` shows the coordinate resting on 1–2 episodes, and fails wherever it is well sampled — **nowhere at all in cash** (E2) | sign flips across excursions, or phase spread > effect | free |
 | **H3** | ~~M3 is not the dominant source of the measured drawdown reduction~~ **REJECTED 2026-08-18 (E0)** — the gap is 82% (1993–) and 85% (2003–) of the 52w reduction, and exceeds the reduction entirely at 13w | marked-versus-cash gap exceeds half the measured reduction | free |
 | **H4** | Timing value at 26w and 52w does not exceed the 4w/13w EVPI ceiling | it materially exceeds it — in which case the branch is *undecidable* at n=33, not open | one line |
 | **H5** | The long-tenor cost advantage is not an artifact of `sqrt(4/tenor)` or a tenor-flat spread | a plausibly steeper long-tenor skew reverses the cost ordering. **Asymmetric: rejection clean, confirmation impossible** | archived chains |
@@ -188,6 +188,10 @@ of every row above it, and E1 inherited E0's urgency.
 **E1 closed 2026-08-18 and triggered nothing automatically.** E2 and E3 stand where they were;
 what runs next is an open decision, deliberately not taken inside the experiment that preceded it.
 
+**E2 closed 2026-08-18 and also triggered nothing.** E3 was not started. Three of the queue's
+cheap experiments have now run and all three removed claims rather than adding them, which is the
+queue working as designed.
+
 ### 9.1 Status of the tenor claim after E0 and E1
 
 Recorded here because two results have now landed on one claim and the parts must not travel
@@ -199,11 +203,18 @@ as unrealised mark; E1 showed the remainder is smaller than the spread produced 
 roll-calendar offset, and that in cash the sign itself is alignment-dependent. **No number
 describing how much drawdown a tenor buys may be quoted from this repository.**
 
-**PRESERVED — the ordering, and only as a structural result.** A long-dated put struck near a peak
-spans a multi-month decline; a short-dated program re-strikes downward through it and never spans
-the peak-to-trough distance. That is **M1**, it is arithmetic about where the strike sits, it needs
-no pricing and no distributional assumption, and it held at **56 of 56 alignments** under marked
-accounting in both samples.
+**PRESERVED — the ordering, and only as a structural result, with the qualifier E2 attached.** A
+long-dated put struck near a peak spans a multi-month decline; a short-dated program re-strikes
+downward through it and never spans the peak-to-trough distance. That is **M1**, it is arithmetic
+about where the strike sits, it needs no pricing and no distributional assumption, and it held at
+**56 of 56 alignments** on max drawdown under marked accounting in both samples.
+
+**E2's qualifier, and it is not optional when the claim is stated.** Measured across the drawdown
+path rather than at its maximum, the ordering is an **episode-level, marked-accounting**
+regularity — 52w ≥ 4w in **90–94%** of (episode × phase) pairs — and on the `CDaR(worst q%)` curve
+it survives **only where `Psi` shows the coordinate resting on one or two episodes** (`q <= 25%`
+on 1993–, `q <= 5%` on 2003–). Where the coordinate is well sampled it is **absent**. It is
+therefore a regularity about deep episodes, not a property of the drawdown path.
 
 **The preserved part is a claim about contract geometry. It is NOT an economic benefit, and it may
 not be used as evidence of one.** Three reasons, each independent:
@@ -212,6 +223,9 @@ not be used as evidence of one.** Three reasons, each independent:
   flat from 26w to 52w — the ordering that survives in marks is nearly absent in cash.
 - E1: under cash accounting the ordering does **not** survive alignment (separation −9.0pp and
   −7.5pp) — so the surviving ordering exists only in the accounting the investor cannot bank.
+- E2: in cash the ordering survives at **no `q` on the curve**, in either sample, and the 52-week
+  programme **deepens** episodes in 72–84% of (episode × phase) pairs. The 2020 episode is the
+  clearest case: +24.9pp of marked protection, **−0.0pp in cash**.
 - E9: no structure in the grid beats the naked book on compound return. A better-ordered purchase
   is still a purchase.
 
@@ -225,7 +239,7 @@ problem precisely by letting one stand in for the other.
 |---|---|---|
 | **E0** | ~~M3 decomposition~~ **RAN 2026-08-18. H3 REJECTED.** 82% of the 52w reduction is mark; +16.8pp becomes +3.0pp in cash; the cash reduction is flat from 26w to 52w and negative at 4w/13w. [[docs/STUB-E0-M3-DECOMPOSITION]] | It ran first, and it was right to. Every magnitude in the repo now carries an accounting label, and E6 stopped being optional |
 | **E1** | ~~Roll-phase sweep~~ **RAN 2026-08-18. H2's phase clause killed in cash, marginal in marks.** In cash the *sign* of the 52w result is set by the roll calendar (−6.3 to +7.8pp). Phase is now a declared coordinate of every row. [[docs/STUB-E1-ROLL-PHASE]] | it cost one parameter and removed a magnitude the repo had published for three days |
-| **E2** | Per-excursion depths and the `CDaR_alpha` curve | free; the sample-size problem becomes an output |
+| **E2** | ~~Per-excursion depths and the `CDaR_alpha` curve~~ **RAN 2026-08-18.** The estimand is repaired and H2 is fully resolved: no ordering survives in cash anywhere on the path; in marks it survives per-episode and only on the least-identified part of the curve. [[docs/STUB-E2-DRAWDOWN-PATH]] | the sample-size problem did become an output — `Psi` and the surviving `q` set line up point for point |
 | **E3** | Clairvoyant bound at 26w and 52w (`TENOR_WEEKS`) | one line; closes or renders undecidable the old program's last open corner |
 | **E4** | M1 payoff-only anchoring test, S&P 1927+ and cross-market | the only real escape from one episode; needs no option data |
 | **E5** | Surface shape as a bounded sensitivity, rejection only | procurement, firewalled from any forecasting use |

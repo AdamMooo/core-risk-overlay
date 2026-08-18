@@ -896,6 +896,83 @@ one.
 decision, deliberately not taken inside the experiment that preceded it.
 
 
+## E2 — THE ESTIMAND REPAIRED, AND THE ORDERING DOES NOT SURVIVE THE REPAIR (2026-08-18)
+
+**Claim tuple: weekly marks · full holding period and per-episode windows within it ·
+`CDaR(worst q%)` reduction as a curve, and episode-matched depth reduction · SPY 1993-2026 and
+2003-2026, one path · ALWAYS-ON h=1.00, 10% OTM, no signal and no conditioning.** Preregistered in
+[[docs/STUB-E2-DRAWDOWN-PATH]], with the identification status of each coordinate written **before**
+the run. Run: `.venv\Scripts\python.exe research/path_outcomes.py SPY`.
+
+**The gate was closed first this time.** Chekhlov, Uryasev & Zabarankin read before the run, not
+after, and it found a real defect: **their `alpha` is a confidence level and ours is the fraction
+averaged**, so our `CDaR_0.05` is their `0.95`-CDaR and a bare label reads as its own opposite. Also
+recorded: our estimator is the *upper* CDaR with a bounded gap, and their convexity result is in the
+portfolio weights and licenses nothing here. [[docs/MATH-REFERENCE]] §4.1.
+
+**What E2 repaired.** E1 showed `max(D)` on the hedged and naked paths describing *different
+episodes* — 2003 versus 2009, in 51 of 52 alignments. E2 replaced it with two coordinates that cannot
+do that: `CDaR(worst q%)`, which integrates the whole path, and **episode-matched depths**, where
+episodes are defined once on the **naked** book and both books are measured inside the same calendar
+windows from their own peak within each. Defining the windows on the naked book is the load-bearing
+choice; windows taken from the hedged path would move with the intervention.
+
+**V1 — the ordering, phase-robust, at every `q`:**
+
+| sample | acct | worst 1% | 5% | 10% | 25% | 50% | 100% |
+|---|---|---|---|---|---|---|---|
+| 1993- | marked | **+2.0** | **+0.5** | **+0.2** | **+0.2** | -0.2 | -0.1 |
+| 1993- | cash | -8.0 | -7.4 | -5.6 | -3.8 | -3.4 | -2.0 |
+| 2003- | marked | **+8.9** | **+4.0** | -0.2 | -3.1 | -2.7 | -1.5 |
+| 2003- | cash | -9.3 | -8.7 | -7.6 | -7.2 | -5.6 | -3.1 |
+
+**In cash the ordering survives NOWHERE, at any `q`, in either sample.** In marks it survives at
+`q <= 25%` (1993-) and `q <= 5%` (2003-) — and the full-sample margins at 5%, 10% and 25% are +0.5,
++0.2 and +0.2pp, which is survival by the letter of a preregistered rule and by nothing else.
+
+**And then the `Psi` column, which is what the whole curve was built to produce.** Distinct episodes
+contributing to the worst `q%` of the process: at `q = 1%` and `5%` the marked tail rests on **one or
+two episodes**; at `q >= 50%` all nine contribute.
+
+> **The ordering survives exactly where the coordinate has collapsed onto one or two episodes, and
+> fails exactly where the coordinate is well sampled.** The sample-size problem was converted into an
+> output rather than argued about, which is the entire reason CDaR was specified as a curve.
+
+**V2 / V3 — the episode-matched coordinate.** Over (episode x 52w-phase x 4w-phase) triples:
+
+- **marked: 52w >= 4w in 90-94%** of pairs, both thresholds, both samples. **SURVIVES** — and this is
+  the strongest positive result the intervention side of this repo has produced.
+- **cash: 48-61%**, MARGINAL to KILLED. And **V3 is the number that stops V2 being read as good
+  news**: in cash the 52-week programme reduces episode depth in only **16.5-27.9%** of pairs, so it
+  **deepens** the episode three-quarters to five-sixths of the time. The cash ordering is between two
+  harms.
+
+**The episodes, phase 0, full sample, in cash.** 2008: **+3.0pp**. Everything else: -0.0, -0.0, -2.0,
+-6.1, +0.0, **-0.0**, -2.6, -0.0. **The entire cash-side benefit in thirty-three years is one
+episode.** The 2020 row is E0's finding in episode form: **+24.9pp of marked protection through
+February-March 2020, and -0.0pp in cash** -- the option was never sold, and the market recovered past
+it.
+
+**Predictions.** "Marked survives at small `q`, at risk at large `q`" and "cash fails at every `q`":
+both **CONFIRMED**, the second with no margin close to zero. "Episode sign-consistency >= 2/3 marked,
+< 1/2 cash": **SPLIT** — marked confirmed, cash came in at 48-61%, below SURVIVES everywhere but only
+*at* KILLED in one of four cells. Directionally right and too strong, recorded as the rule says.
+
+**What it does not establish.** No magnitude and no population claim: one path, episodes that are not
+exchangeable, phases that are not independent. The V2/V3 fractions are counts of a deterministic
+sensitivity and **no standard error or test statistic may be derived from them** — that was written
+into the stub before the run. Nothing about cost, outlay or monetisation, which are E6 and E7.
+Nothing that promotes `q = 1%` to a preferred coordinate: the surviving points are the *least*
+identified ones on the curve, which is the finding rather than a selection criterion.
+
+**Consequence for the one claim still standing.** [[CHARTER]] §9.1's preserved structural ordering
+keeps its status but gains a qualifier it cannot be quoted without: it is an **episode-level,
+marked-accounting regularity about deep episodes**, and it is absent on the well-sampled part of the
+drawdown path.
+
+**E2 triggered nothing. E3 was not started.**
+
+
 ## Next
 
 **There is no queue in this file.** [[CHARTER]] §9 is the single experiment queue, and two documents

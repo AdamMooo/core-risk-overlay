@@ -139,6 +139,29 @@ def check_pathfunctionals() -> None:
           bool((curve.to_numpy()[:-1] >= curve.to_numpy()[1:] - 1e-12).all()))
     check("pathfunctionals: CDaR rejects alpha outside (0, 1]", _raises(lambda: pf.cdar(wealth, 0.0)))
 
+    # E2. Measuring a book inside a window someone else defined.
+    first = ex[0]
+    check(
+        "pathfunctionals: depth_in_window reproduces an excursion's own depth",
+        np.isclose(pf.depth_in_window(wealth, first.start, first.end), first.depth),
+    )
+    check(
+        "pathfunctionals: depth_in_window is zero on a monotone rise",
+        pf.depth_in_window(pd.Series([1.0, 2.0, 3.0], index=index[:3]), index[0], index[2]) == 0.0,
+    )
+    check(
+        "pathfunctionals: depth_in_window measures from the WINDOW's peak, not the global one",
+        # Global cummax at index[5] is 1.3; inside [idx4, idx5] the peak is also
+        # 1.3, but inside [idx5, idx7] it is 1.4 -- a window that excludes the
+        # earlier high must not inherit it.
+        np.isclose(pf.depth_in_window(wealth, index[5], index[7]), 1.0 - 1.0 / 1.4),
+    )
+    check(
+        "pathfunctionals: depth_in_window rejects an empty window",
+        _raises(lambda: pf.depth_in_window(wealth, index[7] + pd.Timedelta(days=7),
+                                           index[7] + pd.Timedelta(days=14))),
+    )
+
     check("pathfunctionals: time under water counts observations, not episodes",
           np.isclose(pf.time_under_water(wealth, 0.0), 4 / 8))
     check("pathfunctionals: time under water respects the threshold",
