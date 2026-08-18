@@ -106,7 +106,7 @@ important lesson carried out of the closed program.
 
 | | hypothesis | kill condition | assumption cost |
 |---|---|---|---|
-| **H1** | Strike anchoring (M1) dominates re-striking for a multi-month drawdown at equal premium budget | ordering flips in >= 1/3 of episodes | **price paths only.** No option data |
+| **H1** | ~~Strike anchoring (M1) dominates re-striking for a multi-month drawdown at equal premium budget~~ **PAYOFF-GEOMETRY HALF RESOLVED 2026-08-18 (E4).** Preregistered rule: SURVIVES (4/29 episodes flip). Diagnostic declared in advance: **CONTRADICTED** (15/28 = 54% flip once zero-zero ties are excluded), so it may not be quoted as M1 holding. **M1 is a deductible-count effect** — it fails in 100% of episodes at m=5% and vanishes by identity at m=0 — **and it is conditional on decline shape**, winning grinds and losing V-shapes (2020: 0/53 in two markets) | ordering flips in >= 1/3 of episodes | **price paths only.** No option data |
 | **H2** | ~~The tenor ordering survives on `CDaR_alpha` and per-excursion depths, and the phase spread is small relative to the effect~~ **FULLY RESOLVED 2026-08-18. Phase clause KILLED (E1).** Excursion clause: **SURVIVES in marks** (52w ≥ 4w in 90–94% of episode×phase pairs) and **MARGINAL/KILLED in cash** (48–61%). CDaR clause: the ordering survives only at `q` where `Psi` shows the coordinate resting on 1–2 episodes, and fails wherever it is well sampled — **nowhere at all in cash** (E2) | sign flips across excursions, or phase spread > effect | free |
 | **H3** | ~~M3 is not the dominant source of the measured drawdown reduction~~ **REJECTED 2026-08-18 (E0)** — the gap is 82% (1993–) and 85% (2003–) of the 52w reduction, and exceeds the reduction entirely at 13w | marked-versus-cash gap exceeds half the measured reduction | free |
 | **H4** | Timing value at 26w and 52w does not exceed the 4w/13w EVPI ceiling | it materially exceeds it — in which case the branch is *undecidable* at n=33, not open | one line |
@@ -192,6 +192,11 @@ what runs next is an open decision, deliberately not taken inside the experiment
 cheap experiments have now run and all three removed claims rather than adding them, which is the
 queue working as designed.
 
+**E4 closed 2026-08-18 and triggered nothing.** No pricing, no monetisation, no additional
+structures, no progression to E5/E6/E7 — the stopping rule was written into its stub before the
+result was known. **Whether the rolled-put/tenor branch closes is a decision about the programme,
+recorded as open, and deliberately not taken inside the experiment.**
+
 ### 9.1 Status of the tenor claim after E0 and E1
 
 Recorded here because two results have now landed on one claim and the parts must not travel
@@ -215,6 +220,25 @@ regularity — 52w ≥ 4w in **90–94%** of (episode × phase) pairs — and on
 it survives **only where `Psi` shows the coordinate resting on one or two episodes** (`q <= 25%`
 on 1993–, `q <= 5%` on 2003–). Where the coordinate is well sampled it is **absent**. It is
 therefore a regularity about deep episodes, not a property of the drawdown path.
+
+**E4's qualifier, and it is the one that decides what M1 is.** Tested as pure payoff geometry —
+no premium, no pricing, no IV — across four markets and a century, M1 turns out to be a
+**deductible-count effect**: the advantage is `m · (SUM of re-strike levels − S_0)`, it vanishes
+by identity at `m = 0` (where re-striking *always* wins), and it **fails in 100% of episodes at a
+5% deductible**. It is also **conditional on the shape of the decline** — it wins persistent
+grinds and loses V-shaped crashes, with 2020 voting 0 of 53 informative starts against it in two
+markets independently.
+
+**And the condition is not observable in advance.** Knowing whether a decline will grind or
+V-bottom, at the moment the contract must be bought, is the forecasting problem this repository
+closed ([[docs/PROBLEM-MAP]] Part I). **M1 is therefore real, conditional, and unusable without
+the one capability the programme has established it does not have.**
+
+**Permitted sentence, updated:** *a deductible charged once beats the same deductible charged
+`H/s` times, when the decline persists — which is a statement about deductibles and decline shape,
+not about tenor.* **The earlier permitted sentence, which said the ordering holds at every
+alignment tested, is withdrawn as unconditional** — it was measured on one path in one accounting
+and does not survive cross-market payoff geometry in that form.
 
 **The preserved part is a claim about contract geometry. It is NOT an economic benefit, and it may
 not be used as evidence of one.** Three reasons, each independent:
@@ -241,7 +265,7 @@ problem precisely by letting one stand in for the other.
 | **E1** | ~~Roll-phase sweep~~ **RAN 2026-08-18. H2's phase clause killed in cash, marginal in marks.** In cash the *sign* of the 52w result is set by the roll calendar (−6.3 to +7.8pp). Phase is now a declared coordinate of every row. [[docs/STUB-E1-ROLL-PHASE]] | it cost one parameter and removed a magnitude the repo had published for three days |
 | **E2** | ~~Per-excursion depths and the `CDaR_alpha` curve~~ **RAN 2026-08-18.** The estimand is repaired and H2 is fully resolved: no ordering survives in cash anywhere on the path; in marks it survives per-episode and only on the least-identified part of the curve. [[docs/STUB-E2-DRAWDOWN-PATH]] | the sample-size problem did become an output — `Psi` and the surviving `q` set line up point for point |
 | **E3** | Clairvoyant bound at 26w and 52w (`TENOR_WEEKS`) | one line; closes or renders undecidable the old program's last open corner |
-| **E4** | M1 payoff-only anchoring test, S&P 1927+ and cross-market | the only real escape from one episode; needs no option data |
+| **E4** | ~~M1 payoff-only anchoring test~~ **RAN 2026-08-18.** 12,601 weekly observations across four markets and a century. M1 is a deductible-count effect, conditional on decline shape, and **the condition is not observable in advance — exploiting it would require the forecast this repo closed.** [[docs/STUB-E4-STRIKE-ANCHORING]] | it was the only real escape from one episode, and it took the last surviving claim from unconditional to conditional |
 | **E5** | Surface shape as a bounded sensitivity, rejection only | procurement, firewalled from any forecasting use |
 | **E6** | Specify `rho`, then measure `kappa` — **reclassified by E0 from queued experiment to PRECONDITION.** The marked-versus-cash interval is wider than the effect inside it, so no drawdown magnitude is interpretable until a rule is stated | the mandate's value story, never once implemented |
 | **E7** | Additive sleeve at matched outlay | the instrument comparison never run |

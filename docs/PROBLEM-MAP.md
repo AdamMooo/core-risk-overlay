@@ -179,6 +179,7 @@ Claims that survived a preregistered run with adversarial alignment checks. Each
 | E12 | **The drawdown reduction is predominantly a mark.** Same path, same contracts, one accounting change: 82% (1993–) and 85% (2003–) of the 52w reduction is unrealised mark; the cash-recognised reduction is ~+3pp and flat from 26w to 52w | `m3_decomposition.py` | `[I]` |
 | E13 | **The tenor magnitude is alignment-dependent.** Sweeping every roll offset: the 52w phase spread is 12.5–14.1pp against a tenor effect of +1.8 to +18.0pp. R = 1.85 / 6.82 in cash (KILLED), 0.71 / 0.85 in marks (MARGINAL). In cash the *sign* flips with the calendar, −6.3 to +7.8pp | `phase_sweep.py` | `[I]` |
 | E14 | **No tenor ordering survives in cash anywhere on the drawdown path.** With the estimand repaired — `CDaR(worst q%)` and episodes matched on the naked book — the ordering survives in marks per-episode (90–94% of pairs) and on the curve only where `Psi` shows 1–2 episodes driving it; in cash it survives at no `q`, and 52w deepens episodes in 72–84% of pairs | `path_outcomes.py` | `[I]` |
+| E15 | **M1 is a deductible-count effect, conditional on decline shape.** Pure payoff geometry, no pricing, 12,601 weekly observations across ^GSPC 1927+, ^N225, ^FTSE and ^GDAXI: the advantage is `m·(Σ re-strike levels − S_0)`, reverses deterministically at `m = 0`, and fails in **100% of episodes at m = 5%**. It wins persistent grinds and loses V-shapes — 2020 at **0/53** informative starts in two markets | `anchoring.py` | `[I]` |
 
 ### 1.1 The tenor result — the largest measured effect in the repo
 
@@ -260,6 +261,7 @@ Recorded so none of it is rebuilt. Distinguish **falsified** (tested, wrong) fro
 | F10 | **EWMA vs MS at h=1** discriminates the model class | UNINFORMATIVE | structurally identical one step ahead; a DM null is what theory predicts. Declared VOID |
 | F11 | **GARCH encompassing** would settle whether regimes add anything | UNINFORMATIVE *a priori* | ARCH-LM rejects at 55.6 *after* regime-switching, so a null is confounded by known misspecification. Formally ASYMMETRIC: positive is clean, null is uninterpretable |
 | F12 | Put **spreads** improve the hedge | FALSIFIED for this mandate | they top the efficiency table (13.90) and buy 3.3–6.8pp of drawdown against outright's 16.8–24.3pp. Cheap, and capped exactly where the program exists to pay |
+| F13 | **M1 (strike anchoring) holds unconditionally** | FALSIFIED | E4. It survives the preregistered vote (4/29 flips) but is contradicted on the diagnostic declared before the run (15/28 = 54% flips once zero-zero ties are excluded), fails everywhere at a 5% deductible, and is conditional on a decline shape that is **not observable in advance** — exploiting it would require the forecast closed by F1/F2 |
 
 **The common cause of F9–F11 and F4.** Anything whose value depends on counting systemic drawdowns
 has an effective sample of ~10–15 in all of SPY history. Not fixable by better estimators, better

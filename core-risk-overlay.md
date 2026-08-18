@@ -973,6 +973,89 @@ drawdown path.
 **E2 triggered nothing. E3 was not started.**
 
 
+## E4 — M1 IS A DEDUCTIBLE-COUNT EFFECT, AND IT IS CONDITIONAL (2026-08-18)
+
+**Claim tuple: weekly W-FRI closes · H = 52 weeks primary, 104 robustness · the SIGN of the gross
+intrinsic payoff difference, no magnitude reported anywhere · ^GSPC 1927-2026, ^N225 1965-, ^FTSE
+1984-, ^GDAXI 1988- (12,601 weekly observations, 29 episodes at 20%) · every week with a complete
+horizon is a start, and NO start is placed at a peak.** Preregistered in
+[[docs/STUB-E4-STRIKE-ANCHORING]], amended once — also before any run — to record that the verdict
+rule is biased toward M1. Run: `.venv\Scripts\python.exe research/anchoring.py`.
+
+**Not a rescue attempt, and it could not have been one.** Nothing in E4 is priced and no premium is
+paid anywhere in it. E9, E0, E1 and E2 stand unchanged and the economic hypothesis for rolled
+outright puts remains provisionally negative.
+
+**What M1 actually is, derived before the run and confirmed by it.** With `a_i` the decline over
+sub-period `i`, at `m = 0`:
+
+```
+    P_restriking = SUM max(a_i, 0)  >=  max(SUM a_i, 0) = P_anchored
+```
+
+the positive part of a sum never exceeds the sum of positive parts — so **without a deductible the
+re-striking leg weakly dominates on every path, always.** M1 is therefore not "long contracts protect
+better". It is **a deductible charged once versus the same deductible charged `H/s` times**, and when
+every leg finishes in the money the difference is exactly `m · (SUM of re-strike levels − S_0)`. The
+`m = 0` control reproduced this to the bit: `max(anchored − restriking) = 0.00e+00` in all four
+markets.
+
+**The verdict, in the order the stub requires.**
+
+| | |
+|---|---|
+| preregistered rule | **M1 SURVIVES** — 4 of 29 episodes flip = 13.8%, against a 1/3 kill line |
+| diagnostic declared before the run | **CONTRADICTED** — excluding starts where both legs pay zero, **15 of 28 = 54%** flip |
+| therefore | *survival on a biased rule, contradicted on the diagnostic* — **not to be quoted as M1 holding** |
+
+The whole gap is ties: starts whose horizon sits in flat or rising prices, where both legs pay zero
+and the preregistered rule scores that as a vote *for* M1. **Had the amendment not been written
+before the run, 13.8% would have been the headline.**
+
+**The deductible sweep, and it is decisive.** Flip share on the diagnostic, `H = 52` — higher is
+worse for M1:
+
+| `m` | s=4 | s=13 | s=26 |
+|---|---|---|---|
+| **5%** | **100%** | **100%** | 83-90% |
+| 10% | 54-61% | 76-77% | 76% |
+| 15% | 40-45% | 59-70% | 69-74% |
+
+> **At a 5% deductible M1 fails in every single episode, in every market.** The effect is a property
+> of large deductibles, not of long tenor, exactly as the identity says.
+
+**The shape split is the finding.** Anchoring wins persistent grinds — S&P 1973-80 (65%), S&P 2000-07
+(72%), Nikkei 1989-2024 (56%), FTSE 1999-2015 (57%) — and loses V-shaped crashes: **2020 at 0/53 in
+both the S&P and the DAX**, 1987 at 5/54 and 8/62, DAX 1998 at 0/69, Nikkei 1970 at 1/94. A contract
+struck in February 2020 expired in February 2021 above its strike having paid nothing, while
+four-week legs collected March as it happened.
+
+**And that routes straight into the closed programme.** The condition deciding M1 is whether the
+coming decline grinds or V-bottoms — **a property not observable at the moment the contract must be
+bought.** Forecasting it is the problem [[docs/PROBLEM-MAP]] Part I closed. **M1 is real, conditional,
+and unusable without the one capability this programme has established it does not have.** Parked as
+*unavailable* rather than queued, in [[PARKED]].
+
+**Predictions.** "Failures concentrated in V-shapes, 2020 and 1987 against": **CONFIRMED sharply.**
+"More favourable at larger `m`": **CONFIRMED**, monotonically. "More favourable at `H = 104`":
+**REFUTED** — the diagnostic flip share rises to 89-98%, because the §3 reasoning counted the extra
+deductibles and forgot that a two-year contract has two years in which to expire out of the money.
+Half a mechanism asserted as the whole one.
+
+**`Psi`.** 29 episodes is not 29 observations: 2000-07, 2008, 2020 and 2022 appear in three or four
+markets each and are one event reported several times. Only five episodes have no cross-market
+calendar overlap, and **the genuinely independent content is US 1929-1954 and Japan 1990-2003** —
+perhaps 12-15 distinct events, not 29. Two mega-episodes (S&P 1929-54, Nikkei 1989-2024) carry 42% of
+all starts, a known limitation of the inherited peak-to-recovery definition that was **not** re-tuned
+after seeing the result. Starts overlap almost completely, so `n_starts` is not a sample size and no
+standard error, test statistic or population magnitude appears anywhere in E4.
+
+**E4 stopped where its stub said it would.** No pricing, no monetisation, no additional structures,
+no progression to E5/E6/E7. The outcome is neither the clean failure that closes the rolled-put/tenor
+branch nor the clean survival that triggers a reassessment, so **the branch decision is recorded as
+open and was not taken inside the experiment.**
+
+
 ## Next
 
 **There is no queue in this file.** [[CHARTER]] §9 is the single experiment queue, and two documents

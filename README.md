@@ -128,7 +128,8 @@ result: [[docs/STUB-E0-M3-DECOMPOSITION]] §9.
 | `research/m3_decomposition.py` | working — E0, the marked-versus-cash accounting decomposition. **H3 rejected 2026-08-18** |
 | `research/phase_sweep.py` | working — E1, the roll-phase sweep. **H2's phase clause killed in cash, marginal in marks, 2026-08-18** |
 | `research/path_outcomes.py` | working — E2, the CDaR curve and episode-matched depths. **H2 fully resolved 2026-08-18** |
-| `checks.py` | 46 checks, all passing — six for the E0 accounting invariant, five for the E1 roll-phase grid, four for E2's window-matched depth |
+| `research/anchoring.py` | working — E4, payoff-geometry anchoring test across four markets and a century. **No pricing anywhere in it** |
+| `checks.py` | 52 checks, all passing — six for the E0 accounting invariant, five for E1's roll-phase grid, four for E2's window-matched depth, six for E4's payoff arithmetic |
 | `closed-research/` | 81 checks passing; D3 and F2 verified reproducible after the transition |
 
 No live path exists and none is designed. The decision layer — preferences, sizing, tax, whether to run

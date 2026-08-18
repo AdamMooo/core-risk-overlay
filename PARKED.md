@@ -40,6 +40,14 @@ the seven-field gate, including a reopening condition where one is stated.
 | **Max drawdown is censored from below by the next-deepest episode.** E1's `Psi` column: on the full sample the 52w hedged book's max drawdown is set in 2003 in 51 of 52 phases while the naked book's is set in 2009, so `bought` is a difference between two different episodes and protection beyond the 2003 depth is invisible in the coordinate | it is an argument about the *coordinate*, and the coordinate already has a replacement queued. Chasing it here would be E2 done badly, inside E1 | **E2**, which exists to replace max drawdown with per-excursion depths and the CDaR curve. It should report episode identity per excursion, which dissolves the problem rather than correcting for it |
 | **Phase as a reported coordinate rather than a swept one.** Every future row could carry its phase range instead of a point | that is a reporting convention, and conventions adopted mid-program silently restate old numbers | when E2 fixes the objective coordinate. Convention changes ride with coordinate changes, not separately |
 
+## Parked from E4 (2026-08-18) — and one of them is parked as UNAVAILABLE, not as queued
+
+| item | why parked | what would unpark it |
+|---|---|---|
+| **Conditioning the tenor choice on decline shape.** E4 showed M1 wins persistent grinds and loses V-shapes, so a rule that chose tenor by the coming decline's shape would capture it | **this is the closed prediction programme wearing a different hat.** Knowing whether a decline will grind or V-bottom, at the moment the contract is bought, is a forecast of exactly the kind F1/F2 closed. It is listed here so that "E4 found a conditional effect" is never read as "so condition on it" | **NOTHING.** This is parked as unavailable. Unparking it requires meeting the reopening condition of the permanently-closed list below, which no result in this repository has come near |
+| **Episode definition for slow recoveries.** Peak-to-full-recovery makes S&P 1929–54 and Nikkei 1989–2024 single episodes carrying 42% of all starts | changing it after seeing E4's result is selection on outcome, which is why it was left alone | a future experiment may declare a different definition **in its own stub, before running**, and must then report both |
+| **Deductible size as the live axis.** E4 makes `m`, not tenor, the variable M1 actually depends on | it is an economic question the moment it is asked seriously — a larger deductible is a cheaper contract — and E4 pays no premium, so it cannot be asked here | it belongs to whatever decides the rolled-put branch, not to a follow-on experiment |
+
 ## Parked from the closed program — reclassified, not reopened
 
 These are **not** revivals of the prediction question. Each is a different *use* of material the

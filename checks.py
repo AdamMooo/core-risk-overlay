@@ -21,6 +21,7 @@ sys.path.insert(0, str(Path(__file__).parent / "research"))
 import numpy as np
 import pandas as pd
 
+import anchoring as an
 import data_loader as dl
 import hedge_economics as he
 import pathfunctionals as pf
@@ -274,6 +275,63 @@ def check_roll_phase() -> None:
     )
 
 
+def check_anchoring_payoffs() -> None:
+    """E4's payoff arithmetic. The only new arithmetic in the experiment.
+
+    Every claim E4 makes reduces to the sign of these two numbers, so the
+    identities they must satisfy are tested rather than assumed.
+    """
+    # 1. The m=0 dominance identity. sum of positive parts >= positive part of
+    #    the sum, so WITHOUT a deductible the re-striking leg always wins. This
+    #    is the whole mechanism: M1 exists only because of the deductible.
+    path = np.array([100.0, 92.0, 97.0, 85.0, 80.0, 88.0, 91.0, 76.0, 70.0])
+    anchored, restriking = an.payoffs(path, horizon=4, sub=1, moneyness=0.0)
+    check(
+        "anchoring: at m=0 the re-striking leg weakly dominates on every start",
+        bool(np.all(restriking >= anchored - 1e-12)),
+    )
+
+    # 2. When every leg finishes in the money the difference is exactly the
+    #    extra deductibles: P_A - P_R = m * (sum of re-strike levels - S_0).
+    steep = np.array([100.0, 80.0, 64.0, 51.2, 40.96])
+    anchored, restriking = an.payoffs(steep, horizon=4, sub=1, moneyness=0.10)
+    expected = 0.10 * (steep[:4].sum() - steep[0])
+    check(
+        "anchoring: the payoff gap is exactly the extra deductibles",
+        np.isclose(float(anchored[0] - restriking[0]), expected),
+    )
+
+    # 3. One sub-period IS the anchored contract. A degenerate case that would
+    #    catch an off-by-one in the block loop.
+    anchored, restriking = an.payoffs(path, horizon=4, sub=4, moneyness=0.10)
+    check(
+        "anchoring: sub == horizon makes the two legs identical",
+        bool(np.allclose(anchored, restriking)),
+    )
+
+    # 4. The reversal case, and it is the reason E4 is an empirical question:
+    #    a V-shape pays the short legs and expires the anchored one worthless.
+    vshape = np.array([100.0, 70.0, 100.0, 100.0, 100.0])
+    anchored, restriking = an.payoffs(vshape, horizon=4, sub=1, moneyness=0.10)
+    check(
+        "anchoring: a V-shape reverses the ordering (anchored pays nothing)",
+        anchored[0] == 0.0 and restriking[0] > 0.0,
+    )
+
+    # 5. Nothing to insure, nothing paid.
+    rising = np.array([100.0, 101.0, 102.0, 103.0, 104.0])
+    anchored, restriking = an.payoffs(rising, horizon=4, sub=1, moneyness=0.10)
+    check(
+        "anchoring: a rising path pays zero on both legs",
+        anchored[0] == 0.0 and restriking[0] == 0.0,
+    )
+
+    check(
+        "anchoring: rejects a horizon longer than the sample",
+        _raises(lambda: an.payoffs(rising, horizon=99, sub=4, moneyness=0.10)),
+    )
+
+
 def _raises(call) -> bool:
     try:
         call()
@@ -288,6 +346,7 @@ def main() -> None:
     check_pathfunctionals()
     check_mark_hedge_accounting()
     check_roll_phase()
+    check_anchoring_payoffs()
 
     print()
     if FAILURES:
