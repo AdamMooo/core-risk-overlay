@@ -111,6 +111,17 @@ def _build(d: pd.Series, idx, lo: int, hi: int, recovered: bool) -> Excursion:
 def cdar(wealth: pd.Series, alpha: float) -> float:
     """Conditional Drawdown-at-Risk: mean of the worst `alpha` fraction of D.
 
+    CONVENTION WARNING, confirmed against the source 2026-08-18. Chekhlov,
+    Uryasev & Zabarankin parameterise by a CONFIDENCE LEVEL: their alpha-CDaR
+    is the mean of the worst (1-alpha)*100%, so their 0.95 is our 0.05 and
+    their limits run opposite to ours. Same family, complementary parameter.
+    Label every reported number as `CDaR(worst q%)` -- a bare CDaR_0.05 reads
+    as its own opposite to a reader holding the paper. MATH-REFERENCE §4.1.
+
+    This is the UPPER CDaR: exact when alpha*N is an integer, and otherwise
+    overweighting the boundary observation by at most 1/ceil(alpha*N) against
+    the paper's z_alpha interpolation. Declared, not corrected.
+
     alpha = 1.0 is the average drawdown (pain index). As alpha -> 0 this tends to
     max drawdown and its effective sample size tends to one.
     """

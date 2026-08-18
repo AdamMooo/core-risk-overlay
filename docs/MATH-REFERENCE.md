@@ -105,9 +105,53 @@ Then for `alpha` in `(0, 1]`:
 CDaR_alpha = E[ D | D >= q_{1-alpha}(D) ]      under mu_D
 ```
 
-the mean of the worst `alpha`-fraction of the drawdown process. Chekhlov, Uryasev & Zabarankin (2005).
-It is **coherent** and **convex in the position**, which is what makes it optimizable later; and it is
-computed from the *whole path*, so its effective sample is the number of distinct excursions rather
+the mean of the worst `alpha`-fraction of the drawdown process, and it is computed from the *whole
+path*, so its effective sample is the number of distinct excursions rather than one.
+
+### 4.1 Three things confirmed against the source, 2026-08-18
+
+Chekhlov, Uryasev & Zabarankin, read before E2 rather than after. The register listed this paper as
+gating E2 specifically to confirm the convention, and it was right to.
+
+**1. OUR `alpha` IS THE COMPLEMENT OF THEIRS, and every report must say so.** In the paper `alpha`
+is a *confidence level*: the `alpha`-CDaR is the mean of the worst `(1 - alpha) * 100%` of
+drawdowns, so `0.95`-CDaR averages the worst 5%, `alpha -> 0` is the average drawdown and
+`alpha -> 1` is the maximum. Ours is the *fraction averaged*, so the limits run the other way. The
+family and the object are identical; the parameter is inverted.
+
+```
+    ours                        theirs
+    CDaR_0.05                   0.95-CDaR         mean of the worst 5% of the process
+    CDaR_1.00                   0.00-CDaR         average drawdown
+    CDaR_alpha -> 0             alpha -> 1        max drawdown
+```
+
+**Reporting rule, binding from E2 onward:** write the coordinate as `CDaR(worst q%)` or state the
+convention beside it. A bare `CDaR_0.05` reads as its own opposite to anyone holding the paper.
+E0's and E1's published numbers use our convention and are unaffected in value; only their labels
+were ambiguous.
+
+**2. The discrete estimator is the upper approximation, and the gap is bounded.** The paper defines
+CDaR by the occupation measure exactly as above when `(1-alpha)N` is an integer, and *otherwise* as
+a linear combination of the threshold `z_alpha` and the drawdowns strictly exceeding it — the
+Rockafellar–Uryasev (2002) CVaR construction. `pathfunctionals.cdar` averages the worst
+`ceil(alpha * N)` observations, which is the **upper** CDaR: it coincides when `alpha * N` is an
+integer and otherwise overweights the boundary observation by at most `1/ceil(alpha*N)`. At
+`N = 1750, alpha = 0.05` that is one observation in 88. **Declared, not corrected** — correcting it
+would silently restate E0's and E1's numbers for a difference below the reported precision.
+
+**3. Convexity is in the PORTFOLIO WEIGHTS, and we are not using it.** The paper's convexity and
+LP-representability are in `x`, the vector of weights, which is what makes CDaR optimizable in a
+portfolio problem. This repository evaluates CDaR on given paths and optimizes nothing over
+weights, so **convexity licenses nothing here** and may not be cited as though it did. It becomes
+relevant only if the parked convex-program item is ever unparked.
+
+**And the paper's own scope caveat, which is the most useful sentence in it for us.** The authors
+state that CDaR is a *risk function on a sample-path* rather than a risk measure on a set of
+sample-paths, and explicitly leave the multi-path definition to future research. **The source
+therefore agrees with this repo's identification stance:** CDaR is exactly defined on our one path
+and does not become an estimate of a population quantity by being computed carefully.
+
 than one.
 
 **The limits are the point:**
