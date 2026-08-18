@@ -133,7 +133,8 @@ research ([[CHARTER]] §7).
 *Preserved verbatim from the closed program. This is the asset. It constrains what may be rebuilt; it
 does not set the agenda.*
 
-> **Two corrections attach to everything below, and both were found on 2026-08-17.**
+> **Three corrections attach to everything below. Two were found on 2026-08-17; the third was
+> measured on 2026-08-18 and is the largest.**
 >
 > 1. **Effective n on the benefit side is 1, not ~10.** `hedge_economics.summarize` returns
 >    `max_drawdown` as a single `.min()` of the drawdown series, and on both reported samples that
@@ -144,7 +145,16 @@ does not set the agenda.*
 >    program makes 33 decisions in 33 years and the alignment of the crisis to the roll boundary is set
 >    by the sample's first date.
 >
-> Consequently the **orderings** in §1.1 are probably robust — they follow from where the strike sits —
+> 3. **The measured drawdown reduction is mostly a mark, not cash.** E0 (2026-08-18) reran the
+>    identical simulation under one accounting change — recognise the hedge when it becomes a cash
+>    flow rather than continuously — and **82% of the 52-week reduction on the full sample, 85% on
+>    the 2003– subsample, is mark.** +16.8pp becomes +3.0pp; +19.9pp becomes +3.0pp. In the
+>    well-sampled `CDaR_alpha` coordinate the full-sample cash reduction at 52w is zero to slightly
+>    negative at every alpha. **The accounting interval is wider than the effect inside it**, so no
+>    magnitude below is interpretable until [[CHARTER]] E6 specifies a monetisation rule. Full
+>    result: [[STUB-E0-M3-DECOMPOSITION]] §9.
+>
+> Consequently the **orderings** in §1.1 are probably robust
 > while the **magnitudes** are one draw at one phase and are **not identified**. Do not quote them as
 > effect sizes. [[CHARTER]] E1 and E2 test exactly this.
 
@@ -166,6 +176,7 @@ Claims that survived a preregistered run with adversarial alignment checks. Each
 | E9 | **No structure in the grid beats the naked book on CAGR** — 0 of 40, both samples. README §2's inequality fails on average everywhere tested | `structure_map.py` | `[I]` |
 | E10 | **Tenor is the dominant structural variable and the effect is monotone and large** — see §1.1 | `structure_map.py` | `[I]` |
 | E11 | Correcting the equity skew moved hedge efficiency **17.58 → 3.6**; at 5–10% OTM the drawdown benefit turned *negative* on the full sample | `hedge_economics.py` | `[I]` |
+| E12 | **The drawdown reduction is predominantly a mark.** Same path, same contracts, one accounting change: 82% (1993–) and 85% (2003–) of the 52w reduction is unrealised mark; the cash-recognised reduction is ~+3pp and flat from 26w to 52w | `m3_decomposition.py` | `[I]` |
 
 ### 1.1 The tenor result — the largest measured effect in the repo
 
@@ -177,13 +188,34 @@ Drawdown bought (pp) @ cost (pp/yr of CAGR), outright puts, skew slope 0.60, 5% 
 | 10% OTM | 2003–2026 | +5.1 @ 2.85 | +5.7 @ 2.98 | **+17.8 @ 2.51** | **+19.9 @ 2.49** |
 | 15% OTM | 1993–2026 | +4.1 @ 1.14 | +3.3 @ 1.85 | +10.6 @ 1.59 | +11.8 @ 1.77 |
 | 15% OTM | 2003–2026 | +4.1 @ 0.94 | +3.3 @ 1.64 | +12.5 @ 1.42 | +16.0 @ 1.70 |
+| **10% OTM, in CASH** | 1993–2026 | **−4.7** | **−4.8** | **+3.2** | **+3.0** |
+| **10% OTM, in CASH** | 2003–2026 | **+1.1** | **−0.9** | **+4.4** | **+3.0** |
 
 **Extending tenor buys three to four times the protection for the same money or less.** Cost is flat
 to *falling* across the row. This is not a trade-off being navigated; it is a dominated region of the
 design space that the repo occupied for two years without measuring.
 
+**The two cash rows are E0, and they are the same table under the accounting the investor actually
+banks.** The sign of the tenor ordering survives — long tenor beats short, which is M1 and needs no
+pricing — and everything else about the row changes. The cash reduction is **flat from 26w to 52w**,
+it is *larger at 26w* on the 2003– sample, and at 4w and 13w it is **negative on the full sample**:
+the program deepens the worst drawdown by about 5pp, because premium is paid continuously and the
+payoff lands after the trough. The monotone climb across the marked row is a mark that grows with
+the length of the block interior — 51 unrecognised weeks at 52w against three at 4w. **Read the
+marked row as the ordering and the cash row as the size.**
+
+**And the ordering is not ours.** Israelov (2017), *Pathetic Protection*, sweeps 20 / 63 / 250
+business-day maturities and reports that *"longer-dated options do a less bad job of protecting a
+portfolio against long-term drawdowns than shorter-dated options. Less bad, but not good"* — E10's
+ordering and, in cash, roughly its size. It was `[UNREAD]` at row 1 of the reading list while E10
+was derived empirically, and it is logged as a §0-rule-3 process failure in
+[[literature/README]]. **What this repo adds is the decomposition, not the ordering.** The paper's
+own remedy — static divestment — is inadmissible under [[CHARTER]] §2 C2, so its verdict does not
+transfer while its mechanisms do.
+
 Best drawdown bought anywhere in the grid: **52w 5% OTM outright, +20.6pp @ 3.41 (full) / +24.3pp @
-3.74 (2003+)**.
+3.74 (2003+)**. **In cash the full-sample figure is +2.3pp** (share 89%). The 2003– cell has never
+been quoted in cash and must not be quoted at all until it is.
 
 ---
 
@@ -221,7 +253,7 @@ Only items where the answer is not already determined by §1 or §2.
 |---|---|---|
 | U1 | **The real skew surface.** `skewed_vol` is `IV = VIX + slope × pct_OTM × sqrt(4/tenor)`, slope swept over 0.0–0.8 with 0.60 primary. "The repo has no option chain" | every cost number in §1.1 depends on it, and the `sqrt(4/tenor)` term is what makes long tenor cheap — **the tenor result rests on an unverified parameterization that systematically favours the conclusion** |
 | U2 | **The clairvoyant ceiling at 52w.** Computed at 4w and 13w only | it is the denominator of the entire signal question at the tenor that actually works (§5) |
-| U3 | **Recycling.** README §1 monetises the hedge and buys the core back lower; `simulate` reinvests passively at the next roll | never sized deliberately. May matter more than any strike choice |
+| U3 | **Recycling.** README §1 monetises the hedge and buys the core back lower; `simulate` reinvests passively at the next roll | **Promoted by E0 from open question to precondition.** The marked-versus-cash interval is 13.9pp wide inside a 16.8pp claim, so `rho` and `kappa` ([[CHARTER]] E6) now gate the interpretation of every magnitude in §1.1 — not just this row |
 | U4 | **The honest competitors.** A trend sleeve or long duration carry neutral-to-positive carry instead of bleeding | never compared. Needs data this repo lacks |
 | U5 | **Daily minimum history.** `RELIABLE_MIN_OBSERVATIONS` = 520 is a *weekly* figure | blocks quoting any daily model result |
 | U6 | **Long-memory order `d` with a standard error** (GPH / local Whittle), and a better vol proxy (Parkinson, Garman-Klass, Yang-Zhang) | F3's refutation is weak and window-dependent; an R² race is not a long-memory test |

@@ -1,6 +1,6 @@
 # Parked
 
-Last updated: 2026-08-17
+Last updated: 2026-08-18
 
 **Ideas deliberately excluded from the active program, written down rather than built around.**
 
@@ -25,6 +25,13 @@ the seven-field gate, including a reopening condition where one is stated.
 | **Tax modelling.** Monetisation realizes income while the core's loss stays unrealized; the sign is known, the magnitude is not | it is a decision-layer input and depends on account structure, which is not a research fact | when the decision layer exists and the account structure is stated |
 | **Currency.** A USD put's CAD value rises in a crisis — an unmodelled term pointing *for* the hedge | same: it changes magnitudes nobody is entitled to quote yet | when a magnitude becomes identified enough to be worth correcting |
 | **Drawdown-duration objective.** `U_theta` and `R` are implemented but no hypothesis uses them | "smooth the ride" has never been stated precisely enough to falsify | when the mandate says what it wants from duration, distinct from depth |
+
+## Parked from E0 (2026-08-18)
+
+| item | why parked | what would unpark it |
+|---|---|---|
+| **Horizon-scaled moneyness.** Israelov (2017) sets each maturity's strike to the median drawdown over a horizon equal to the option's life — 4.8% / 9.2% / 18.2% OTM at 20 / 63 / 250 days — where our grid holds the strike fixed across tenors | it is a different experiment, not a better version of ours: comparing tenors at fixed moneyness and at horizon-scaled moneyness ask different questions, and the second needs its own gate | fold into E7, where matched outlay already forces the equalisation question to be answered explicitly |
+| **Cash accounting as the default for the whole grid.** E0 leaves `mark_hedge=True` the default and reports both | switching the default would silently restate every published number, and the cash curve is not the truth either — the realizable path lies between the two | E6. Once `rho` is specified, `kappa` is the number that belongs in `Phi`, and neither endpoint is |
 
 ## Parked from the closed program — reclassified, not reopened
 

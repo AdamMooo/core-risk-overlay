@@ -28,7 +28,11 @@ Do not quote it undifferentiated.
 
   M3  MARK-TO-MARKET.  `equity[t]` includes the put's mark, so a long-dated
       put's rising mark mechanically reduces measured `max_drawdown`. Depends on
-      pricing AND on a monetisation policy.
+      pricing AND on a monetisation policy. MEASURED 2026-08-18 by E0: it is the
+      DOMINANT term. 82% of the 52w reduction on the full sample, 85% on the
+      2003- subsample, and the +16.8pp headline becomes +3.0pp in cash. Use
+      `mark_hedge=False` to see it. No output of this file is a drawdown
+      reduction until its accounting is named.
 
 CORRECTION, 2026-08-17. This docstring previously claimed: "Monetisation is
 automatic ... the payoff lands in the portfolio at expiry and is reinvested at
@@ -37,8 +41,10 @@ the discount'". THAT IS FALSE, and it is the single sentence that kept the gap
 invisible. The payoff lands at EXPIRY. Selling into the peak of implied
 volatility is a different action, at a different time, for a different amount.
 `simulate` implements NO monetisation rule. The mandate's value story requires
-one. Measuring the difference is E0, and it must run before any number produced
-by this file is interpreted.
+one. Measuring the difference was E0; it ran on 2026-08-18 and the answer is that
+the gap is WIDER than the effect it sits inside -- 13.9pp of gap within a 16.8pp
+claim. E6 (specify rho, measure kappa) is therefore a PRECONDITION for quoting any
+magnitude from this file, not a later refinement of one.
 
 EFFECTIVE SAMPLE. `summarize` returns `max_drawdown` as a single `.min()` of the
 drawdown series. On this sample that statistic is set by one episode
@@ -160,7 +166,8 @@ def skewed_vol(base_vix, strike, spot_now, tenor_weeks, slope):
 
 
 def simulate(spot, vix, hedge_ratio, moneyness, tenor, skew_slope=0.0,
-             spread=0.0, foresight=False, trigger=None, short_moneyness=0.0):
+             spread=0.0, foresight=False, trigger=None, short_moneyness=0.0,
+             mark_hedge=True):
     """Weekly-marked equity curve for a continuously rolled put program.
 
     Self-financing: premium is paid out of the book at each roll, the remainder
@@ -174,6 +181,13 @@ def simulate(spot, vix, hedge_ratio, moneyness, tenor, skew_slope=0.0,
     cost is that the payoff is capped at the distance between the strikes --
     precisely in the deep tail the program exists to insure. Both legs cross the
     bid-ask, so `spread` is paid on the long leg and given up on the short.
+
+    mark_hedge=False switches the ACCOUNTING, not the position. The book then
+    carries the hedge at zero inside a block and recognises it only at expiry,
+    when it becomes a cash flow -- which is the only moment `simulate` has ever
+    actually transacted it. Premium, contracts, payoff, terminal wealth and CAGR
+    are UNCHANGED; the two curves coincide at every roll boundary and differ only
+    in a block's interior. That is M3, isolated. E0.
 
     foresight=True is CLAIRVOYANT and not implementable: it looks at the expiry
     price before deciding to buy, and skips any block where the structure would
@@ -244,6 +258,14 @@ def simulate(spot, vix, hedge_ratio, moneyness, tenor, skew_slope=0.0,
                 put_value -= float(
                     black_scholes_put(prices[t], short_strike, remaining, short_mark_vol)
                 )
+            # E0. mark_hedge=False switches the ACCOUNTING, not the position:
+            # the hedge is recognised only when it becomes a cash flow, which is
+            # at expiry. t == block_end is that moment and `remaining` is zero
+            # there, so put_value is already the intrinsic payoff and must stay.
+            # Both curves therefore coincide at every roll boundary and differ
+            # only in a block's interior -- see docs/STUB-E0-M3-DECOMPOSITION.
+            if not mark_hedge and t < block_end:
+                put_value = 0.0
             equity[t] = shares * prices[t] + contracts * put_value
 
         payoff_received += contracts * expiry_payoff

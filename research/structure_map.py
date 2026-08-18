@@ -29,7 +29,11 @@ Three further conditions on every row, none of them swept here:
   - ROLL PHASE. Blocks walk a fixed grid from index 0; at 52w that is 33
     decisions in 33 years. E1 sweeps it.
   - M3. Ranking is on MARKED wealth including the put's mark, under no
-    monetisation rule. E0 decomposes it.
+    monetisation rule. E0 RAN 2026-08-18 AND THIS IS NOW A MEASUREMENT: 82%
+    of the 52w reduction on the full sample is mark, not cash. In cash the
+    row below is FLAT from 26w to 52w (+3.2, +3.0) and NEGATIVE at 4w/13w.
+    E10's ordering survives in sign; its magnitude does not. Every number in
+    this file is a MARKED number -- ../docs/STUB-E0-M3-DECOMPOSITION.md.
   - M2. Cost rests on skewed_vol's sqrt(4/tenor), an assumption favouring the
     conclusion, and on a tenor-flat offer spread. Neither is verifiable on this
     sample.

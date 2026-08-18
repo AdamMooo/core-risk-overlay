@@ -4,7 +4,7 @@ type: project
 
 # Core-Risk-Overlay
 
-Last updated: 2026-08-14
+Last updated: 2026-08-18
 
 Tail-risk hedge overlay for a permanently long global equity book. **Problem statement, and the gate
 on what is worth building: [[docs/PROBLEM-MAP]] — read it first.** Mandate in [[README]]. Protocol in
@@ -12,8 +12,16 @@ on what is worth building: [[docs/PROBLEM-MAP]] — read it first.** Mandate in 
 [[docs/POINT-IN-TIME-DISCIPLINE]]. **Width/direction separation, binding, in
 [[closed-research/docs/TRANSLATION-LAYER]].**
 
-## Status - 2026-08-17
+## Status - 2026-08-18
 
+
+> **E0 RAN 2026-08-18 AND IT IS THE LARGEST CORRECTION IN THE REPO.** The measured drawdown
+> reduction is **mostly an unrealised mark**: 82% of the 52-week figure on the full sample, 85% on
+> 2003-. **+16.8pp and +19.9pp both become +3.0pp in cash**, the cash reduction is flat from 26w to
+> 52w, and at 4w/13w it is *negative* -- the program deepens the worst drawdown. In the well-sampled
+> `CDaR_alpha` coordinate the full-sample cash reduction at 52w is zero to slightly negative at every
+> alpha. E10's tenor ordering survives in **sign** and not in **magnitude**. Section below;
+> preregistration and full result in [[docs/STUB-E0-M3-DECOMPOSITION]].
 > **PROGRAM TRANSITION 2026-08-17. The prediction/regime program is CLOSED.** It is preserved,
 > self-contained and reproducible, at [[closed-research/README]] -- completed research, not obsolete
 > code, and not an active branch. The active program is **drawdown intervention design**: [[CHARTER]],
@@ -714,6 +722,111 @@ what a signal is *for* that this repo has derived from the decision rather than 
 at the next roll; never sized deliberately), the honest competitors (trend sleeve, long duration),
 and the 26w/52w clairvoyant columns, which do not exist.
 
+## E0 — THE DRAWDOWN REDUCTION IS MOSTLY A MARK (2026-08-18)
+
+**Claim tuple: weekly marks · full holding period · the drawdown process D(t) and its functionals
+(CDaR_alpha curve, per-excursion depths, time under water; max drawdown as a labelled diagnostic) ·
+SPY 1993-2026 and 2003-2026, one path · ALWAYS-ON h=1.00, no signal, roll phase 0.**
+Preregistered in [[docs/STUB-E0-M3-DECOMPOSITION]], committed before the code existed.
+Run: `.venv\Scripts\python.exe research/m3_decomposition.py SPY`.
+
+**The experiment is one accounting difference**, and that is the whole design. Same path, same
+parameters, same contracts, same cash flows; the only change is *when the hedge is recognised as
+wealth*. `W_marked` carries the put's model value continuously — which is what every drawdown number
+in this repo has always been computed from. `W_cash` carries it only when it becomes a cash flow, at
+expiry, which is the only moment `simulate` has ever actually transacted it.
+
+**The precondition held exactly.** The two curves agree to `0.00e+00` at every roll boundary, at the
+terminal date, and on premium and payoff, at all four tenors. Not "close" — zero. So the difference
+is entirely interior, CAGR is untouched, and the result is a decomposition rather than a comparison
+of two programs.
+
+**H3 is REJECTED**, in fifteen of the sixteen cells where the ratio is reportable, in both samples and
+at all three strikes. Drawdown bought, 10% OTM:
+
+| sample | | 4w | 13w | 26w | 52w |
+|---|---|---|---|---|---|
+| 1993- | marked | −1.1 | +1.1 | +10.8 | **+16.8** |
+| 1993- | **cash** | **−4.7** | **−4.8** | **+3.2** | **+3.0** |
+| 2003- | marked | +5.1 | +5.7 | +17.8 | **+19.9** |
+| 2003- | **cash** | +1.1 | −0.9 | **+4.4** | **+3.0** |
+
+> **+16.8pp becomes +3.0pp. +19.9pp becomes +3.0pp. The best cell in the repo, +24.3pp, has never
+> been quoted in cash at all.**
+
+**What this does to E10, the largest measured effect in the repo.** The *sign* of the tenor ordering
+survives — long tenor beats short, which is M1, strike anchoring, and it is arithmetic about where the
+strike sits rather than anything about pricing. Everything else about the row changes. The cash
+reduction is **flat from 26w to 52w**, it is *larger at 26w* on the 2003- sample, and at 4w and 13w it
+is **negative on the full sample**: the program makes the worst drawdown about 5pp deeper than never
+hedging, because premium is paid continuously and the payoff lands after the trough. The monotone
+climb across the marked row is a mark that grows with the length of the block interior — 51
+unrecognised weeks at 52w against three at 4w. **Read the marked row as the ordering and the cash row
+as the size.**
+
+**In the well-sampled coordinate the cash reduction is approximately zero.** CDaR_alpha, full sample,
+52w: cash reduction is −0.5 / +0.0 / −0.2 / −0.6 / −1.0 / −0.8 across alpha 0.01 → 1.00, against a
+marked +10.0 → +1.0. The 2003- subsample does show a real cash benefit concentrated at the extreme
+end (+0.6 / +3.5 / +2.9 at alpha 0.01 / 0.05 / 0.10), and 26w is stronger there than 52w. This is
+exactly the job CDaR was built for: the marked effect decays smoothly in alpha, the signature of a
+statistic resting on the deepest part of one episode, and the cash effect has almost nothing to decay
+from.
+
+**The mark erases excursions the investor still lives through.** Full sample, excursions deeper than
+10%: naked 9, 52w marked **6**, 52w cash **9** — the same nine the unhedged book has. Time under water
+at 10%: naked 31.7%, 52w marked 29.1%, 52w cash **34.1%**. **In cash, the hedged book spends more time
+under water than if it had never hedged**, because premium drag is continuous and the offset is not.
+"Smooth the ride" is one of the mandate's three stated goals, and on this path, at this phase,
+measured in cash, the 52-week program did the opposite of it.
+
+**What it does NOT establish, and this matters as much as the rest.** Not that the marked number is
+wrong — cash accounting is not the truth either, since a real investor can sell mid-life. The
+realizable path under any stated rule lies *between* the two curves. What E0 establishes is that
+**the accounting interval is wider than the effect inside it** — 13.9pp of gap within a 16.8pp claim —
+so no point in it can be quoted. And it adds **no observation**: one path, one crisis, one unswept
+roll phase, effective n = 1 on the benefit side still. The 82% is an accounting fact about this path,
+not an effect size.
+
+**Consequences, booked the same day.** E6 (`specify rho, measure kappa`) is reclassified from queued
+experiment to **precondition** — no drawdown magnitude in this repository is interpretable until it
+runs. E1 (roll-phase sweep) is **promoted**, because how much of a crisis falls inside a block
+interior is exactly what phase sets, and that is what the size of the mark depends on. And no number
+here may be quoted as a drawdown reduction without naming its accounting.
+
+**One process note, recorded against myself.** The stub declared a denominator floor for `gap_share`
+because the denominator was known to approach zero, and then predicted the *ratio* at precisely the
+tenors where that floor binds. The floor did its job — those cells print INDETERMINATE instead of
+531% — but the prediction should have been stated in pp of gap. F7, twice in one document, in
+opposite directions.
+
+**And a second, larger one: the literature gate was skipped.** [[docs/literature/README]] lists
+Israelov (2017), *Pathetic Protection*, as **blocking on E0**, and yesterday's carry-over note said
+so in as many words. E0 ran first; the paper was read afterwards, on the same day. The verdict is
+mixed and worth having in full:
+
+- **E0's design survives.** The paper never distinguishes marked from realized value — zero
+  occurrences of *mark-to-market*, *unrealised* or *monetise* in the text, and every drawdown it
+  reports is computed on a marked NAV. **The decomposition is not in the literature.** Honouring
+  the gate would have changed nothing about the run.
+- **But E10 was a rediscovery.** The paper sweeps 20 / 63 / 250 business-day maturities — our 4w /
+  13w / 52w — and concludes that *"longer-dated options do a less bad job of protecting a portfolio
+  against long-term drawdowns than shorter-dated options. Less bad, but not good."* That is E10's
+  ordering and, in cash, roughly E0's magnitude, in a paper sitting `[UNREAD]` as **row 1** of the
+  reading list while both were derived from scratch. Second §0-rule-3 failure in this repo's
+  history; the first was Timmermann's Proposition 5, also row 2 of a list at the time.
+- **E1 is respecified by it.** The paper's central mechanism is expiration-cycle misalignment:
+  *"equity drawdowns have lives of their own that may not conveniently coincide with option
+  expiration cycles."* That phase matters is therefore **citable, not testable**, and a run showing
+  it carries no information. E1 now measures the quantity the paper does not supply — the **phase
+  spread relative to the effect**, which is what H2 actually turns on.
+- **Its remedy is inadmissible here, and that is the load-bearing difference.** The paper's
+  comparison alternative throughout is static divestment — 36.5% equity, 63.5% cash, matched to
+  PPUT's realized return. [[CHARTER]] §2's C2 excludes exactly that. **Its verdict does not bind
+  this mandate; its mechanisms bind it completely.** The permanent-long constraint is what makes
+  the paper's recommendation unavailable and its evidence entirely relevant — which is the worst
+  possible combination to have skipped.
+
+
 ## Next
 
 **There is no queue in this file.** [[CHARTER]] §9 is the single experiment queue, and two documents
@@ -730,8 +843,10 @@ caveat that attaches to the structure-map entry and to every number derived from
 > **The benefit side has effective n = 1.** `summarize` returns `max_drawdown` as a single `.min()`,
 > and on both reported samples that statistic is set by the same episode (Oct 2007 - Mar 2009). The
 > **orderings** are probably robust; the **magnitudes** are one draw at one unswept roll phase and are
-> not identified. [[CHARTER]] E1 and E2 test exactly this, and E0 tests whether the reduction is cash
-> or a mark at all.
+> not identified. [[CHARTER]] E1 and E2 test exactly this. **E0 has now run (2026-08-18) and the
+> answer is that the reduction is mostly a mark** — 82% of it at 52w on the full sample — which makes
+> the caveat above stronger, not weaker: the magnitudes are one draw at one phase *and* they are
+> quoted in an accounting the investor cannot bank.
 
 The four "actual next actions" previously listed here — fit the real skew surface, extend the
 clairvoyant grid, decide the objective, specify recycling — were written on 2026-08-15 under the

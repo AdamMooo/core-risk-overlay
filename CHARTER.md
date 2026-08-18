@@ -108,7 +108,7 @@ important lesson carried out of the closed program.
 |---|---|---|---|
 | **H1** | Strike anchoring (M1) dominates re-striking for a multi-month drawdown at equal premium budget | ordering flips in >= 1/3 of episodes | **price paths only.** No option data |
 | **H2** | The tenor ordering survives on `CDaR_alpha` and per-excursion depths, and the phase spread is small relative to the effect | sign flips across excursions, or phase spread > effect | free |
-| **H3** | M3 is not the dominant source of the measured drawdown reduction | marked-versus-cash gap exceeds half the measured reduction | free |
+| **H3** | ~~M3 is not the dominant source of the measured drawdown reduction~~ **REJECTED 2026-08-18 (E0)** — the gap is 82% (1993–) and 85% (2003–) of the 52w reduction, and exceeds the reduction entirely at 13w | marked-versus-cash gap exceeds half the measured reduction | free |
 | **H4** | Timing value at 26w and 52w does not exceed the 4w/13w EVPI ceiling | it materially exceeds it — in which case the branch is *undecidable* at n=33, not open | one line |
 | **H5** | The long-tenor cost advantage is not an artifact of `sqrt(4/tenor)` or a tenor-flat spread | a plausibly steeper long-tenor skew reverses the cost ordering. **Asymmetric: rejection clean, confirmation impossible** | archived chains |
 | **H6** | The measured reduction is realizable under a stated `rho`, not only marked | `kappa` under the rule is less than half the marked reduction | a policy |
@@ -181,15 +181,19 @@ Extends the closed program's five-field stub, which is the best process asset it
 
 **One queue. No parallel programs. Each experiment must be capable of killing the next.**
 
+**E0 closed 2026-08-18 and it killed a magnitude rather than an experiment** — which is what §9 was
+built to allow. The queue order is unchanged; what changed is that E6 now gates the interpretation
+of every row above it, and E1 inherited E0's urgency.
+
 | | experiment | why here |
 |---|---|---|
-| **E0** | **M3 decomposition** — same simulation, same parameters, same path, one accounting difference: marked wealth versus cash/expiry-realized wealth | **FIRST.** Until it runs, nobody knows whether +24.3pp is drawdown the investor can spend or a mark on an option that is never sold. Do not optimize, do not build the frontier, do not add pricing |
-| **E1** | Roll-phase sweep, offsets 1..tau-1 | free, no distributional assumption, attacks n=1 in its most acute form |
+| **E0** | ~~M3 decomposition~~ **RAN 2026-08-18. H3 REJECTED.** 82% of the 52w reduction is mark; +16.8pp becomes +3.0pp in cash; the cash reduction is flat from 26w to 52w and negative at 4w/13w. [[docs/STUB-E0-M3-DECOMPOSITION]] | It ran first, and it was right to. Every magnitude in the repo now carries an accounting label, and E6 stopped being optional |
+| **E1** | Roll-phase sweep, offsets 1..tau-1 — **NEXT, promoted by E0 and RESPECIFIED by Israelov (2017).** That misalignment with the expiration cycle degrades protection is now *cited*, so demonstrating it carries no information (§8 field 2). E1 measures what the paper does not give: the **phase spread relative to the effect**, a `Psi` coordinate, which is what H2 turns on | free, no distributional assumption, attacks n=1 in its most acute form |
 | **E2** | Per-excursion depths and the `CDaR_alpha` curve | free; the sample-size problem becomes an output |
 | **E3** | Clairvoyant bound at 26w and 52w (`TENOR_WEEKS`) | one line; closes or renders undecidable the old program's last open corner |
 | **E4** | M1 payoff-only anchoring test, S&P 1927+ and cross-market | the only real escape from one episode; needs no option data |
 | **E5** | Surface shape as a bounded sensitivity, rejection only | procurement, firewalled from any forecasting use |
-| **E6** | Specify `rho`, then measure `kappa` | the mandate's value story, never once implemented |
+| **E6** | Specify `rho`, then measure `kappa` — **reclassified by E0 from queued experiment to PRECONDITION.** The marked-versus-cash interval is wider than the effect inside it, so no drawdown magnitude is interpretable until a rule is stated | the mandate's value story, never once implemented |
 | **E7** | Additive sleeve at matched outlay | the instrument comparison never run |
 
 **Block bootstrap is explicitly demoted.** With block length far below crisis length it shatters the

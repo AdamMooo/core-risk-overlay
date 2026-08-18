@@ -1,7 +1,7 @@
 """Regression checks for active infrastructure.
 
-Covers src/data_loader.py -- the only module shared by the active
-intervention-design program. The prediction program's checks live in
+Covers src/data_loader.py, research/pathfunctionals.py, and the accounting
+invariant of research/hedge_economics.py:simulate on which E0's verdict rests. The prediction program's checks live in
 closed-research/checks.py and are frozen there.
 
 Plain-script smoke test (no pytest). Synthetic data, no network, deterministic.
@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 
 import data_loader as dl
+import hedge_economics as he
 import pathfunctionals as pf
 
 FAILURES: list[str] = []
@@ -143,6 +144,59 @@ def check_pathfunctionals() -> None:
           np.isclose(pf.time_under_water(wealth, 0.20), 2 / 8))
 
 
+def check_mark_hedge_accounting() -> None:
+    """The E0 invariant: mark_hedge switches the ACCOUNTING, not the position.
+
+    Everything E0 concludes rests on this. If the switch also moved contracts,
+    premium or expiry payoff, the marked-versus-cash gap would be a difference
+    between two programs rather than two views of one, and the decomposition
+    would be a comparison instead.
+    """
+    # A path that falls hard mid-block, so the put is deep in the money between
+    # roll dates -- exactly where the two accountings are meant to diverge.
+    index = pd.date_range("2024-01-05", periods=41, freq="W-FRI")
+    shock = np.concatenate([np.full(12, 0.004), np.full(10, -0.045), np.full(18, 0.010)])
+    spot = pd.Series(100.0 * np.exp(np.concatenate([[0.0], shock.cumsum()])), index=index)
+    vix = pd.Series(0.20, index=index)
+    tenor = 8
+
+    marked, prem_m, pay_m = he.simulate(spot, vix, 1.0, 0.10, tenor, 0.6, 0.05)
+    cash, prem_c, pay_c = he.simulate(
+        spot, vix, 1.0, 0.10, tenor, 0.6, 0.05, mark_hedge=False
+    )
+
+    bounds = list(range(0, len(spot) - 1, tenor)) + [len(spot) - 1]
+    check(
+        "hedge_economics: the two accountings agree at every roll boundary",
+        bool(np.allclose(marked.to_numpy()[bounds], cash.to_numpy()[bounds], atol=1e-12)),
+    )
+    check(
+        "hedge_economics: cash accounting leaves terminal wealth untouched",
+        np.isclose(marked.iloc[-1], cash.iloc[-1], atol=1e-12),
+    )
+    check(
+        "hedge_economics: cash accounting transacts identical premium and payoff",
+        np.isclose(prem_m, prem_c, atol=1e-12) and np.isclose(pay_m, pay_c, atol=1e-12),
+    )
+    # A switch that silently did nothing would pass every check above.
+    check(
+        "hedge_economics: the two accountings DO differ inside a block",
+        float((marked - cash).abs().max()) > 1e-6,
+    )
+    check(
+        "hedge_economics: a mark is never negative, so cash never exceeds marked",
+        bool((cash <= marked + 1e-12).all()),
+    )
+    unhedged_marked, _, _ = he.simulate(spot, vix, 0.0, 0.10, tenor, 0.6, 0.05)
+    unhedged_cash, _, _ = he.simulate(
+        spot, vix, 0.0, 0.10, tenor, 0.6, 0.05, mark_hedge=False
+    )
+    check(
+        "hedge_economics: with no hedge the two accountings coincide everywhere",
+        bool(np.allclose(unhedged_marked, unhedged_cash, atol=1e-12)),
+    )
+
+
 def _raises(call) -> bool:
     try:
         call()
@@ -155,6 +209,7 @@ def main() -> None:
     check_data_loader()
     check_vix_alignment()
     check_pathfunctionals()
+    check_mark_hedge_accounting()
 
     print()
     if FAILURES:
