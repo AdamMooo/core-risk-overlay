@@ -2,8 +2,8 @@ r"""Regression checks for active infrastructure.
 
 Covers src/data_loader.py and src/pathfunctionals.py -- the two modules the
 return-state program inherits -- and verifies the data cache against
-data/MANIFEST.md -- plus S0's arithmetic, which is the only new arithmetic in
-the return-state program. The closed programs' checks are frozen with the
+data/MANIFEST.md -- plus the arithmetic of S0 and S0b, which is the only new
+arithmetic in the return-state program. The closed programs' checks are frozen with the
 code they guard: closed-research/checks.py (prediction) and
 closed-research/intervention/checks.py (rolled-put / tenor).
 
@@ -27,6 +27,7 @@ import data_loader as dl
 import manifest as mf
 import pathfunctionals as pf
 import s0_discriminating_functional as s0
+import s0b_discreteness_gate as s0b
 
 FAILURES: list[str] = []
 
@@ -312,6 +313,98 @@ def check_s0_functionals() -> None:
           float(s0.t1_squared_acf(rg, 1).mean()) > 0.10)
 
 
+def check_s0b_matching() -> None:
+    """S0b's third constraint, which is where THIS gate can be quietly ruined.
+
+    S0's matching was exact on its two constraints and the failure was that it
+    matched the wrong things (R1). S0b solves (M3) through a kurtosis
+    parameter, so an error in the fourth-moment algebra would silently leave
+    Var(sigma^2) unmatched and reproduce S0's defect exactly.
+    """
+    # (M3) reduces to S0's Gaussian expression at k = 3. If it does not, the
+    # generalisation is wrong and every matched cell is wrong with it.
+    for alpha, beta in [(0.08, 0.90), (0.05, 0.94), (0.11, 0.84)]:
+        psi = alpha + beta
+        check(
+            f"s0b: the fourth-moment formula reduces to the Gaussian case at k=3 "
+            f"(alpha={alpha})",
+            np.isclose(s0b.garch_t_fourth_moment(alpha, beta, 3.0),
+                       s0.garch_kurtosis(alpha, psi) / 3.0),
+        )
+
+    for kappa in s0b.KAPPAS:
+        for pi2 in s0b.PI2S:
+            for lam in s0b.LAMBDAS:
+                m = s0b.match_garch_t(kappa, pi2, lam)
+                label = f"kappa={kappa} pi2={pi2} lambda={lam}"
+                check(f"s0b: a matched GARCH-t exists at {label}", m is not None)
+                if m is None:
+                    continue
+                # (M3): the whole point of the gate.
+                check(f"s0b: (M3) Var(sigma^2) matched to 1e-10 at {label}",
+                      abs(m["m_alt"] - m["m_null"]) < 1e-10)
+                # (M2): unchanged from S0, and the claim that rho(1) does not
+                # depend on the innovation kurtosis is checked, not assumed.
+                base = s0.match_garch(s0.switching_moments(kappa, pi2, lam)["rho1"], lam)
+                check(f"s0b: (M2) alpha and beta are S0's, unchanged, at {label}",
+                      np.isclose(m["alpha"], base["alpha"])
+                      and np.isclose(m["beta"], base["beta"]))
+                check(f"s0b: (M1)+(M2) persistence equals the chain eigenvalue at {label}",
+                      np.isclose(m["alpha"] + m["beta"], lam))
+                check(f"s0b: the innovation law is a genuine t with a fourth moment at {label}",
+                      m["k"] > 3.0 and m["nu"] > 4.0)
+                check(f"s0b: the null's fourth moment exists at {label}",
+                      m["alpha"] ** 2 * m["k"] + 2 * m["alpha"] * m["beta"]
+                      + m["beta"] ** 2 < 1.0)
+                # The declared trade: return kurtosis is unmatched, and UPWARD.
+                check(f"s0b: return kurtosis is unmatched in the declared direction at {label}",
+                      m["kurt_null"] > m["kurt_alt"])
+
+
+def check_s0b_functionals() -> None:
+    """The shape functionals, against cases whose answers are known exactly."""
+    rng = np.random.default_rng(90210)
+
+    # Sarle's bimodality coefficient has known values: 1/3 for a normal,
+    # 5/9 for a uniform. Both are exact, which is why they are the test.
+    normal = rng.standard_normal((1, 400000))
+    uniform = rng.random((1, 400000))
+    for label, sample, target in [("normal", normal, 1 / 3), ("uniform", uniform, 5 / 9)]:
+        skew, excess = s0b._standardised_moments(sample)
+        bc = float(((skew ** 2 + 1.0) / (excess + 3.0))[0])
+        check(f"s0b: Sarle's coefficient recovers its known value on a {label} sample",
+              abs(bc - target) < 0.01)
+
+    skew, excess = s0b._standardised_moments(normal)
+    check("s0b: skewness of a normal sample is ~0", abs(float(skew[0])) < 0.02)
+    check("s0b: excess kurtosis of a normal sample is ~0", abs(float(excess[0])) < 0.05)
+
+    # A balanced two-point mixture is PLATYKURTIC -- excess kurtosis -2 in the
+    # limit. This is the property T5 exists to detect, so it is tested directly
+    # rather than trusted.
+    two_point = np.where(rng.random((1, 200000)) < 0.5, -1.0, 1.0)
+    _, excess_2pt = s0b._standardised_moments(two_point)
+    check("s0b: a two-point mixture is platykurtic, which is what T5 detects",
+          float(excess_2pt[0]) < -1.9)
+
+    # Shape functionals read log RV, so a change of scale shifts log RV by a
+    # constant and must leave every one of them untouched.
+    r = rng.standard_normal((40, 4000)) * s0b.DAILY_SD
+    for name, fn in s0b.SHAPE_FUNCTIONALS.items():
+        check(f"s0b: {name} is scale-invariant",
+              np.allclose(fn(r, 21), fn(r * 7.3, 21)))
+
+    # The simulator: the two moments the matching claims to control.
+    m = s0b.match_garch_t(6.5, 0.30, 0.98)
+    rn = s0b.simulate_garch_t(m, 30, 6000, rng)
+    check("s0b: simulated GARCH-t returns have the declared unconditional variance",
+          abs(float(rn.var()) / s0b.DAILY_SD ** 2 - 1.0) < 0.20)
+    check("s0b: simulated GARCH-t returns cluster at the matched rho(1)",
+          abs(float(s0.t1_squared_acf(rn, 1).mean()) - m["rho1"]) < 0.06)
+    check("s0b: the simulated innovation law is fat-tailed, as the matching requires",
+          m["nu"] < 30.0)
+
+
 def main() -> None:
     check_manifest()
     check_data_loader()
@@ -319,6 +412,8 @@ def main() -> None:
     check_pathfunctionals()
     check_s0_matching()
     check_s0_functionals()
+    check_s0b_matching()
+    check_s0b_functionals()
 
     print()
     if FAILURES:
