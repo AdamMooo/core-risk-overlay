@@ -1,5 +1,12 @@
 # Q1 decision note — what claim is supported, and whether Q1 is licensed
 
+> **CLOSED PROGRAMME — PRESERVED AS EVIDENCE.** The return-state programme terminated 2026-08-19 as
+> INDETERMINATE ([[CHARTER]] §11). This document is kept intact because the reasoning is the asset;
+> nothing in it is a live instruction, and no experiment it describes is queued. **The code moved to
+> `closed-research/return-states/`** — path references inside the results sections below record where
+> it was when it ran. Full record: [[closed-research/return-states/README]].
+
+
 Written 2026-08-19, **before Q1 is designed**, at the claim level rather than the design level.
 Companion to [[docs/IDENTIFICATION-UNDER-N1]], which established that Davies' problem does not apply
 and that the *alternative* is what goes unidentified.

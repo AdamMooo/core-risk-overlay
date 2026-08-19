@@ -1,19 +1,21 @@
 # CLOSED RESEARCH
 
-**This directory holds TWO closed programs, both preserved for provenance and replication. Neither
-is an active research branch and neither receives new experiments.**
+**This directory holds THREE closed programmes, all preserved for provenance and replication. None is
+an active research branch and none receives new experiments. There is no active programme in this
+repository at all.**
 
 | | program | closed | where |
 |---|---|---|---|
 | 1 | **prediction / regime** — can a public-data latent-state signal say *when* to change a standing overlay? | 2026-08-17 | this directory |
 | 2 | **rolled-put / tenor intervention** — which features of drawdown geometry are purchasable, identified, and at what cost? | 2026-08-18 | `intervention/`, with its own README, charter and preregistrations |
+| 3 | **return states** — do distinguishable return-distribution states exist? | 2026-08-19 | `return-states/`, terminated as INDETERMINATE having never touched market data |
 
 **They closed each other.** Programme 2's last surviving structural claim (E4's strike anchoring)
 turned out to be conditional on whether a decline grinds or V-bottoms — a quantity knowable only by
 the forecast programme 1 had already closed.
 
-The active program is the **return-state** charter at `../CHARTER.md`. It shares no code with either
-of these.
+Programme 3's charter is at `../CHARTER.md` and is **terminated** — see its section 11. The three
+share no code with each other.
 
 Everything below describes programme 1.
 

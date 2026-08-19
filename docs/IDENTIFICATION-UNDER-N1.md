@@ -1,5 +1,12 @@
 # Identification under N1 — what is unidentified, and whether Q1's test is valid
 
+> **CLOSED PROGRAMME — PRESERVED AS EVIDENCE.** The return-state programme terminated 2026-08-19 as
+> INDETERMINATE ([[CHARTER]] §11). This document is kept intact because the reasoning is the asset;
+> nothing in it is a live instruction, and no experiment it describes is queued. **The code moved to
+> `closed-research/return-states/`** — path references inside the results sections below record where
+> it was when it ran. Full record: [[closed-research/return-states/README]].
+
+
 Written 2026-08-18, **before Q1 is designed**, as the gate item standing between S0's result and Q1's
 stub. Companion to [[CHARTER]] §2 (the null) and [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] (which
 named the literature but did not work through it).

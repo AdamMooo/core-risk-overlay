@@ -1,6 +1,12 @@
-# Charter — Return States
+# Charter — Return States  ·  TERMINATED
 
-Adopted 2026-08-18. **This is the only active research program in this repository.**
+Adopted 2026-08-18. **TERMINATED 2026-08-19 as INDETERMINATE — see §11.**
+
+> **THIS CHARTER NO LONGER GOVERNS ANYTHING, AND THERE IS NO ACTIVE RESEARCH PROGRAMME IN THIS
+> REPOSITORY.** The programme ran two synthetic identification gates, never touched market data, and
+> stopped at a structural obstruction. Code and results are preserved at
+> [[closed-research/return-states/README]]. The document is kept intact because the *reasoning* is the
+> asset; nothing in it is a live instruction.
 
 Two programs are closed and preserved, reproducible, in `closed-research/`: the prediction/regime
 program ([[closed-research/README]], closed 2026-08-17) and the rolled-put / tenor intervention
@@ -471,6 +477,55 @@ labelled uninterpretable, including the one pattern that looks like what a genui
 predicted to look like: `T7` at B=63 is the only column satisfying the `lambda`-direction prediction
 cleanly (5 rises, 0 falls) while also strengthening with aggregation in the majority of cells. **It is
 recorded so it is neither lost nor promoted.**
+
+## 11. TERMINATION — 2026-08-19
+
+**S0b returned VOID. The programme terminates as INDETERMINATE under §6, and no repair is
+authorised.** The scope condition in [[docs/STUB-S0B-DISCRETENESS-GATE]]'s header and in §9.4 named
+S0b the final synthetic gate before it ran, and it is honoured.
+
+**The record, stated as the sequence of claims rather than as a narrative:**
+
+1. **S0 established that T3's original separation was reducible to variance-process dispersion**
+   (**R1**). Matching the unconditional variance and the whole squared-return ACF leaves
+   `Var(sigma^2) = K/3 - 1` free, and T3 measures exactly that.
+2. **S0b attempted to match that dispersion**, through a four-parameter GARCH-t null. All 18 cells
+   feasible; all three constraints exact to `3.4e-14`.
+3. **Doing so through innovation kurtosis contaminated the realized-variance observation mechanism.**
+   `RV_B = SUM sigma2_t z2_t` depends on both the latent `sigma^2` distribution and the distribution
+   of `z^2`, and `E[z^4]` was the instrument. The mechanism that removed the latent dispersion
+   difference simultaneously changed the observation noise. The control registered it: `d' = 7.42`
+   against a threshold of 2, largest exactly where the instrument bites hardest.
+4. **Therefore the remaining functionals cannot be interpreted as tests of discreteness under the
+   committed design** (**R2**). The T3 failure is not evidence that the models differ in dispersion
+   after matching; it is evidence that **the proposed observable cannot cleanly isolate the latent
+   shape dimension.**
+5. **No market data was touched.** Not by S0, not by S0b, not at any point in the programme's life.
+6. **No S0c is authorised.** The natural repair — a stochastic-volatility null whose dispersion is a
+   parameter of the variance process rather than of the innovation law — is a **new identification
+   programme, not a repair to a committed experiment**, and it is parked as such in [[PARKED]].
+7. **No Q1 is licensed**, and none ever was (§9.3).
+
+**What survives as knowledge**, and it is not nothing:
+
+- **R1**, with its three methodological consequences: matching two moments of a variance process does
+  not isolate its shape; a void rule built from a second statistic of the same quantity is not a
+  control; and the functional that survives a synthetic gate is not thereby the functional the
+  programme wants.
+- **R2**, the obstruction itself — a statement about what a single daily history can support.
+- **Two eliminations that stand independently of both**: aggregate kurtosis sits below its own
+  mismatch floor everywhere, and **path geometry cannot carry a state-existence claim** — `d' = 0.15`,
+  6.1 excursions per simulated 33-year history, measured where the states exist by construction.
+- **The `T7` pattern is NOT among these.** It is preserved as observed and uninterpretable at
+  [[closed-research/return-states/README]] and is not evidence.
+
+**What this cost:** two synthetic experiments, no market data, no model fitted to anything real, and
+no strategy built on an unidentified claim. **[[docs/RESEARCH-PROTOCOL]] §2's preregistered third
+outcome — *indeterminate, cannot be settled on the available history* — was accepted in advance
+precisely so that it could be used here.**
+
+**A fourth programme would require a new charter**, a new question, its own admissible space and its
+own gate. Not an amendment to this one.
 
 ## 10. Scope discipline
 

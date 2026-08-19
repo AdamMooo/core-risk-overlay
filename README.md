@@ -2,15 +2,14 @@
 
 Last updated: 2026-08-18
 
-**The repository name is historical.** It names a program that no longer runs. What is active here is
-a research program on **return states**.
+> # THERE IS NO ACTIVE RESEARCH PROGRAMME IN THIS REPOSITORY.
+>
+> Three programmes have run and all three are closed. The repository is a preserved, reproducible
+> record of what each established and why each stopped. **A fourth would require a new charter.**
 
-> **We are not trying to win the pricing game. We are trying to determine whether the return
-> distribution itself enters distinguishable states, how those states transition, and whether the
-> change in distribution is real, persistent, and identifiable.**
+**The repository name is historical**, as is everything else here that reads like an instruction.
 
-- **The active program — object, null, boundary, gate, stopping rules, queue:** [[CHARTER]]
-  (**read first**)
+- **The last programme's charter, and its termination record:** [[CHARTER]] §11 (**read first**)
 - **Process — the gate every experiment passes:** [[docs/RESEARCH-PROTOCOL]]
 - **Time basis and leak register:** [[docs/POINT-IN-TIME-DISCIPLINE]] · **Mathematics:**
   [[docs/MATH-REFERENCE]]
@@ -24,20 +23,37 @@ a research program on **return states**.
 
 ---
 
-## 1. The question
+## 1. The three programmes, and how each ended
 
-> **Are there empirically distinguishable states in which the distribution of future equity returns
-> is sufficiently different from the ordinary state that the statistical character of the risk one is
-> holding has materially changed?**
+| | programme | closed | how it ended |
+|---|---|---|---|
+| 1 | **prediction / regime** — can a public-data latent-state signal say *when* to change a standing overlay? | 2026-08-17 | the measurement was **nested inside VIX** on levels and dynamics, with power demonstrated; and a clairvoyant bound capped any timing rule near +3pp/yr where it was measured |
+| 2 | **rolled-put / tenor intervention** — which features of drawdown geometry are purchasable, identified, and at what cost? | 2026-08-18 | 82–85% of the measured reduction was **unrealised mark**; the remainder was smaller than the spread from an arbitrary roll offset; no tenor ordering survived in cash anywhere on the drawdown path; and the last structural claim was **conditional on a forecast programme 1 had closed** |
+| 3 | **return states** — do distinguishable return-distribution states exist? | 2026-08-19 | **INDETERMINATE.** Two synthetic identification gates, **no market data ever touched**. The observable proposed to read variance-distribution *shape* could not be separated from the instrument used to match variance *dispersion* |
 
-The object of study is the conditional law of the forward return path, `F_{s,h} = law of R_{t:t+h}
-given S_t = s`. The program asks whether such states **exist**, what **characterises** them, how they
-**transition**, and whether they are **identified** — in the sample, and in real time.
+**Programmes 1 and 2 closed each other**: the intervention branch's last surviving claim required
+exactly the forecast the prediction branch had ruled out. **Programme 3 stopped before reaching data**
+— which is the cheapest place a programme can stop.
 
-**It terminates there.** What one should do about a state is a different question, belonging to a
-different charter that does not exist. See [[CHARTER]] §3 and §7.
+## 2. What programme 3 was asking, and where it got to
 
-## 2. What this is not
+The object was the conditional law of the forward return path, `F_{s,h} = law of R_{t:t+h} given
+S_t = s`, against a stated null and on a functional declared in advance. It asked four questions in
+order — existence, characterisation, transition, identification — and **terminated inside the first.**
+
+The obstruction, stated once because it is the programme's terminal result:
+
+```
+    RV_B = SUM sigma2_t z2_t
+```
+
+The observed block-variance distribution depends on both the latent variance distribution and the
+innovation distribution. Matching the latent *dispersion* required using `E[z^4]` as the instrument,
+which necessarily changed the observation noise in the same statistic. **The mechanism that removed
+the difference under test also contaminated the measurement of it.** Full record:
+[[closed-research/return-states/README]].
+
+## 3. What this is not
 
 Three things, each considered and rejected explicitly, each with evidence behind the rejection rather
 than a preference.
@@ -63,7 +79,7 @@ tested and are out of scope rather than refuted.
 market's, plus chain depth, execution infrastructure and a market-maker's information set. We have
 none of them and acquiring them is not this project.
 
-## 3. What the two closed programs left behind
+## 4. What the closed programmes left behind
 
 They are evidence and institutional memory, **not a dependency**. Nothing in the active tree imports
 from `closed-research/`, and nothing there imports from the active tree.
@@ -84,7 +100,7 @@ flow, an ordering is not a magnitude, and a bound is not an estimate; effective 
 explicit; phase and path dependence matter; negative results are evidence; **"not identified" is a
 legitimate result**; research boundaries are explicit; archived research stays reproducible.
 
-## 4. Implementation status
+## 5. Implementation status
 
 The active tree is deliberately small. **There is no model, no detector, no engine, and none is
 designed** — [[CHARTER]] §8.
@@ -94,11 +110,11 @@ designed** — [[CHARTER]] §8.
 | `src/data_loader.py` | working — daily and weekly returns, VIX, start-date invariant, explicit calendar |
 | `src/pathfunctionals.py` | working — drawdown process, excursions with censoring, CDaR curve, time under water. Retained because drawdown geometry is a **candidate state characteristic**, not because it was an objective |
 | `src/manifest.py` | working — the data cache's sha256 manifest. `data/` is gitignored and two caches are derived artifacts, so `data/MANIFEST.md` is what makes "the archives reproduce" checkable rather than asserted |
-| `states/s0_discriminating_functional.py` | **S0, ran 2026-08-18.** Which functional, if any, distinguishes a persistent two-state process from a smoothly-reverting one after exact matching. No market data anywhere in it |
-| `states/s0b_discreteness_gate.py` | **S0b, ran 2026-08-19. VOID — the control failed.** The discreteness gate, with the variance process's dispersion matched as well. No market data |
-| `checks.py` | 217 checks, all passing — 182 of them the matching algebra and functionals of S0 and S0b |
+| `closed-research/return-states/` | return-state programme — 140 checks passing, S0b verified to reproduce after the archive move (control `d' = 7.416`) |
+| `checks.py` | 37 checks, all passing — the two retained modules and the data manifest. **The three closed programmes carry their own suites, frozen with the code they guard** |
 | `closed-research/` | prediction program — 81 checks passing, D3 and F2 verified reproducible |
 | `closed-research/intervention/` | rolled-put program — 17 checks passing, E0 verified reproducible after the archive move |
 
-**The queue is stalled on a decision, not on work.** S0b returned VOID and its preregistration has
-no branch for that outcome ([[CHARTER]] §9.5). Q1 remains unlicensed. Nothing else exists.
+**There is no queue.** `src/data_loader.py`, `src/pathfunctionals.py` and `src/manifest.py` are
+retained because they are correct and general, not because anything is planned. **Nothing here is
+waiting to be run.**

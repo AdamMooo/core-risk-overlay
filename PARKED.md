@@ -1,17 +1,15 @@
 # Parked
 
-Last updated: 2026-08-18
+Last updated: 2026-08-19
 
-**Ideas deliberately excluded from the active program, written down rather than built around.**
+**Ideas deliberately excluded, written down rather than built around.**
 
-This file exists so that an interesting thought has somewhere to go that is not the codebase. Under
-[[CHARTER]] §5, an experiment whose `QUESTION` field is empty does not run — it lands here. Under
-§10, this is the only place a non-queued idea may live.
+**There is no active programme.** All three have closed ([[README]]), so **every item here now carries
+the same reopening condition: a new charter.** That means what it says — a new research question with
+its own admissible space and its own gate, argued from the start rather than inherited. Nothing in
+this file is a backlog, a queue, or a plan.
 
-**Parked means parked. This is not a backlog and not a queue.** Nothing moves from here to
-[[CHARTER]] §9 without meeting the nine-field gate. Most items here carry the reopening condition
-**"requires a new charter"**, which means exactly what it says: a new research question with its own
-admissible space and its own gate, not an amendment to this program.
+The file exists so that an interesting thought has somewhere to go that is not the codebase.
 
 ---
 
@@ -85,6 +83,14 @@ the distinction stays visible.
 | **The option surface** | a predictor of realized risk, or a search for mispricing | **nothing in the active program.** Reclassified once already, as procurement (E5); that use closed with the intervention branch. Requires a new charter |
 | **Cross-market data** | a joint information set for a signal | **independent replication samples**, which is what [[CHARTER]] S2 requires. The `^GSPC` 1927+, `^N225`, `^FTSE` and `^GDAXI` series obtained for E4 are retained for exactly this. No signal, no information set, no forecast |
 | **The walk-forward MS pipeline** | a real-time risk estimate to size an overlay | **one candidate representation** of latent state, to be audited against the new question rather than revived. It is archived; if a return-state experiment needs a switching model it is written fresh under [[CHARTER]] §10's last clause |
+
+## 3b. Parked from the return-state programme's termination (2026-08-19)
+
+| item | why parked | what would unpark it |
+|---|---|---|
+| **A stochastic-volatility null.** A lognormal SV process with Gaussian innovations would let variance dispersion be a parameter *of the variance process* rather than of the innovation law, leaving the realized-variance observation noise matched — which is the obstruction R2 names | **It is the natural repair to S0b, and that is exactly why it is not one.** Introducing a new null family *after* seeing the obstruction would violate the final-gate scope condition that was committed before S0b ran. It may well be scientifically interesting | **A NEW CHARTER**, with its own question, its own admissible space and its own gate. It is a new identification programme, not a repair to a committed experiment, and it must be argued as such from the start rather than inherited |
+| **The `T7` pattern** — Sarle's bimodality coefficient at `B = 63` satisfied the preregistered `lambda`-direction prediction cleanly and strengthened with aggregation | the run that produced it was void by its own control, so it is an observed pattern and not evidence | **NOTHING.** It is preserved at [[closed-research/return-states/README]] as observed-and-uninterpretable. It is explicitly not a reason to reopen anything |
+| **Questions (B), (C) and (D)** — characterisation, transition, identification of return states | the programme terminated at (A) and never reached them. They are not refuted; they were never tested | a new charter that first solves the identification problem (A) ran into |
 
 ## 4. Permanently closed — do not park, do not reopen
 

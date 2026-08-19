@@ -1,5 +1,12 @@
 # §5 Stub — S0b, the discreteness gate
 
+> **CLOSED PROGRAMME — PRESERVED AS EVIDENCE.** The return-state programme terminated 2026-08-19 as
+> INDETERMINATE ([[CHARTER]] §11). This document is kept intact because the reasoning is the asset;
+> nothing in it is a live instruction, and no experiment it describes is queued. **The code moved to
+> `closed-research/return-states/`** — path references inside the results sections below record where
+> it was when it ran. Full record: [[closed-research/return-states/README]].
+
+
 Committed 2026-08-19, **before any code**, under [[CHARTER]] §5 and [[docs/RESEARCH-PROTOCOL]] §0.
 Status: preregistration. Results are appended below the results rule in a later commit, and nothing
 above that rule may be edited once they exist.
