@@ -51,7 +51,7 @@ import pandas as pd
 import data_loader as dl
 import pathfunctionals as pf
 
-DATA_DIR = Path(__file__).parent.parent / "data"
+DATA_DIR = Path(__file__).parent.parent.parent / "data"
 
 # Stub §2. Fixed before the run.
 MARKETS = (

@@ -92,7 +92,7 @@ from scipy import stats
 
 import data_loader as dl
 
-ROOT = Path(__file__).parent.parent
+ROOT = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT / "data"
 
 WEEKS_PER_YEAR = 52.0
