@@ -1,6 +1,13 @@
 # §0 Stub — E1, the roll-phase sweep
 
-Committed 2026-08-18, **before any code**, under [[RESEARCH-PROTOCOL]] §0 and [[CHARTER]] §8.
+> **CLOSED BRANCH — PRESERVED AS EVIDENCE, NOT AS A DESIGN.** This preregistration belongs to the
+> rolled-put / tenor intervention program, closed 2026-08-18
+> ([[closed-research/intervention/README]]). It is kept intact because its result is evidence and
+> because a stub edited after the fact is worthless. **Nothing in it is a queued experiment, and its
+> code now lives at `closed-research/intervention/`.** The active program is [[CHARTER]].
+
+
+Committed 2026-08-18, **before any code**, under [[docs/RESEARCH-PROTOCOL]] §0 and [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §8.
 Status: preregistration. Results are appended below in a later commit, and nothing above the results
 rule may be edited once they exist.
 
@@ -98,7 +105,7 @@ only +3.0pp at `p = 0`.
 **Israelov (2017), `[skim]`, is the paper**, and it is why this experiment is respecified rather than
 merely promoted. It establishes the mechanism and does not quantify the spread-to-effect ratio on a
 permanent-long book, which is the only thing E1 measures. Its own remedy — static divestment — is
-inadmissible under [[CHARTER]] §2 C2, so its verdict does not transfer while its mechanism does.
+inadmissible under [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §2 C2, so its verdict does not transfer while its mechanism does.
 
 No other paper settles this. Chekhlov, Uryasev & Zabarankin (2005) remains `[UNREAD]` and gates E2,
 not E1; the single declared alpha here is used as a robustness coordinate, not as an optimisation
@@ -168,7 +175,7 @@ three strands share one sample wall.
 
 ## 8. Verdict rule, fixed in advance
 
-**H2** ([[CHARTER]] §4), phase clause only: *the phase spread is small relative to the effect.*
+**H2** ([[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §4), phase clause only: *the phase spread is small relative to the effect.*
 
 ```
 SURVIVES        R(52w) <= 1/3
@@ -215,7 +222,7 @@ Implementation: `hedge_economics.simulate(..., phase=p)` — the roll grid moves
 Checks: 42 passing, five of them new and specific to the phase mechanic. Run before and after.
 
 **One deviation from the stub's §9 output list, declared here.** Block 4 carries one added column:
-the **year the hedged book's max drawdown is set in**, modal across phases. [[CHARTER]] §2 forbids
+the **year the hedged book's max drawdown is set in**, modal across phases. [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §2 forbids
 reporting a `Phi` row without its `Psi`, and this particular `Psi` turned out to be load-bearing —
 see §10.4. No other block changed and nothing else was computed.
 
@@ -339,11 +346,11 @@ SURVIVES. **The phase sensitivity is real and is not an artifact of episode swit
 
 ## 10.7 Consequences booked
 
-1. [[CHARTER]] §4 — H2's phase clause: **killed in cash, marginal in marks.** The tenor-ordering
+1. [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §4 — H2's phase clause: **killed in cash, marginal in marks.** The tenor-ordering
    clause of H2 survives in marks only.
 2. [[PROBLEM-MAP]] §1.1 — the tenor table carries the phase range and the episode `Psi`; E10's
    magnitude is withdrawn from quotation in both accountings.
-3. [[CHARTER]] §9 — E1 closed. **No experiment is triggered automatically.** E2 and E3 stay where
+3. [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §9 — E1 closed. **No experiment is triggered automatically.** E2 and E3 stay where
    they are, and the decision about what runs next is recorded as open.
 4. One observation belongs to E2 and is parked there rather than pursued here: max drawdown is
    censored from below by the next-deepest episode, which is an argument about the *coordinate* and
@@ -351,7 +358,7 @@ SURVIVES. **The phase sensitivity is real and is not an artifact of episode swit
 
 ## Related
 
-- [[CHARTER]] §4 H2 — the hypothesis · §9 E1 — the queue entry
-- [[STUB-E0-M3-DECOMPOSITION]] — E0, which promoted this and supplied the cash accounting
-- [[RESEARCH-PROTOCOL]] §0 — the gate · [[POINT-IN-TIME-DISCIPLINE]] — the leak register
-- [[literature/README]] — Israelov (2017), and the process failure that respecified this experiment
+- [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §4 H2 — the hypothesis · §9 E1 — the queue entry
+- [[closed-research/intervention/STUB-E0-M3-DECOMPOSITION]] — E0, which promoted this and supplied the cash accounting
+- [[docs/RESEARCH-PROTOCOL]] §0 — the gate · [[POINT-IN-TIME-DISCIPLINE]] — the leak register
+- [[docs/literature/README]] — Israelov (2017), and the process failure that respecified this experiment

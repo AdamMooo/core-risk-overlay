@@ -1,10 +1,21 @@
 # CLOSED RESEARCH
 
-**This directory contains the reproducible historical prediction/regime program. It is preserved
-for provenance and replication. It is not an active research branch and should not receive new
-experiments.**
+**This directory holds TWO closed programs, both preserved for provenance and replication. Neither
+is an active research branch and neither receives new experiments.**
 
-Closed 2026-08-17. The active program is the intervention-design charter at `../CHARTER.md`.
+| | program | closed | where |
+|---|---|---|---|
+| 1 | **prediction / regime** — can a public-data latent-state signal say *when* to change a standing overlay? | 2026-08-17 | this directory |
+| 2 | **rolled-put / tenor intervention** — which features of drawdown geometry are purchasable, identified, and at what cost? | 2026-08-18 | `intervention/`, with its own README, charter and preregistrations |
+
+**They closed each other.** Programme 2's last surviving structural claim (E4's strike anchoring)
+turned out to be conditional on whether a decline grinds or V-bottoms — a quantity knowable only by
+the forecast programme 1 had already closed.
+
+The active program is the **return-state** charter at `../CHARTER.md`. It shares no code with either
+of these.
+
+Everything below describes programme 1.
 
 This is completed research, not obsolete code. Its negative results are part of what motivates the
 program that replaced it, and they are only worth something if they can still be re-run.
@@ -72,4 +83,5 @@ active tree. `trigger_bracket.py` depends on `simulate()`, and the active progra
 alter an archived result. The duplication is the price of provenance and is intentional.
 
 **Nothing in the active tree imports anything from this directory. Nothing here imports from the
-active tree.** Both directions are checked in the transition audit.
+active tree.** Both directions were checked at each transition. `intervention/` follows the same rule
+and holds its own frozen copy of `pathfunctionals.py` for the same reason.

@@ -48,7 +48,7 @@ obligation. Reopening any of them requires a new charter, not an experiment. See
 | `pathfunctionals.py` | frozen copy — see below |
 | `checks.py` | 17 checks: the E0 accounting invariant, E1's roll-phase grid, E4's payoff arithmetic |
 
-Preregistrations and full results: `../../docs/STUB-E0-M3-DECOMPOSITION.md`, `STUB-E1-ROLL-PHASE.md`,
+Preregistrations and full results: `STUB-E0-M3-DECOMPOSITION.md`, `STUB-E1-ROLL-PHASE.md`,
 `STUB-E2-DRAWDOWN-PATH.md`, `STUB-E4-STRIKE-ANCHORING.md`. Evidence base: `../../docs/PROBLEM-MAP.md`.
 
 ## Reproducing

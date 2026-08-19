@@ -1,6 +1,13 @@
 # §0 Stub — E4, strike anchoring as pure path geometry
 
-Committed 2026-08-18, **before any code**, under [[RESEARCH-PROTOCOL]] §0 and [[CHARTER]] §8.
+> **CLOSED BRANCH — PRESERVED AS EVIDENCE, NOT AS A DESIGN.** This preregistration belongs to the
+> rolled-put / tenor intervention program, closed 2026-08-18
+> ([[closed-research/intervention/README]]). It is kept intact because its result is evidence and
+> because a stub edited after the fact is worthless. **Nothing in it is a queued experiment, and its
+> code now lives at `closed-research/intervention/`.** The active program is [[CHARTER]].
+
+
+Committed 2026-08-18, **before any code**, under [[docs/RESEARCH-PROTOCOL]] §0 and [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §8.
 Status: preregistration. Results are appended below in a later commit, and nothing above the results
 rule may be edited once they exist.
 
@@ -13,7 +20,7 @@ it), E2 (no tenor ordering survives in cash anywhere on the drawdown path; in ca
 prices nothing and pays no premium.
 
 **What E4 is.** M1 — strike anchoring versus re-striking — is the single claim that survived E0, E1
-and E2, and it survived as *contract geometry* ([[CHARTER]] §9.1). It has only ever been observed on
+and E2, and it survived as *contract geometry* ([[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §9.1). It has only ever been observed on
 one path, inside a priced simulator, on a coordinate that turned out to be broken. E4 tests it where
 it actually lives: **as arithmetic on price paths, across genuinely distinct historical episodes and
 markets, with no option data of any kind.**
@@ -58,7 +65,7 @@ P_A - P_R  =  m · ( SUM_i S(t0 + i·s)  -  S(t0) )
 ```
 
 `H/s - 1` extra deductibles, priced at the levels the market re-strikes to. **Both statements above
-are derivable, carry no information, and are recorded rather than tested** ([[RESEARCH-PROTOCOL]] §0
+are derivable, carry no information, and are recorded rather than tested** ([[docs/RESEARCH-PROTOCOL]] §0
 rule 2). They also bound the effect: it is zero at `m = 0` and scales with `m`.
 
 ### 1.2 What is therefore actually open
@@ -74,7 +81,7 @@ declines and it is the only thing E4 measures.**
 **A gross-payoff comparison is exactly the comparison that flatters the anchored leg**, because the
 anchored contract is the more expensive one and its cost is omitted here by construction. **E4
 therefore establishes nothing about whether any overlay is worth buying, at any tenor.** If M1
-survives, what survives is a mechanism, not a recommendation; [[CHARTER]] §9.1's forbidden sentences
+survives, what survives is a mechanism, not a recommendation; [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §9.1's forbidden sentences
 continue to apply in full.
 
 ## 2. Claim tuple
@@ -140,7 +147,7 @@ for anchoring by the identity, but it is also the market whose declines are slow
 
 Israelov (2017) `[skim]` measures protective-put drawdown outcomes over rolling windows and does not
 separate the deductible-count mechanism from pricing; its comparison is against divestment, which
-[[CHARTER]] §2 C2 excludes. **No paper settles the deductible-count identity of §1.1**, which is in
+[[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §2 C2 excludes. **No paper settles the deductible-count identity of §1.1**, which is in
 any case arithmetic rather than an empirical claim. Nothing in the reading list gates E4, and no new
 reading is required for it — recorded explicitly so that "no gate" is a finding rather than an
 omission, after E0 skipped one.
@@ -171,7 +178,7 @@ of what the mechanism actually is.
 
 ## 7. Identification
 
-**Preserved from [[CHARTER]] §5, unchanged, because nothing about E4 relaxes it.**
+**Preserved from [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §5, unchanged, because nothing about E4 relaxes it.**
 
 - **Episodes are not draws from a superpopulation.** Market structure, monetary regime and index
   composition differ across 1929, 1987, 2000-02, 2008-09, 2020 and 2022. Cross-episode work
@@ -181,11 +188,11 @@ of what the mechanism actually is.
   rising; 2008 and 2020 appear in all four series, and 1987 in two. **Cross-market agreement in those
   windows is close to one observation reported four times.** The genuinely independent content is
   where the calendars do *not* overlap: US 1929-1954, Japan 1990-2003.
-- **Overlapping starts are description, never inference** ([[RESEARCH-PROTOCOL]] §2). There are
+- **Overlapping starts are description, never inference** ([[docs/RESEARCH-PROTOCOL]] §2). There are
   thousands of starts and they share nearly all their data. **`n_starts` is not a sample size**, and
   the fraction of starts favouring a leg is a descriptive count, not a probability.
 - **No standard error, no test statistic, no confidence interval, and no population-average payoff
-  difference.** Sign and ordering only, exactly as [[CHARTER]] §4 requires of every active
+  difference.** Sign and ordering only, exactly as [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §4 requires of every active
   hypothesis.
 
 **What E4 can add that E0-E2 could not:** genuinely distinct *episodes*. The benefit side of the
@@ -195,7 +202,7 @@ episode count. It does not create a population.**
 
 ## 8. Verdict rule, fixed in advance
 
-**H1** ([[CHARTER]] §4): *strike anchoring (M1) dominates re-striking for a multi-month drawdown at
+**H1** ([[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §4): *strike anchoring (M1) dominates re-striking for a multi-month drawdown at
 equal premium budget* — tested here at equal notional and zero premium, which is the payoff-geometry
 half of it.
 
@@ -226,7 +233,7 @@ toward M1 surviving**, and the bias grows with how much of an episode window is 
 **What changes, and what does not.**
 
 - **The kill condition is unchanged and still keys on the preregistered rule.** Changing a verdict
-  rule while writing the code that will test it is exactly the move [[RESEARCH-PROTOCOL]] §0 exists
+  rule while writing the code that will test it is exactly the move [[docs/RESEARCH-PROTOCOL]] §0 exists
   to prevent, and the rule was fixed in advance.
 - **Two additional numbers are reported beside it, as `Psi`:** the count of **informative starts**
   (at least one leg strictly positive) and the vote **among informative starts only**.
@@ -250,7 +257,7 @@ toward M1 surviving**, and the bias grows with how much of an episode window is 
 
 **Stopping rule, binding, written before the result is known.**
 
-- **If M1 fails:** close the rolled-put/tenor branch, record the negative result in [[CHARTER]] and
+- **If M1 fails:** close the rolled-put/tenor branch, record the negative result in [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] and
   [[PROBLEM-MAP]], and stop.
 - **If M1 survives:** **stop anyway.** The next question — whether the mechanism is important enough
   to justify investigating its economic implementation — is a decision about the programme, not an
@@ -415,6 +422,6 @@ is a conditional mechanism that cannot be acted on without a forecast the progra
 
 ## Related
 
-- [[CHARTER]] §4 H1 — the hypothesis · §9 E4 — the queue entry · §9.1 — what survived E0-E2
-- [[STUB-E2-DRAWDOWN-PATH]] · [[STUB-E1-ROLL-PHASE]] · [[STUB-E0-M3-DECOMPOSITION]]
-- [[RESEARCH-PROTOCOL]] §0 — the gate · [[POINT-IN-TIME-DISCIPLINE]] — the leak register
+- [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §4 H1 — the hypothesis · §9 E4 — the queue entry · §9.1 — what survived E0-E2
+- [[closed-research/intervention/STUB-E2-DRAWDOWN-PATH]] · [[closed-research/intervention/STUB-E1-ROLL-PHASE]] · [[closed-research/intervention/STUB-E0-M3-DECOMPOSITION]]
+- [[docs/RESEARCH-PROTOCOL]] §0 — the gate · [[POINT-IN-TIME-DISCIPLINE]] — the leak register

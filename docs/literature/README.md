@@ -11,12 +11,18 @@ contained.
 **Status tags:** `[READ]` in full · `[skim]` enough to use · `[UNREAD]` obtained, not read ·
 `[WANTED]` not obtained.
 
-The closed program's reading list is preserved at
-[[closed-research/docs/literature/README]] and is not maintained.
+**Status 2026-08-18: this list gated the CLOSED intervention program.** Every row below is retained
+as evidence — including the process failure it logs — and **no row is a blocking gate any more**,
+because the experiments they gated are closed. The return-state program starts a new list when its
+first experiment needs one; until then a list of papers is an agenda, and this repository has
+learned what an unowned agenda does.
+
+The prediction program's reading list is preserved at
+[[closed-research/docs/literature/README]] and is not maintained either.
 
 ---
 
-## Blocking — these gate a queued experiment
+## Was blocking — these gated experiments that are now closed
 
 | paper | status | gates | why |
 |---|---|---|---|
@@ -44,9 +50,9 @@ the second in this repo's history.
   maturity tend to occur for measurement periods that are most closely aligned with option
   lifespans."* **Under §0 rule 2 this changes E1**: that phase matters is now cited, not tested,
   and E1 must be respecified around the quantity the paper does not give — the *phase spread*
-  relative to the effect, which is a `Psi` coordinate ([[CHARTER]] §3, H2).
+  relative to the effect, which is a `Psi` coordinate ([[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §3, H2).
 - **Its remedy is inadmissible here.** The paper's comparison alternative throughout is static
-  divestment — 36.5% equity, 63.5% cash, matched to PPUT's realized return. [[CHARTER]] §2's C2
+  divestment — 36.5% equity, 63.5% cash, matched to PPUT's realized return. [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §2's C2
   excludes exactly that. **So its headline verdict does not bind this mandate, while its mechanism
   findings bind it completely.** The permanent-long constraint is what makes the paper's
   conclusion unavailable and its evidence still relevant.
@@ -68,7 +74,7 @@ the second in this repo's history.
 | paper | status | why it still binds |
 |---|---|---|
 | Howard (1966), EVPI | `[skim]` | The clairvoyant bound in `simulate(foresight=True)`. Search-independent, and the strongest construction the repo owns |
-| Politis & Romano (1994), stationary bootstrap | `[WANTED]` | Only to state precisely what block resampling *cannot* do here — see [[CHARTER]] §9's demotion. Read before anyone proposes it as evidence for a magnitude |
+| Politis & Romano (1994), stationary bootstrap | `[WANTED]` | Only to state precisely what block resampling *cannot* do here — see [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §9's demotion. Read before anyone proposes it as evidence for a magnitude |
 
 ## Deliberately not read
 

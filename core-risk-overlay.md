@@ -21,7 +21,7 @@ on what is worth building: [[docs/PROBLEM-MAP]] — read it first.** Mandate in 
 > 52w, and at 4w/13w it is *negative* -- the program deepens the worst drawdown. In the well-sampled
 > `CDaR_alpha` coordinate the full-sample cash reduction at 52w is zero to slightly negative at every
 > alpha. E10's tenor ordering survives in **sign** and not in **magnitude**. Section below;
-> preregistration and full result in [[docs/STUB-E0-M3-DECOMPOSITION]].
+> preregistration and full result in [[closed-research/intervention/STUB-E0-M3-DECOMPOSITION]].
 > **PROGRAM TRANSITION 2026-08-17. The prediction/regime program is CLOSED.** It is preserved,
 > self-contained and reproducible, at [[closed-research/README]] -- completed research, not obsolete
 > code, and not an active branch. The active program is **drawdown intervention design**: [[CHARTER]],
@@ -727,7 +727,7 @@ and the 26w/52w clairvoyant columns, which do not exist.
 **Claim tuple: weekly marks · full holding period · the drawdown process D(t) and its functionals
 (CDaR_alpha curve, per-excursion depths, time under water; max drawdown as a labelled diagnostic) ·
 SPY 1993-2026 and 2003-2026, one path · ALWAYS-ON h=1.00, no signal, roll phase 0.**
-Preregistered in [[docs/STUB-E0-M3-DECOMPOSITION]], committed before the code existed.
+Preregistered in [[closed-research/intervention/STUB-E0-M3-DECOMPOSITION]], committed before the code existed.
 Run: `.venv\Scripts\python.exe research/m3_decomposition.py SPY`.
 
 **The experiment is one accounting difference**, and that is the whole design. Same path, same
@@ -831,7 +831,7 @@ mixed and worth having in full:
 
 **Claim tuple: weekly marks · full holding period · drawdown bought versus the naked book, on max
 drawdown and on `CDaR_0.05` · SPY 1993-2026 and 2003-2026, one path · ALWAYS-ON h=1.00, 10% OTM, no
-signal and no conditioning of any kind.** Preregistered in [[docs/STUB-E1-ROLL-PHASE]], committed
+signal and no conditioning of any kind.** Preregistered in [[closed-research/intervention/STUB-E1-ROLL-PHASE]], committed
 before the code existed. Run: `.venv\Scripts\python.exe research/phase_sweep.py SPY`.
 
 **E1 asked one question and answered it.** `simulate` walked blocks from index 0, so the alignment of
@@ -901,7 +901,7 @@ decision, deliberately not taken inside the experiment that preceded it.
 **Claim tuple: weekly marks · full holding period and per-episode windows within it ·
 `CDaR(worst q%)` reduction as a curve, and episode-matched depth reduction · SPY 1993-2026 and
 2003-2026, one path · ALWAYS-ON h=1.00, 10% OTM, no signal and no conditioning.** Preregistered in
-[[docs/STUB-E2-DRAWDOWN-PATH]], with the identification status of each coordinate written **before**
+[[closed-research/intervention/STUB-E2-DRAWDOWN-PATH]], with the identification status of each coordinate written **before**
 the run. Run: `.venv\Scripts\python.exe research/path_outcomes.py SPY`.
 
 **The gate was closed first this time.** Chekhlov, Uryasev & Zabarankin read before the run, not
@@ -979,7 +979,7 @@ drawdown path.
 intrinsic payoff difference, no magnitude reported anywhere · ^GSPC 1927-2026, ^N225 1965-, ^FTSE
 1984-, ^GDAXI 1988- (12,601 weekly observations, 29 episodes at 20%) · every week with a complete
 horizon is a start, and NO start is placed at a peak.** Preregistered in
-[[docs/STUB-E4-STRIKE-ANCHORING]], amended once — also before any run — to record that the verdict
+[[closed-research/intervention/STUB-E4-STRIKE-ANCHORING]], amended once — also before any run — to record that the verdict
 rule is biased toward M1. Run: `.venv\Scripts\python.exe research/anchoring.py`.
 
 **Not a rescue attempt, and it could not have been one.** Nothing in E4 is priced and no premium is

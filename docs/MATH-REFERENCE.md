@@ -1,8 +1,18 @@
 # Mathematics Reference — path functionals and admissibility
 
-Last updated: 2026-08-17
+Last updated: 2026-08-18
 
-The mathematics of the active program. Notation is plain text throughout.
+Path functionals, in plain-text notation throughout.
+
+**What is active here and what is not.** §2-§5 — the drawdown process, excursions, why max drawdown
+has effective n = 1, and the CDaR family — are **retained by the return-state program**, because
+drawdown geometry is a candidate *state characteristic* ([[CHARTER]] §3). §1 (admissibility, C1/C2)
+and §6-§7 (the three intervention mechanisms, the clairvoyant bound) belong to the **closed**
+intervention program and are preserved as its mathematics, not as the active program's.
+
+**The distributional mathematics this program needs does not exist here yet, and will not be written
+in advance.** It is written with the experiment that needs it, under [[CHARTER]] §10's rule against
+utilities accumulated without a current research need.
 
 **Why this file was rewritten from nothing.** The previous reference ran to 1,143 lines on conditional
 densities, Gaussian mixtures, Hamilton recursions and squared-return autocovariance — and contained
@@ -257,6 +267,6 @@ Extending it is E3.
 
 ## Related
 
-- [[CHARTER]] §2-§3 — the space and the objective · [[docs/RESEARCH-PROTOCOL]] — the gate
+- [[CHARTER]] §1 — the research object · [[docs/RESEARCH-PROTOCOL]] — the gate
 - [[docs/POINT-IN-TIME-DISCIPLINE]] — rows 9-13 govern the knobs above
 - [[closed-research/docs/MATH-REFERENCE]] — the closed program's mathematics, intact

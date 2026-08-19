@@ -1,6 +1,13 @@
 # §0 Stub — E0, the M3 decomposition
 
-Committed 2026-08-18, **before any code**, under [[RESEARCH-PROTOCOL]] §0 and [[CHARTER]] §8.
+> **CLOSED BRANCH — PRESERVED AS EVIDENCE, NOT AS A DESIGN.** This preregistration belongs to the
+> rolled-put / tenor intervention program, closed 2026-08-18
+> ([[closed-research/intervention/README]]). It is kept intact because its result is evidence and
+> because a stub edited after the fact is worthless. **Nothing in it is a queued experiment, and its
+> code now lives at `closed-research/intervention/`.** The active program is [[CHARTER]].
+
+
+Committed 2026-08-18, **before any code**, under [[docs/RESEARCH-PROTOCOL]] §0 and [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §8.
 Status: preregistration. Results are appended below in a later commit, and nothing above the results
 rule may be edited once they exist.
 
@@ -114,7 +121,7 @@ a decomposition of the existing number rather than a rival simulation to be comp
   book — would mean the long-tenor program worsens the experienced path while improving the reported
   one, and would kill the long-tenor branch as currently stated.
 
-**Decision changed either way:** whether the frontier of [[CHARTER]] §3 is built on marked wealth at
+**Decision changed either way:** whether the frontier of [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §3 is built on marked wealth at
 all, and whether E6 must run before any subsequent number is interpretable.
 
 ## 6. Boundary
@@ -144,7 +151,7 @@ observation.**
 
 ## 8. Verdict rule, fixed in advance
 
-**H3** ([[CHARTER]] §4): *M3 is not the dominant source of the measured drawdown reduction.*
+**H3** ([[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §4): *M3 is not the dominant source of the measured drawdown reduction.*
 
 ```
 REJECTED at a tenor     gap_share > 0.5 there
@@ -323,7 +330,7 @@ this path, at this phase, the 52-week program did the opposite of it.
 
 ## 9.9 The literature gate, closed late — and it was not empty
 
-**Process failure, recorded first.** [[literature/README]] lists Israelov (2017), *Pathetic
+**Process failure, recorded first.** [[docs/literature/README]] lists Israelov (2017), *Pathetic
 Protection*, as **blocking on E0**, and the carried focus note for 2026-08-18 said so explicitly:
 *"Before E0: read it. If it already decomposes mark vs realized, E0's design changes. Protocol §0
 rule 3 makes this a gate, not a courtesy."* **E0 ran first and the paper was read after.** §3 above
@@ -348,7 +355,7 @@ second §0-rule-3 failure in the repo's history; the first was Timmermann's Prop
   supply: the **phase spread relative to the effect**, a `Psi` coordinate, which is what H2
   actually turns on.
 - **Its remedy is inadmissible here**, and this is the load-bearing difference. The paper's
-  alternative throughout is static divestment. [[CHARTER]] §2 C2 excludes it. **Its verdict does
+  alternative throughout is static divestment. [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §2 C2 excludes it. **Its verdict does
   not bind this mandate; its mechanisms bind it entirely** — which is precisely the case in which
   a paper is most dangerous to skip and most useless to cite as an answer.
 
@@ -356,12 +363,12 @@ second §0-rule-3 failure in the repo's history; the first was Timmermann's Prop
 
 1. `research/structure_map.py` — its M3 caveat is now a measurement, not a warning.
 2. [[PROBLEM-MAP]] §1.1 — the tenor table carries a cash row and a rider; E10 is qualified in place.
-3. [[CHARTER]] §9 — E0 closed; **E1 promoted** on the argument above; E6 reclassified from queued
+3. [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §9 — E0 closed; **E1 promoted** on the argument above; E6 reclassified from queued
    experiment to precondition.
 4. No number in this repository may be quoted as a drawdown reduction without its accounting named.
 
 ## Related
 
-- [[CHARTER]] — E0 heads the queue · [[RESEARCH-PROTOCOL]] §0 — the gate
+- [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] — E0 heads the queue · [[docs/RESEARCH-PROTOCOL]] §0 — the gate
 - [[POINT-IN-TIME-DISCIPLINE]] — the leak register these declarations answer to
-- [[MATH-REFERENCE]] — the path functionals · [[PROBLEM-MAP]] — the evidence base
+- [[docs/MATH-REFERENCE]] — the path functionals · [[PROBLEM-MAP]] — the evidence base

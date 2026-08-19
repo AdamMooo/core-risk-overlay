@@ -1,14 +1,21 @@
 # Problem Map
 
-Last updated: 2026-08-17
+Last updated: 2026-08-18
 
 **What this document is.** The standing answer to *what is the problem, what has been established,
 and why the project is pointed where it is.* Organised by epistemic status, not by date.
 [[core-risk-overlay]] is the chronological log and keeps that job.
 
-**Status: EVIDENCE BASE AND TRANSITION RECORD.** As of 2026-08-17 this file no longer sets the
-agenda. [[CHARTER]] does. What lives here is Part II — the evidence — and Part I, the record of how
-one research program was closed and another adopted.
+**Status: FROZEN EVIDENCE BASE.** As of 2026-08-18 this file records the evidence produced by **two
+closed programs** and sets no agenda whatever. [[CHARTER]] does. Part I is the record of how the
+prediction program was closed; Part II is the evidence, and its §1.1 tenor table is the single most
+misreadable object in the repository — read the E0/E1/E2/E4 qualifiers attached to it or do not quote
+it. The intervention program's own closure is recorded at [[closed-research/intervention/README]].
+
+**Nothing in this file is a queue, and its §3 "genuinely unknown" and §4 "worth doing?" columns are
+now historical.** They were written for a program about contracts. U1 (the skew surface), U2 (the
+52w clairvoyant bound), U3 (recycling) and U4 (honest competitors) are all closed or parked; they are
+left in place because deleting the unknowns of a closed program would misrepresent what it knew.
 
 **Why the split.** This document was governing while there was a board to govern. There is now a
 charter with one experiment queue, and two documents that both claim to say what happens next is
@@ -62,7 +69,7 @@ is supported in general.
   on **SPY**, against **VIX**, on forward downside semivolatility at **h=4 and h=13**. Credit, funding,
   breadth and positioning were never tested: **out of scope, not refuted.**
 - **The EVPI ceiling was computed only at 4 and 13 weeks** — the tenors E10 suggests are dominated.
-  `hedge_economics.TENOR_WEEKS = (4, 13)` is why. That corner is open and is [[CHARTER]] E3.
+  `hedge_economics.TENOR_WEEKS = (4, 13)` is why. That corner is open and is [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] E3.
 - Even if E3 finds a large ceiling at 52w, the branch does not reopen: a 52-week program makes 33
   decisions in 33 years, so capture could never be demonstrated on it. **E3 either closes the
   prediction program or proves it undecidable on this data.** Both are terminal, which is why it is
@@ -86,7 +93,7 @@ Not because the answer was disappointing. Three structural reasons:
 
 ### 0.5 Why intervention design replaces it
 
-The mandate forbids selling the core. Formalised ([[CHARTER]] §2) that means the decision variables are
+The mandate forbids selling the core. Formalised ([[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §2) that means the decision variables are
 **the contract and the policy** — tenor, strike, roll schedule, notional, monetisation — every one of
 which is a *choice*, not a forecast. The only positive result in the project's history came from that
 space, and it came with no model at all.
@@ -108,7 +115,7 @@ Prediction of forward risk from public return-volatility estimators (F1, F2); th
 (F10); GARCH encompassing (F11); within-regime ARCH (S3); the memory-shape question (F3, U6); the
 absorption ratio as a trigger (F4, F5); all trigger rules (F9); the Hamilton-filter recovery board and
 its six items; and **Item 5 with its three resolutions** — withdrawn rather than answered, because
-[[CHARTER]] §2's C1 and C2 exclude variance targeting on equity weight formally, not merely in spirit.
+[[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §2's C1 and C2 exclude variance targeting on equity weight formally, not merely in spirit.
 
 Three items are **reclassified, not reopened** — the surface as *procurement* rather than prediction,
 cross-market data as *independent replication for a structural claim* rather than as a joint
@@ -124,7 +131,7 @@ tested.
 **That is price discovery, not failure.** The overlay is a purchase of a different outcome path at a
 cost in compound return. The question becomes what that path is worth — which makes the remaining work
 a procurement problem and a preference problem, and moves the preference explicitly downstream of
-research ([[CHARTER]] §7).
+research ([[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §7).
 
 ---
 
@@ -151,12 +158,12 @@ does not set the agenda.*
 >    the 2003– subsample, is mark.** +16.8pp becomes +3.0pp; +19.9pp becomes +3.0pp. In the
 >    well-sampled `CDaR_alpha` coordinate the full-sample cash reduction at 52w is zero to slightly
 >    negative at every alpha. **The accounting interval is wider than the effect inside it**, so no
->    magnitude below is interpretable until [[CHARTER]] E6 specifies a monetisation rule. Full
->    result: [[STUB-E0-M3-DECOMPOSITION]] §9.
+>    magnitude below is interpretable until [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] E6 specifies a monetisation rule. Full
+>    result: [[closed-research/intervention/STUB-E0-M3-DECOMPOSITION]] §9.
 >
 > Consequently the **orderings** in §1.1 are probably robust
 > while the **magnitudes** are one draw at one phase and are **not identified**. Do not quote them as
-> effect sizes. [[CHARTER]] E1 and E2 test exactly this.
+> effect sizes. [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] E1 and E2 test exactly this.
 
 ## 1. Established empirically
 
@@ -174,7 +181,7 @@ Claims that survived a preregistered run with adversarial alignment checks. Each
 | E7 | A finite Gaussian mixture is **Gaussian in the far tail** for any k and any weight — more regimes cannot fix a tail | algebra | `[D]` |
 | E8 | Daily data resolves volatility memory to **lag 212 (~10 months)**; weekly hid all of it inside a ±0.0469 noise band | `memory_diagnostic.py` | `[I]` |
 | E9 | **No structure in the grid beats the naked book on CAGR** — 0 of 40, both samples. README §2's inequality fails on average everywhere tested | `structure_map.py` | `[I]` |
-| E10 | ~~**Tenor is the dominant structural variable and the effect is monotone and large**~~ **SPLIT 2026-08-18 by E0 and E1. Magnitude KILLED in both accountings; ordering PRESERVED as a structural claim only, in marks, at 56 of 56 alignments — and explicitly not as an economic benefit ([[CHARTER]] §9.1)** — see §1.1 | `structure_map.py`, `m3_decomposition.py`, `phase_sweep.py` | `[I]` |
+| E10 | ~~**Tenor is the dominant structural variable and the effect is monotone and large**~~ **SPLIT 2026-08-18 by E0 and E1. Magnitude KILLED in both accountings; ordering PRESERVED as a structural claim only, in marks, at 56 of 56 alignments — and explicitly not as an economic benefit ([[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §9.1)** — see §1.1 | `structure_map.py`, `m3_decomposition.py`, `phase_sweep.py` | `[I]` |
 | E11 | Correcting the equity skew moved hedge efficiency **17.58 → 3.6**; at 5–10% OTM the drawdown benefit turned *negative* on the full sample | `hedge_economics.py` | `[I]` |
 | E12 | **The drawdown reduction is predominantly a mark.** Same path, same contracts, one accounting change: 82% (1993–) and 85% (2003–) of the 52w reduction is unrealised mark; the cash-recognised reduction is ~+3pp and flat from 26w to 52w | `m3_decomposition.py` | `[I]` |
 | E13 | **The tenor magnitude is alignment-dependent.** Sweeping every roll offset: the 52w phase spread is 12.5–14.1pp against a tenor effect of +1.8 to +18.0pp. R = 1.85 / 6.82 in cash (KILLED), 0.71 / 0.85 in marks (MARGINAL). In cash the *sign* flips with the calendar, −6.3 to +7.8pp | `phase_sweep.py` | `[I]` |
@@ -216,7 +223,7 @@ lowest of 52*. **What survives is the ordering in marks — long tenor beats sho
 alignments — and nothing quantitative in either accounting.** One further caution from E1's `Psi`
 column: on the full sample at 26w and 52w the hedged book's max drawdown is set in **2003** while
 the naked book's is set in 2009, so the marked difference there is taken between two *different
-episodes*. [[STUB-E1-ROLL-PHASE]] §10.4.
+episodes*. [[closed-research/intervention/STUB-E1-ROLL-PHASE]] §10.4.
 
 **E2 (2026-08-18) repaired that estimand and the ordering did not survive the repair.** Measuring
 `CDaR(worst q%)` — which integrates the whole path — and matching episodes on the naked book so
@@ -225,7 +232,7 @@ either sample**, and in marks only at `q <= 25%` (1993–) and `q <= 5%` (2003�
 `q` where the `Psi` column shows the coordinate collapsing onto one or two episodes. Where the
 coordinate is well sampled the ordering is absent. Per-episode it does hold in marks (52w ≥ 4w in
 90–94% of episode × phase pairs), but in cash the 52-week programme **deepens** episodes in 72–84%
-of pairs. [[STUB-E2-DRAWDOWN-PATH]] §10.
+of pairs. [[closed-research/intervention/STUB-E2-DRAWDOWN-PATH]] §10.
 
 **And the ordering is not ours.** Israelov (2017), *Pathetic Protection*, sweeps 20 / 63 / 250
 business-day maturities and reports that *"longer-dated options do a less bad job of protecting a
@@ -233,7 +240,7 @@ portfolio against long-term drawdowns than shorter-dated options. Less bad, but 
 ordering and, in cash, roughly its size. It was `[UNREAD]` at row 1 of the reading list while E10
 was derived empirically, and it is logged as a §0-rule-3 process failure in
 [[literature/README]]. **What this repo adds is the decomposition, not the ordering.** The paper's
-own remedy — static divestment — is inadmissible under [[CHARTER]] §2 C2, so its verdict does not
+own remedy — static divestment — is inadmissible under [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §2 C2, so its verdict does not
 transfer while its mechanisms do.
 
 Best drawdown bought anywhere in the grid: **52w 5% OTM outright, +20.6pp @ 3.41 (full) / +24.3pp @
@@ -277,7 +284,7 @@ Only items where the answer is not already determined by §1 or §2.
 |---|---|---|
 | U1 | **The real skew surface.** `skewed_vol` is `IV = VIX + slope × pct_OTM × sqrt(4/tenor)`, slope swept over 0.0–0.8 with 0.60 primary. "The repo has no option chain" | every cost number in §1.1 depends on it, and the `sqrt(4/tenor)` term is what makes long tenor cheap — **the tenor result rests on an unverified parameterization that systematically favours the conclusion** |
 | U2 | **The clairvoyant ceiling at 52w.** Computed at 4w and 13w only | it is the denominator of the entire signal question at the tenor that actually works (§5) |
-| U3 | **Recycling.** README §1 monetises the hedge and buys the core back lower; `simulate` reinvests passively at the next roll | **Promoted by E0 from open question to precondition.** The marked-versus-cash interval is 13.9pp wide inside a 16.8pp claim, so `rho` and `kappa` ([[CHARTER]] E6) now gate the interpretation of every magnitude in §1.1 — not just this row |
+| U3 | **Recycling.** README §1 monetises the hedge and buys the core back lower; `simulate` reinvests passively at the next roll | **Promoted by E0 from open question to precondition.** The marked-versus-cash interval is 13.9pp wide inside a 16.8pp claim, so `rho` and `kappa` ([[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] E6) now gate the interpretation of every magnitude in §1.1 — not just this row |
 | U4 | **The honest competitors.** A trend sleeve or long duration carry neutral-to-positive carry instead of bleeding | never compared. Needs data this repo lacks |
 | U5 | **Daily minimum history.** `RELIABLE_MIN_OBSERVATIONS` = 520 is a *weekly* figure | blocks quoting any daily model result |
 | U6 | **Long-memory order `d` with a standard error** (GPH / local Whittle), and a better vol proxy (Parkinson, Garman-Klass, Yang-Zhang) | F3's refutation is weak and window-dependent; an R² race is not a long-memory test |
@@ -309,7 +316,7 @@ missing line of code (U2).
 
 ## 5. The decision problem, restated
 
-Superseded by [[CHARTER]] §1. Preserved here in its closed form because the *change* is the finding.
+Superseded by [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §1. Preserved here in its closed form because the *change* is the finding.
 
 **As it stood on 2026-08-15:** *"Given a permanently long global equity book that is never sold, choose
 a standing put structure (tenor, strike, notional, roll rule) and then decide whether to vary it over
@@ -341,7 +348,7 @@ its application to the next proposal, including one's own.**
 
 ## 6. What research would materially change the decision
 
-**Superseded by [[CHARTER]] §9, which is the single experiment queue.** No list of candidate work
+**Superseded by [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §9, which is the single experiment queue.** No list of candidate work
 lives in this file, deliberately: two documents proposing next steps is how a second research program
 starts.
 

@@ -1,6 +1,13 @@
 # §0 Stub — E2, the drawdown path: CDaR curve and per-excursion depths
 
-Committed 2026-08-18, **before any code**, under [[RESEARCH-PROTOCOL]] §0 and [[CHARTER]] §8.
+> **CLOSED BRANCH — PRESERVED AS EVIDENCE, NOT AS A DESIGN.** This preregistration belongs to the
+> rolled-put / tenor intervention program, closed 2026-08-18
+> ([[closed-research/intervention/README]]). It is kept intact because its result is evidence and
+> because a stub edited after the fact is worthless. **Nothing in it is a queued experiment, and its
+> code now lives at `closed-research/intervention/`.** The active program is [[CHARTER]].
+
+
+Committed 2026-08-18, **before any code**, under [[docs/RESEARCH-PROTOCOL]] §0 and [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §8.
 Status: preregistration. Results are appended below in a later commit, and nothing above the results
 rule may be edited once they exist.
 
@@ -35,7 +42,7 @@ hedged path they would move with the intervention, and the estimand would be bro
 rather than repaired.
 
 **Gate closed before the run, not after.** Chekhlov, Uryasev & Zabarankin read 2026-08-18 —
-[[MATH-REFERENCE]] §4.1. It found a convention collision (**their `alpha` is a confidence level and
+[[docs/MATH-REFERENCE]] §4.1. It found a convention collision (**their `alpha` is a confidence level and
 ours is the fraction averaged**), confirmed our estimator as the upper CDaR with a bounded gap, and
 established that their convexity result is in the portfolio weights and licenses nothing here. Every
 CDaR number below is written as **`CDaR(worst q%)`** for that reason.
@@ -104,7 +111,7 @@ is comparable to it.
 ## 3. Literature
 
 **Chekhlov, Uryasev & Zabarankin — `[skim]`, read before this run**, which is what the register
-required and what E0 failed to do. Its three consequences are recorded in [[MATH-REFERENCE]] §4.1 and
+required and what E0 failed to do. Its three consequences are recorded in [[docs/MATH-REFERENCE]] §4.1 and
 are already applied in this stub. **Its most useful sentence for us is its own scope caveat:** the
 authors define CDaR as a risk function *on a sample-path*, explicitly leaving the definition on a
 *set* of sample-paths to future research. The source therefore agrees with this repository's
@@ -113,7 +120,7 @@ identification stance — computing CDaR carefully does not turn one path into a
 No paper settles the episode-matching question, which is a defect of this repository's own estimand
 rather than a question about markets. Israelov (2017) measures drawdowns over rolling fixed-length
 windows, which sidesteps episode identity instead of resolving it, and its remedy remains
-inadmissible under [[CHARTER]] §2 C2.
+inadmissible under [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §2 C2.
 
 ## 4. Mechanism for a difference
 
@@ -135,11 +142,11 @@ than carry — which is itself the prediction being tested.
   positive result the intervention side has produced. It would establish a structural claim in the
   accounting the investor can bank, which E0 and E1 jointly suggest does not exist.
 - **The ordering failing at small `q` in MARKS** would mean nothing survives at all, and the tenor
-  claim would be withdrawn in full rather than preserved as structure ([[CHARTER]] §9.1).
+  claim would be withdrawn in full rather than preserved as structure ([[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §9.1).
 - **Sign consistency near 1/2** would mean the tenor choice is a coin flip per episode, which no
   amount of averaging repairs.
 
-**Decision changed:** whether [[CHARTER]] §9.1's preserved structural ordering keeps its "at every
+**Decision changed:** whether [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §9.1's preserved structural ordering keeps its "at every
 alignment tested" clause, gains a `q`-range qualifier, or is withdrawn.
 
 ## 6. Boundary
@@ -179,7 +186,7 @@ FAILS at q        separation(q) <= 0
 
 Reported as the **set of `q` at which the ordering survives**, not as a single verdict.
 
-**V2 — episode sign-consistency ([[CHARTER]] H2's excursion clause).** Over all (episode × phase)
+**V2 — episode sign-consistency ([[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] H2's excursion clause).** Over all (episode × phase)
 pairs, the fraction with `reduction(52w) >= reduction(4w)`:
 
 ```
@@ -358,7 +365,7 @@ never realized before the market recovered past it.
   pairs.
 - **In marks, the ordering survives per-episode (90–94%)** and, on the CDaR curve, only where `Psi`
   shows the coordinate resting on one or two episodes.
-- **Therefore the structural ordering preserved in [[CHARTER]] §9.1 needs a qualifier it did not
+- **Therefore the structural ordering preserved in [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §9.1 needs a qualifier it did not
   have.** It is an episode-level, marked-accounting regularity. It is not a property of the drawdown
   path as a whole, and where the path is well sampled it is absent.
 
@@ -378,9 +385,9 @@ never realized before the market recovered past it.
 
 ## 10.8 Consequences booked
 
-1. [[CHARTER]] §9.1 — the preserved structural ordering gains its qualifier: episode-level, marked
+1. [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §9.1 — the preserved structural ordering gains its qualifier: episode-level, marked
    only, absent where the coordinate is well sampled.
-2. [[CHARTER]] §4 — H2 resolved on both clauses: **excursion clause SURVIVES in marks, KILLED/MARGINAL
+2. [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §4 — H2 resolved on both clauses: **excursion clause SURVIVES in marks, KILLED/MARGINAL
    in cash; phase clause already killed by E1.**
 3. [[PROBLEM-MAP]] — E14 recorded; §1.1's rider extended to say the ordering does not hold on the
    well-sampled part of the path.
@@ -388,7 +395,7 @@ never realized before the market recovered past it.
 
 ## Related
 
-- [[CHARTER]] §4 H2 — the excursion clause · §9 E2 — the queue entry · §9.1 — the claim's split status
-- [[STUB-E1-ROLL-PHASE]] — the estimand problem this repairs · [[STUB-E0-M3-DECOMPOSITION]] — the accounting
-- [[MATH-REFERENCE]] §4.1 — the CDaR convention, confirmed against the source
-- [[RESEARCH-PROTOCOL]] §0 — the gate · [[POINT-IN-TIME-DISCIPLINE]] — the leak register
+- [[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §4 H2 — the excursion clause · §9 E2 — the queue entry · §9.1 — the claim's split status
+- [[closed-research/intervention/STUB-E1-ROLL-PHASE]] — the estimand problem this repairs · [[closed-research/intervention/STUB-E0-M3-DECOMPOSITION]] — the accounting
+- [[docs/MATH-REFERENCE]] §4.1 — the CDaR convention, confirmed against the source
+- [[docs/RESEARCH-PROTOCOL]] §0 — the gate · [[POINT-IN-TIME-DISCIPLINE]] — the leak register
