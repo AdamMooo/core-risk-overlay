@@ -92,10 +92,10 @@ designed** — [[CHARTER]] §8.
 | `src/data_loader.py` | working — daily and weekly returns, VIX, start-date invariant, explicit calendar |
 | `src/pathfunctionals.py` | working — drawdown process, excursions with censoring, CDaR curve, time under water. Retained because drawdown geometry is a **candidate state characteristic**, not because it was an objective |
 | `src/manifest.py` | working — the data cache's sha256 manifest. `data/` is gitignored and two caches are derived artifacts, so `data/MANIFEST.md` is what makes "the archives reproduce" checkable rather than asserted |
-| `checks.py` | 37 checks, all passing, covering the three modules above |
+| `states/s0_discriminating_functional.py` | **S0, ran 2026-08-18.** The identification study: which functional, if any, distinguishes a persistent two-state process from a smoothly-reverting one after exact matching. No market data anywhere in it |
+| `checks.py` | 77 checks, all passing — 42 of them S0's matching algebra and functionals |
 | `closed-research/` | prediction program — 81 checks passing, D3 and F2 verified reproducible |
 | `closed-research/intervention/` | rolled-put program — 17 checks passing, E0 verified reproducible after the archive move |
 
-**Everything else is a document.** That is the intended shape at this stage: the first experiment is
-not written until [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] fixes what a state claim would have to
-beat.
+**The queue holds one item: Q1**, whose functional, block length and mismatch floor were fixed by S0
+and are not re-chosen. It is not yet designed and nothing else exists.

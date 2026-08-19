@@ -37,9 +37,15 @@ identifiable states. **The active program is [[CHARTER]] — read it first.** Pr
 > and never built in this repository. The frequency is **daily** — E8 established weekly cannot
 > resolve the memory any persistence claim depends on.
 >
-> **The queue holds one item: S0, the identification problem itself**
-> ([[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]]). Q1 is not designable until S0 fixes the functional and
-> the horizon. Q2 and Q3 do not exist as experiments.
+> **S0 RAN THE SAME DAY, and Q1 now exists.** Of four candidate functionals, one discriminates the
+> classes after matching that is exact on the unconditional variance and on the squared-return ACF at
+> every lag: **the dispersion of log realized variance over 21-day blocks**, `d'` up to 10.2. Two are
+> eliminated — aggregate kurtosis sits below its own mismatch floor everywhere, and **path geometry
+> reaches `d' = 0.15` on synthetic data where the states exist by construction**, which forecloses
+> drawdown geometry as a state-existence coordinate. **One preregistered deduction was wrong**, and
+> the correction constrains every future matching argument here: matching the autocovariance function
+> of squared returns is not matching the distribution of the latent variance process. Section below;
+> full result in [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]].
 
 ## Status - 2026-08-18 — first entry, E0
 
@@ -1090,6 +1096,49 @@ no progression to E5/E6/E7. The outcome is neither the clean failure that closes
 branch nor the clean survival that triggers a reassessment, so **the branch decision is recorded as
 open and was not taken inside the experiment.**
 
+
+## S0 — WHAT COUNTS AS EVIDENCE, AND THREE CANDIDATES DIE (2026-08-18)
+
+**Preregistered** in [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]], with the sweep, functionals and
+matching declared in a separate commit before any code. **No market data.** 18 parameter cells, 400
+replications per class per cell, seed 20260818.
+
+**The setup.** A two-state switching process against GARCH(1,1) — the charter's null N1 — calibrated
+to match so the easy differences are gone. The match turned out **exact on more than intended**: both
+squared-return ACFs are geometric from lag 1 (Timmermann Prop. 5, E6 here), so fixing GARCH
+persistence at the chain's second eigenvalue and solving one `alpha` for `rho(1)` matches the whole
+ACF at every lag, residual 1.8e-15. The surviving mismatch is **kurtosis**, and it is large — up to
+38.6%. That mismatch became the floor every separation had to clear.
+
+**The results, against predictions written before any code:**
+
+| | predicted | measured | |
+|---|---|---|---|
+| squared-return ACF | `d' ~ 0`, correctness check | 1.035 | matching confirmed; **residue is a fourth-moment effect in the estimator, not the population** |
+| aggregate kurtosis, `h>1` | different but small | 1.59 vs a floor of 6.80 | **HELD.** Too small to use |
+| block realized-variance dispersion | **dies at matching** | **10.22** | **PREDICTION WRONG** |
+| max drawdown / CDaR(5%) | separates in expectation, unestimable at `n` | 0.15 / 0.14; 0.645 vs 0.647; 6.1 excursions per 33 years | **HELD** |
+
+**The wrong prediction is the most useful thing here.** §5.2 argued deductively that matching the
+whole squared-return ACF would kill the block-variance coordinate. It did not, because **the ACF is a
+second-order object and the dispersion of block realized variance depends on the shape of the
+variance process.** A two-state chain makes a 21-day block mostly-one-state; a GARCH variance drifts
+through a continuum. Identical autocovariance at every lag, different distribution. **Second-order
+equality is not equality.** The claim is withdrawn in the results and left standing in the
+preregistration, because a stub edited after the fact is worthless.
+
+**And the negative that closes a route.** Path geometry cannot carry a state-existence claim: `d' =
+0.15`, mean max drawdown 0.645 against 0.647, 6.1 excursions past 10% per simulated 33-year history.
+**Measured where the states exist by construction** — so unlike a market measurement, its silence is
+informative rather than ambiguous.
+
+**Verdict: H(S0) survives conditionally.** Q1 exists, its functional and block length are fixed and
+not re-chosen, three candidates are forbidden to it, and it inherits a condition — the functional
+never survives at a variance ratio of 2, so a Q1 negative is INCONCLUSIVE unless Q1 demonstrates
+power against the contrast the market actually has. [[CHARTER]] §9.1.
+
+**Governance updated, and stopped there.** No second synthetic study, no third model class, no search
+for a better functional.
 
 ## Next
 
