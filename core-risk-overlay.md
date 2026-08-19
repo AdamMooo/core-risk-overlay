@@ -6,12 +6,43 @@ type: project
 
 Last updated: 2026-08-18
 
-**Return-state research.** Whether the equity return distribution enters distinguishable, persistent,
-identifiable states. **The active program is [[CHARTER]] — read it first.** Process in
+**NO ACTIVE RESEARCH PROGRAMME.** Three have run and all three are closed — see [[README]]. This file
+is the chronological record. **The last programme's termination is [[CHARTER]] §11.** Process in
 [[docs/RESEARCH-PROTOCOL]]. Time-basis rules in [[docs/POINT-IN-TIME-DISCIPLINE]]. Frozen evidence in
 [[docs/PROBLEM-MAP]]. Excluded, including the hedging mandate, in [[PARKED]].
 
 **The repository name is historical.** It names a program that no longer runs.
+
+## Status — 2026-08-19: THE RETURN-STATE PROGRAMME IS TERMINATED
+
+> **S0b returned VOID and the programme terminates as INDETERMINATE.** Two synthetic identification
+> gates ran. **No market data was ever touched.** No S0c is authorised and no Q1 was ever licensed.
+>
+> **The sequence.** S0 found one surviving functional and [[docs/DECISION-Q1-CLAIM]] then showed by
+> exact algebra that its separation was reducible to variance-process dispersion, which S0's matching
+> left free (**R1**). S0b closed that degree of freedom with a GARCH-t null matching unconditional
+> variance, the squared-return ACF at every lag, and `Var(sigma^2)` — all exact to 3.4e-14. **Its
+> control failed anyway**, `d' = 7.42` against a threshold of 2.
+>
+> **And (M3) was holding.** The observable is the problem, not the matching:
+>
+> ```
+>     RV_B = SUM sigma2_t z2_t
+> ```
+>
+> The observed block-variance distribution depends on both the latent variance distribution and the
+> innovation distribution, and `E[z^4]` was the instrument used to match the former. **The mechanism
+> that removed the difference under test also contaminated the measurement of it** (**R2**). The
+> control fails hardest exactly where the instrument bites hardest — `d' = 7.42` at `kappa = 2.0`
+> where `Var(sigma^2) = 0.096`, and `d' = 0.02` at `kappa = 6.5` where it is 1.158.
+>
+> **What survives:** R1 and R2; the elimination of aggregate kurtosis; and the elimination of path
+> geometry as a state-existence coordinate, measured where the states exist by construction. **The
+> `T7` pattern does not survive as evidence** and is preserved as observed-and-uninterpretable.
+>
+> **Why it was not repaired.** A stochastic-volatility null would leave the RV noise matched — and
+> introducing it after seeing the obstruction is a new identification programme, not a repair. The
+> final-gate scope condition was committed before S0b ran and is honoured. [[PARKED]] §3b.
 
 ## Status — 2026-08-18, second entry: THE RETURN-STATE TRANSITION
 
@@ -1141,6 +1172,9 @@ power against the contrast the market actually has. [[CHARTER]] §9.1.
 for a better functional.
 
 ## Next
+
+**Nothing. The repository is closed.** Three programmes, three closures, one preserved and
+reproducible record. A fourth would require a new charter, argued from the start.
 
 **There is no queue in this file.** [[CHARTER]] §9 is the single experiment queue, and two documents
 proposing next steps is how a second research program starts.
