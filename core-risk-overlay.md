@@ -6,13 +6,42 @@ type: project
 
 Last updated: 2026-08-18
 
-Tail-risk hedge overlay for a permanently long global equity book. **Problem statement, and the gate
-on what is worth building: [[docs/PROBLEM-MAP]] — read it first.** Mandate in [[README]]. Protocol in
-[[docs/RESEARCH-PROTOCOL]]. Mathematics in [[docs/MATH-REFERENCE]]. Time-basis rules in
-[[docs/POINT-IN-TIME-DISCIPLINE]]. **Width/direction separation, binding, in
-[[closed-research/docs/TRANSLATION-LAYER]].**
+**Return-state research.** Whether the equity return distribution enters distinguishable, persistent,
+identifiable states. **The active program is [[CHARTER]] — read it first.** Process in
+[[docs/RESEARCH-PROTOCOL]]. Time-basis rules in [[docs/POINT-IN-TIME-DISCIPLINE]]. Frozen evidence in
+[[docs/PROBLEM-MAP]]. Excluded, including the hedging mandate, in [[PARKED]].
 
-## Status - 2026-08-18
+**The repository name is historical.** It names a program that no longer runs.
+
+## Status — 2026-08-18, second entry: THE RETURN-STATE TRANSITION
+
+> **The rolled-put / tenor intervention program is CLOSED**, preserved and reproducible at
+> [[closed-research/intervention/README]] with its own charter, its four preregistrations, its code
+> and its 17 checks. **The active program is [[CHARTER]] — return states.**
+>
+> **Why it closed, and it is not fatigue.** E0 removed 82–85% of the measured drawdown reduction as
+> unrealised mark. E1 showed the remainder is smaller than the spread an arbitrary roll-calendar
+> offset produces, and that in cash the *sign* flips with the calendar. E2 repaired the estimand and
+> no tenor ordering survived anywhere on the drawdown path in cash. E4 took the last surviving
+> structural claim from unconditional to conditional — M1 is a deductible-count effect that wins
+> grinds and loses V-shapes — **and the condition is a forecast the prediction program had already
+> closed.** The two programs closed each other.
+>
+> **What the new program studies.** The conditional law of the forward return path,
+> `F_{s,h} = law of R_{t:t+h} given S_t = s`. Four questions in order: existence, characterisation,
+> transition, identification. **It terminates at identification.** No allocation, no instrument, no
+> trigger, no exposure — those need a new charter, not an amendment ([[CHARTER]] §3, §7).
+>
+> **Two decisions were fixed before the first experiment so neither can be selected on a result
+> later.** The null is **N1**, a smoothly-reverting continuous-scale process — the honest opponent,
+> and never built in this repository. The frequency is **daily** — E8 established weekly cannot
+> resolve the memory any persistence claim depends on.
+>
+> **The queue holds one item: S0, the identification problem itself**
+> ([[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]]). Q1 is not designable until S0 fixes the functional and
+> the horizon. Q2 and Q3 do not exist as experiments.
+
+## Status - 2026-08-18 — first entry, E0
 
 
 > **E0 RAN 2026-08-18 AND IT IS THE LARGEST CORRECTION IN THE REPO.** The measured drawdown
@@ -45,7 +74,13 @@ on what is worth building: [[docs/PROBLEM-MAP]] — read it first.** Mandate in 
 > The overlay is a **purchase** of a different outcome path at a cost in compound return. That is
 > price discovery, and it moves preference explicitly downstream of research.
 
-## Governing frame — read this before proposing any experiment
+## Governing frame — HISTORICAL, superseded by [[CHARTER]]
+
+> **Everything from here to the "Next" section is the chronological record of two closed programs and
+> stands as written.** It is not the active frame and does not govern anything. Rules 1-4 below were
+> the prediction program's; rule 4 (width is not direction) survives verbatim into [[CHARTER]] §4,
+> and rule 3 (check the data and the frequency first) is why the active program is daily. The rest is
+> history.
 
 Rules 1-3 have each been broken by this repo at least once. They exist because the documents kept
 asserting the right principle while the practice reverted. Rule 4 is the one rule added *before* it
@@ -1061,10 +1096,14 @@ open and was not taken inside the experiment.**
 **There is no queue in this file.** [[CHARTER]] §9 is the single experiment queue, and two documents
 proposing next steps is how a second research program starts.
 
-**PROGRAM TRANSITION 2026-08-17.** The prediction/regime program is **closed** and preserved,
-reproducible, at [[closed-research/README]]. The active program is **drawdown intervention design**:
-[[CHARTER]]. The full reasoning, the scope of the closure, and what is prohibited from reopening are
-recorded as a dated amendment in [[docs/PROBLEM-MAP]] Part I.
+**PROGRAM TRANSITION 2026-08-18 — the second one.** Both the prediction/regime program (closed
+2026-08-17) and the rolled-put/tenor intervention program (closed 2026-08-18) are preserved,
+reproducible, in `closed-research/`. The active program is **return states**: [[CHARTER]]. What is
+queued is **S0 only** — the identification problem, worked before anything is measured.
+
+**Nothing from the intervention queue carries forward.** E3, E5, E6 and E7 are closed with the
+programme, not parked as future work; they were downstream of a claim that no longer stands. See
+[[PARKED]] §1.
 
 Everything above this line is the chronological record and stands as written, with one standing
 caveat that attaches to the structure-map entry and to every number derived from it:
