@@ -82,9 +82,28 @@ choosing an episode threshold or a CDaR `alpha` after seeing the result — rema
 moment drawdown geometry is used as a state characteristic, and `src/pathfunctionals.py` is still the
 place they would bite.
 
-**The return-state program's own channels are not enumerated here yet.** They are added with the
-first experiment that creates them, under the same rule as the mathematics: written when needed, not
-in advance.
+**The return-state program's own channels are added with the experiment that creates them.** S0
+created none — it estimated no state, read no market data, and its researcher choices were declared in
+its stub before the run.
+
+**Row 1 is the one to watch, and it is declared live now rather than when it bites.** The closed
+program measured the cost of getting it wrong: the smoothed state conditions each observation on the
+whole sample, the filtered state does not, and **the two disagreed about the 0.5 threshold in 9.7% of
+real weeks**, with quarterly refits revising ~7.5% of weeks and a p95 revision of 0.19–0.25.
+
+**Q1 is structurally immune to this and that is worth stating**, because it is a property of the design
+rather than of anyone's care: Q1's statistic is a moment of the observed return series, so there is no
+state path to infer and no smoothing to leak. **Q2 and Q3 are not immune.** The moment any experiment
+in this programme infers a state path:
+
+- the state at `t` is filtered, never smoothed, with vintage parameters;
+- **the state construction is declared in the stub as a fixed choice, not tuned** — number of states,
+  estimation window, refit cadence and any threshold are researcher degrees of freedom, and a state
+  definition adjusted until the distributional difference appears is the same defect as a threshold
+  chosen on the result;
+- a smoothed quantity may still be computed, and must be **labelled as an in-sample description**, on
+  the precedent of `simulate(foresight=True)` — the honest form is to compute the unavailable quantity
+  and say so.
 
 | # | Channel | Status | Where | Fix |
 |---|---|---|---|---|

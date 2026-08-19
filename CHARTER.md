@@ -286,7 +286,7 @@ its predecessor returns.
 | | question | status |
 |---|---|---|
 | **S0** | ~~What would constitute evidence that the return-generating environment has changed?~~ **RAN 2026-08-18. H(S0) SURVIVES, CONDITIONALLY.** One functional discriminates the classes after exact matching on the unconditional variance and the whole squared-return ACF: **T3, the dispersion of block realized variance**, `d'` up to 10.2 at 21-day blocks. Two candidates are **eliminated** and one deductive prediction was **wrong** — see §9.1. [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] | **CLOSED** |
-| **Q1** | **(A) Existence.** Does a discrete, persistent state structure produce forward return distributions that N1 does not — measured on **T3 at 21-day blocks**, the functional S0 returned? | **EXISTS, not yet designed.** Its functional, horizon and mismatch floor are fixed by S0 and are not re-chosen. **Kills the program under S1** |
+| **Q1** | **(A) Existence.** ~~Does a discrete, persistent state structure produce forward return distributions that N1 does not~~ — **the wording over-claims relative to what the test can deliver, see §9.2** — measured on **T3 at 21-day blocks**, the functional S0 returned | **EXISTS, not yet designed.** Its functional, horizon and mismatch floor are fixed by S0 and are not re-chosen. Three issues must be resolved *in its stub* first: [[docs/IDENTIFICATION-UNDER-N1]]. **Kills the program under S1** |
 | **Q2** | **(B) Characterisation.** Which properties of `F_{s,h}` differ, and which do not? | **does not exist** until Q1 returns |
 | **Q3** | **(C) Transition.** Is the distribution conditional on a recent transition different from the distribution conditional on occupying the state? | **does not exist** until Q2 returns |
 
@@ -334,6 +334,44 @@ effective n — dispersion, serial dependence — are the ones the closed progra
 measurable, are a **width meter with no direction content**, and are **nested inside VIX**. That is
 not a reason to skip Q2. It is why §5 field 5 demands effective n *per coordinate*, and it is a live
 route to an S3 ending.
+
+### 9.2 The identification gate, discharged 2026-08-18 — and what it flagged
+
+Worked before Q1's stub, in full at [[docs/IDENTIFICATION-UNDER-N1]]. Three findings, one of them
+structural.
+
+**The good news, and it was not an accident.** The classical failure that makes regime-number testing
+hard — nuisance parameters unidentified under the null, a null on the boundary, a degenerate
+information matrix, and hence no chi-square limit for the LR statistic — **does not apply to Q1.**
+N1 is fully identified, and Q1's statistic is a moment, not a likelihood ratio. Q1 is a parametric
+Monte Carlo specification test, the class Dufour & Luger occupy, and **nothing under N1 is
+unidentified.**
+
+**THE BINDING LIMITATION, and it needs a preregistered choice before Q1 runs.** *What is unidentified
+is the alternative.* S0 showed T3 separates switching from GARCH(1,1); it showed nothing about
+switching versus long-memory volatility, structural breaks in unconditional variance, stochastic
+volatility with fat-tailed volatility innovations, or non-Gaussian innovations — **all of which
+also inflate the dispersion of block realized variance.** A Q1 rejection therefore licenses *"the data
+are not N1"* and **not** *"return states exist"*.
+
+**The wording of Q1 above is wider than its test. It is struck through rather than rewritten**, and
+Q1's stub must choose, in advance, between narrowing the claim, adding a second null, or declaring Q1
+a necessary-condition test whose rejection advances nothing by itself. **The third is the option most
+consistent with §6**, whose stopping rules are already asymmetric — S1 through S4 are endings, and no
+rule anywhere in this charter says *distinguishable from N1 implies states exist*. **The choice is not
+made here.**
+
+**Two further issues, also for the stub and also not resolved here.** Detectable alternatives approach
+the null very slowly in this problem — Kasahara & Shimotsu give `n^(-1/8)` rather than `n^(-1/2)` for
+the LR statistic, and S0 saw the same phenomenon at three points when T3 failed entirely at a variance
+ratio of 2. And Q1 fits N1's parameters on the same series it tests, so the simulated null must either
+re-estimate per replicate or state the direction of the size distortion — which **inflates rejections,
+i.e. favours this programme's own hypothesis**, and is therefore the direction requiring most care.
+
+**Two reading gaps are recorded as gaps:** Garcia (1998) and Carter & Steigerwald (2012) were not
+obtained. Neither supports any claim made here. The second matters because a published Econometrica
+comment exists on the exact test S0's stub cited approvingly, so **no proposal to use the Cho–White
+QLR here may proceed without reading it.**
 
 ## 10. Scope discipline
 
