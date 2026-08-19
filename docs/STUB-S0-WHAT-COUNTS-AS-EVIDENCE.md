@@ -190,6 +190,105 @@ This is the same defect class as E0's: the closed program spent three days quoti
 reduction that was 82% an accounting artifact, because the thing being compared was not what it
 appeared to be.
 
+## 5. Operationalisation — AMENDMENT, committed 2026-08-18 before any code
+
+§2 field 6 said the parameters are declared in advance and swept. This is that declaration. It is an
+amendment rather than part of the original stub because it was written second; it is committed
+**before** the implementation and before any result exists.
+
+### 5.1 The two classes
+
+**Switching (the claim).** `r_t = sigma(S_t) * z_t`, `z ~ iid N(0,1)`, `S_t` a two-state Markov chain
+with transition matrix `P`. Parameterised by the three quantities that actually matter, rather than by
+`P` directly:
+
+```
+    kappa  = v2 / v1      variance ratio between states
+    pi2                   stationary occupancy of the wide state
+    lambda = p11+p22-1    second eigenvalue of P -- the persistence
+
+    p11 = 1 - pi2 (1 - lambda)          pi1 = 1 - pi2
+    p22 = lambda + pi2 (1 - lambda)     vbar = pi1 v1 + pi2 v2 = 1 (scale normalised)
+```
+
+**N1 (the null).** GARCH(1,1) with Gaussian innovations —
+`sigma2_t = omega + alpha r2_{t-1} + beta sigma2_{t-1}`, persistence `psi = alpha + beta`.
+
+### 5.2 The matching, and it is exact on more than the stub promised
+
+The moments, both standard:
+
+```
+  SWITCHING     E[r^4] = 3 (pi1 v1^2 + pi2 v2^2)                    = K_MS
+                Cov(r2_t, r2_{t-k}) = pi1 pi2 (v1-v2)^2 lambda^k
+                rho_MS(k) = pi1 pi2 (v1-v2)^2 lambda^k / (K_MS - 1)
+
+  GARCH(1,1)    omega = 1 - psi
+                rho_G(1) = alpha (1 - beta psi) / (1 - 2 alpha beta - beta^2)
+                rho_G(k) = psi^(k-1) rho_G(1)
+                K_G = 3 (1 - psi^2) / (1 - psi^2 - 2 alpha^2)
+```
+
+**Both squared-return ACFs are geometric from lag 1** — the switching one by Timmermann (2000)
+Prop. 5, which is E6 in this repository. So setting `psi = lambda` and then solving for the single
+`alpha` that gives `rho_G(1) = rho_MS(1)` matches **the entire squared-return autocorrelation
+function at every lag, exactly**, on top of the unconditional variance.
+
+**This is a stronger match than §2 required, and it is a substantive finding in itself:** the
+stub predicted that coordinate three would "die at the matching step" if the two decay rates could be
+matched by construction. They can, exactly, and E6 is the reason. **That prediction is therefore
+resolved before the run, deductively.** It is recorded here rather than presented later as a result.
+
+**The residual mismatch is kurtosis**, and it is the matching-quality number reported first. Three
+free GARCH parameters cannot also match a fourth moment.
+
+**Feasibility is checked and reported, never silently skipped.** A cell is infeasible if no
+`alpha in (0, lambda)` attains `rho_MS(1)`, or if GARCH's fourth moment does not exist
+(`3 alpha^2 + 2 alpha beta + beta^2 >= 1`). Infeasible cells are counted in the report.
+
+### 5.3 The functionals, and what each is for
+
+All computed on one simulated path of `n = 8,300` daily observations, zero drift.
+
+| | functional | horizons | what it is for | prediction |
+|---|---|---|---|---|
+| **T1** | sample ACF of squared returns at lag `h` | 1, 5, 21, 63 | **correctness check on the matching.** Matched exactly at every lag by construction | `d' ≈ 0`. A non-zero `d'` means the implementation is wrong, not the theory |
+| **T2** | excess kurtosis of `h`-day aggregated returns | 1, 5, 21, 63 | distributional shape at horizon — the mixture-over-state-paths versus scaled-innovation difference | differs; **T2 at h=1 IS the residual mismatch**, so T2 at h>1 is informative only in excess of T2(1) |
+| **T3** | sd of log realized variance over non-overlapping blocks of length `B` | B = 21, 63 | persistence-of-persistence, at a scale longer than the mean-reversion time | predicted to die at matching (§5.2) |
+| **T4** | max drawdown; `CDaR(worst 5%)` of the cumulative path | — | sojourn structure in path geometry, where a switching process should show most | separates in expectation, **not estimable on one history** |
+
+**T2(1) doing double duty is deliberate.** It makes the stub's rule — *a separation smaller than the
+mismatch is void* — exact rather than a matter of judgement: any `d'` on T2 at `h > 1` must exceed
+the `d'` on T2 at `h = 1` to count at all.
+
+### 5.4 Discriminability, and the falsification threshold
+
+The question is whether **one** history of length `n` can tell the classes apart, so the statistic is
+the standardised separation of the two sampling distributions of `T` at that `n`:
+
+```
+    d'(T) = | mean_MS(T) - mean_G(T) |  /  sqrt( (var_MS(T) + var_G(T)) / 2 )
+```
+
+`d' >= 2` is the preregistered threshold, which is §2 field 7's "2 standard errors of its own
+sampling distribution at n = 8,300".
+
+### 5.5 The sweep, declared in full
+
+```
+    kappa   in {2, 4, 6.5}         6.5 ~ (3.84/1.50)^2, this repo's own fitted regime ratio
+    pi2     in {0.15, 0.30}
+    lambda  in {0.95, 0.98, 0.995}
+
+    18 cells. n = 8,300 (SPY daily 1993-2026). R = 400 replications per class per cell.
+    seed = 20260818.
+```
+
+**The whole sweep is reported, never its most favourable cell.** And the anti-flattery rule from §2
+field 7 is made mechanical: if the surviving cells are only the extreme corner
+(`kappa = 6.5` and `lambda = 0.995`), the functional is reported as **measuring the parameters, not
+the structure** — which is a failure, not a partial success.
+
 ---
 
 *Results rule — nothing above this line may be edited once results exist below it.*
