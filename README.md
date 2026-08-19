@@ -94,10 +94,11 @@ designed** — [[CHARTER]] §8.
 | `src/data_loader.py` | working — daily and weekly returns, VIX, start-date invariant, explicit calendar |
 | `src/pathfunctionals.py` | working — drawdown process, excursions with censoring, CDaR curve, time under water. Retained because drawdown geometry is a **candidate state characteristic**, not because it was an objective |
 | `src/manifest.py` | working — the data cache's sha256 manifest. `data/` is gitignored and two caches are derived artifacts, so `data/MANIFEST.md` is what makes "the archives reproduce" checkable rather than asserted |
-| `states/s0_discriminating_functional.py` | **S0, ran 2026-08-18.** The identification study: which functional, if any, distinguishes a persistent two-state process from a smoothly-reverting one after exact matching. No market data anywhere in it |
-| `checks.py` | 77 checks, all passing — 42 of them S0's matching algebra and functionals |
+| `states/s0_discriminating_functional.py` | **S0, ran 2026-08-18.** Which functional, if any, distinguishes a persistent two-state process from a smoothly-reverting one after exact matching. No market data anywhere in it |
+| `states/s0b_discreteness_gate.py` | **S0b, ran 2026-08-19. VOID — the control failed.** The discreteness gate, with the variance process's dispersion matched as well. No market data |
+| `checks.py` | 217 checks, all passing — 182 of them the matching algebra and functionals of S0 and S0b |
 | `closed-research/` | prediction program — 81 checks passing, D3 and F2 verified reproducible |
 | `closed-research/intervention/` | rolled-put program — 17 checks passing, E0 verified reproducible after the archive move |
 
-**The queue holds one item: Q1**, whose functional, block length and mismatch floor were fixed by S0
-and are not re-chosen. It is not yet designed and nothing else exists.
+**The queue is stalled on a decision, not on work.** S0b returned VOID and its preregistration has
+no branch for that outcome ([[CHARTER]] §9.5). Q1 remains unlicensed. Nothing else exists.

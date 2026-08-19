@@ -340,7 +340,135 @@ zero. If it does not, the run is void** — not interesting.
 
 ## Results
 
-Not yet run.
+**RAN 2026-08-19.** `states/s0b_discreteness_gate.py`, seed 20260819, 400 replications per class per
+cell, 18 cells. No market data.
+
+> # THE RUN IS VOID.
+>
+> **The control failed.** T3 was included in the functional list under §4 precisely so that a broken
+> (M3) would announce itself, and the preregistered instruction was: *"`d'` on T3 must come back near
+> zero. If it does not, the run is void — not interesting."*
+>
+> **Max `d'` on T3 across every cell and block: 7.416.** The threshold is 2.0.
+>
+> Under the frozen criteria this is neither PASS nor FAIL. The shape functionals are reported below
+> for the record and **none of them is interpretable.**
+
+### 6. Feasibility and matching quality
+
+**All 18 cells feasible; none skipped.** Required innovation kurtosis `k` ran 3.56 to 9.91, i.e. `nu`
+from 14.80 down to **4.87** — to reach a switching model's variance dispersion, a GARCH needs
+genuinely fat innovations.
+
+| constraint | residual |
+|---|---|
+| **(M1)** unconditional variance | exact by construction |
+| **(M2)** squared-return ACF at every lag | `<= 1.8e-15` |
+| **(M3)** `Var(sigma^2)` | `<= 3.4e-14`, and independently checked to `1e-10` in `checks.py` |
+
+**The declared unmatching of return kurtosis is large and rises as `Var(sigma^2)` falls:** +18.5% at
+`kappa = 6.5, lambda = 0.995`, and **+230.2%** at `kappa = 2.0, lambda = 0.95`.
+
+### 7. Why the control failed — diagnosis, not repair
+
+**(M3) is holding.** `Var(sigma^2)` is matched to 3.4e-14 and the check asserts 1e-10 independently.
+The matching is not broken. **What was wrong is the control's premise.**
+
+The stub asserted, via R1, that T3 measures variance-process dispersion, so matching `Var(sigma^2)`
+would drive its `d'` to zero. **That is true only when both classes share an innovation law**, which
+was S0's situation and is not S0b's. Two channels were missed, and both are structural:
+
+```
+  (i)  RV_block = SUM sigma2_t z2_t, so its dispersion carries the ESTIMATION
+       NOISE of z2, whose size is set by E[z^4] = k.
+       And k IS THE INSTRUMENT (M3) USES.
+       Matching Var(sigma^2) therefore necessarily unmatches the noise in every
+       realized-variance statistic.
+
+  (ii) sd(log RV) is not a function of Var(sigma^2) alone. The variance of a LOG
+       depends on the whole distribution of the level, not just its second
+       moment -- so T3 was never a pure spread statistic on the log scale.
+```
+
+**Channel (i) is visible directly in the numbers, and it is monotone in the right direction:**
+
+| | `Var(sigma^2)` | required `k` | `d'` on T3 at B=21 |
+|---|---|---|---|
+| `kappa = 2.0`, `pi2 = 0.15` | 0.096 | 9.91 / 6.29 / 4.28 | **7.42 / 5.86 / 2.92** |
+| `kappa = 4.0`, `pi2 = 0.15` | 0.546 | 5.87 / 4.51 / 3.65 | 2.92 / 2.17 / 1.09 |
+| `kappa = 6.5`, `pi2 = 0.15` | 1.158 | 5.38 / 4.27 / 3.56 | **0.08 / 0.02 / 0.22** |
+
+Where the true variance dispersion is small, RV is dominated by estimation noise and the noise
+mismatch shows up at `d' = 7.4`. Where it is large, the true signal dominates and the control behaves
+as intended, `d' = 0.02`. **The control is not failing at random; it is failing exactly where the
+matching instrument bites hardest.**
+
+**This is not a coding defect.** It is an obstruction: **matching the variance process's dispersion
+requires an instrument that contaminates every realized-variance functional used to read its shape.**
+
+### 8. The other frozen criteria, reported mechanically and NOT interpretable
+
+Recorded because they were preregistered and because a void run should not be able to hide its
+numbers.
+
+**Surviving cells.** 45 cell x functional pairs clear the threshold; 43 also clear their own mismatch
+floor, across 13 of 18 parameter cells. By functional: `T7_b63` 13, `T7_b21` 12, `T6_b21` 6, `T6_b63`
+5, `T5_b21` 4, `T5_b63` 3. Largest: **`T7` (Sarle's bimodality coefficient) at `d' = 11.74`**, B=21,
+`kappa = 6.5, pi2 = 0.30, lambda = 0.980`.
+
+**Tell 1 — anti-flattery.** Does **not** fire. Survival spans `kappa` in {2.0, 4.0, 6.5} and `lambda`
+in {0.95, 0.98, 0.995}.
+
+**Tell 2 — the dispersion tell**, and the `lambda`-direction prediction of §3. Predicted: `d'` **rises**
+with `lambda`.
+
+| | rises | falls | flat | verdict |
+|---|---|---|---|---|
+| `T5_b21` | 2 | 4 | 0 | **CONTRADICTED** — behaves like S0's T3 |
+| `T6_b21` | 3 | 2 | 1 | HELD |
+| `T7_b21` | 1 | 3 | 2 | **CONTRADICTED** — behaves like S0's T3 |
+| `T5_b63` | 2 | 4 | 0 | **CONTRADICTED** |
+| `T6_b63` | 3 | 3 | 0 | INDETERMINATE |
+| `T7_b63` | **5** | **0** | 1 | **HELD**, and cleanly |
+
+**Tell 3 — the noise tell.** Stronger at B=63 in: `T5` 5/18, `T6` 5/18, **`T7` 10/18**. And `T7` splits
+by regime contrast — stronger at B=63 in **5 of 6** cells at `kappa = 2.0`, but only **2 of 6** at
+`kappa = 6.5`.
+
+**The one pattern worth recording, and it is a hypothesis rather than a finding.** `T7` at B=63 is the
+only column that satisfies the `lambda` prediction cleanly (5 rises, 0 falls) *and* strengthens with
+aggregation in the majority of cells. That is what a genuine shape signal was predicted to look like.
+**It is not a result, because the control voided the run**, and it may be an artifact of the very noise
+channel §7 identifies. It is written down so that it is neither lost nor promoted.
+
+### 9. What the preregistration does NOT say, and this is a gap
+
+§4 names the void state — *"the run is void, not interesting"* — but **§8's outcome list has three
+branches (PASS, FAIL, INDETERMINATE-BY-INSTABILITY) and a void control is none of them.** No licence
+is attached to this outcome anywhere in the stub.
+
+**That gap is flagged and is not filled here.** Filling it after seeing the result is exactly the
+move the programme's rules exist to prevent. The two readings are:
+
+```
+  (a) VOID means the gate never ran. Repairing the control and re-running is
+      completing S0b, not commissioning S0c.
+      RISK: this is indistinguishable, from the outside, from adjusting an
+      experiment until it works.
+
+  (b) VOID means the DESIGN was wrong, and S0b was the final gate. The
+      programme terminates as INDETERMINATE under CHARTER section 6.
+      RISK: it discards an obstruction that is arguably itself the answer to
+      the identification question.
+```
+
+**And the obvious repair is precisely what the scope condition forbids.** The natural fix is a null
+whose variance dispersion is a free parameter *of the variance process* rather than of the innovation
+law — a lognormal stochastic-volatility null with Gaussian innovations, say — which would leave the
+RV estimation noise matched. **That is a different null family, i.e. S0c**, ruled out in advance by
+this stub's own header and by [[CHARTER]] §9.4.
+
+**The decision is the author's and is deliberately not taken inside the experiment.**
 
 ## Related
 

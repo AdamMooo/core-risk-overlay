@@ -286,7 +286,7 @@ its predecessor returns.
 | | question | status |
 |---|---|---|
 | **S0** | ~~What would constitute evidence that the return-generating environment has changed?~~ **RAN 2026-08-18. H(S0) SURVIVES, CONDITIONALLY.** One functional discriminates the classes after exact matching on the unconditional variance and the whole squared-return ACF: **T3, the dispersion of block realized variance**, `d'` up to 10.2 at 21-day blocks. Two candidates are **eliminated** and one deductive prediction was **wrong** — see §9.1. [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] | **CLOSED** |
-| **S0b** | **With the dispersion of the variance process ALSO matched, does any functional still separate a discrete two-state chain from a continuous-variance null at n = 8,300 — and is it a functional of the variance distribution's SHAPE rather than its spread?** | **STUB COMMITTED 2026-08-19, not yet run.** [[docs/STUB-S0B-DISCRETENESS-GATE]]. **THE FINAL SYNTHETIC GATE — see §9.4.** Returns nothing ⇒ the programme terminates as INDETERMINATE |
+| **S0b** | ~~With the dispersion of the variance process ALSO matched, does any functional still separate a discrete two-state chain from a continuous-variance null?~~ **RAN 2026-08-19. THE RUN IS VOID — the control failed.** All 18 cells feasible, all three matching constraints exact to 3.4e-14, and T3's `d'` reached **7.42** against a threshold of 2. Neither PASS nor FAIL under the frozen criteria. [[docs/STUB-S0B-DISCRETENESS-GATE]] §7-§9 | **AWAITING A DECISION** the preregistration does not supply — see §9.5 |
 | **Q1** | **(A) Existence**, on whatever functional S0b returns | **NOT LICENSED** (§9.3), and deferred behind S0b. A passing S0b licenses **Q1's DESIGN only**, inheriting S0b's null, functional, block length and void rule. **No market data until S0b returns a determinate result** |
 | **Q2** | **(B) Characterisation.** Which properties of `F_{s,h}` differ, and which do not? | **does not exist** until Q1 returns |
 | **Q3** | **(C) Transition.** Is the distribution conditional on a recent transition different from the distribution conditional on occupying the state? | **does not exist** until Q2 returns |
@@ -434,6 +434,43 @@ inside Q1, never by commissioning another gate.
 *the discreteness of the equity return-generating environment is not identifiable from a single daily
 history at this sample size, once every easier difference is matched away.* No market data would ever
 have been touched.
+
+### 9.5 S0b returned VOID, 2026-08-19 — and the preregistration has no branch for it
+
+**The control failed and the run is void.** T3 was in S0b's functional list under its §4 for exactly
+this purpose, and the preregistered instruction was that a non-zero `d'` there means *the matching is
+broken, not that a difference was found.* Max `d'` on T3: **7.42**, threshold 2.
+
+**But (M3) is holding** — `Var(sigma^2)` is matched to 3.4e-14 and `checks.py` asserts 1e-10
+independently. **What failed is the control's premise**, and the reason is structural rather than a
+defect:
+
+> **Matching the dispersion of the variance process requires an instrument — the innovation kurtosis —
+> that contaminates every realized-variance functional used to read the variance process's shape.**
+> `RV_block = SUM sigma2_t z2_t` carries the estimation noise of `z2`, whose size is `E[z^4]`, which is
+> the instrument. And `sd(log RV)` was never a function of `Var(sigma^2)` alone, because the variance
+> of a log depends on the whole distribution of the level.
+
+The obstruction is visible and monotone: at `kappa = 2.0` where `Var(sigma^2) = 0.096` and the required
+`k` reaches 9.91, T3's `d'` is **7.42**; at `kappa = 6.5, pi2 = 0.15` where `Var(sigma^2) = 1.158`,
+it is **0.02**. The control fails exactly where the instrument bites hardest.
+
+**The gap, flagged and not filled.** §8 of the stub has three outcome branches — PASS, FAIL,
+INDETERMINATE-BY-INSTABILITY — and **a void control is none of them.** Filling that gap after seeing
+the result is the move these rules exist to prevent, so it is left open: either VOID means the gate
+never ran and repairing it completes S0b, or VOID means the design was wrong and §6 terminates the
+programme as INDETERMINATE.
+
+**And the natural repair is what §9.4 forbids.** A null whose variance dispersion is a free parameter
+of the *variance process* rather than of the innovation law — a lognormal stochastic-volatility null
+with Gaussian innovations — would leave the RV estimation noise matched. **That is a different null
+family, i.e. S0c**, ruled out in advance.
+
+**Nothing about the run was changed after it was seen.** The shape functionals are reported in full and
+labelled uninterpretable, including the one pattern that looks like what a genuine shape signal was
+predicted to look like: `T7` at B=63 is the only column satisfying the `lambda`-direction prediction
+cleanly (5 rises, 0 falls) while also strengthening with aggregation in the majority of cells. **It is
+recorded so it is neither lost nor promoted.**
 
 ## 10. Scope discipline
 
