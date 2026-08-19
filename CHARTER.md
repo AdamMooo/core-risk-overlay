@@ -286,8 +286,8 @@ its predecessor returns.
 | | question | status |
 |---|---|---|
 | **S0** | ~~What would constitute evidence that the return-generating environment has changed?~~ **RAN 2026-08-18. H(S0) SURVIVES, CONDITIONALLY.** One functional discriminates the classes after exact matching on the unconditional variance and the whole squared-return ACF: **T3, the dispersion of block realized variance**, `d'` up to 10.2 at 21-day blocks. Two candidates are **eliminated** and one deductive prediction was **wrong** — see §9.1. [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] | **CLOSED** |
-| **S0b** | **With the dispersion of the variance process ALSO matched, does any functional still separate a discrete two-state chain from a continuous-variance null at n = 8,300 — and is it a functional of the variance distribution's SHAPE rather than its spread?** | **NOT YET STUBBED.** The gate S0 should have been. Decision and reasoning: [[docs/DECISION-Q1-CLAIM]] §4. **Returns nothing ⇒ the programme ends as INDETERMINATE**, and that must be in its stub before it runs |
-| **Q1** | **(A) Existence**, on whatever functional S0b returns | **NOT LICENSED as framed on 2026-08-18**, and deferred behind S0b — see §9.2. No market-data experiment is licensed until S0b returns |
+| **S0b** | **With the dispersion of the variance process ALSO matched, does any functional still separate a discrete two-state chain from a continuous-variance null at n = 8,300 — and is it a functional of the variance distribution's SHAPE rather than its spread?** | **STUB COMMITTED 2026-08-19, not yet run.** [[docs/STUB-S0B-DISCRETENESS-GATE]]. **THE FINAL SYNTHETIC GATE — see §9.4.** Returns nothing ⇒ the programme terminates as INDETERMINATE |
+| **Q1** | **(A) Existence**, on whatever functional S0b returns | **NOT LICENSED** (§9.3), and deferred behind S0b. A passing S0b licenses **Q1's DESIGN only**, inheriting S0b's null, functional, block length and void rule. **No market data until S0b returns a determinate result** |
 | **Q2** | **(B) Characterisation.** Which properties of `F_{s,h}` differ, and which do not? | **does not exist** until Q1 returns |
 | **Q3** | **(C) Transition.** Is the distribution conditional on a recent transition different from the distribution conditional on occupying the state? | **does not exist** until Q2 returns |
 
@@ -411,6 +411,29 @@ the claim actually under test and which S0, in retrospect, did not test.
 
 **The void-rule flag is upgraded, not resolved:** from "not demonstrably orthogonal" to **demonstrably
 not orthogonal**. S0's reported numbers and its four anomalies stand unaltered.
+
+### 9.4 S0b is the final synthetic identification gate — a hard scope condition, authorised 2026-08-19
+
+**There is no S0c.** After S0b the null family is not widened, the functional set is not extended, the
+sweep is not enlarged, and the sample is not grown to chase a marginal cell. The condition is written
+into [[docs/STUB-S0B-DISCRETENESS-GATE]] itself rather than promised beside it, because a scope
+condition living outside the document it constrains is not a constraint.
+
+**Why a second synthetic gate was authorised at all**, recorded so the precedent stays narrow: S0b is
+not another convenient objection. It tests **the exact dimension §2 rests the programme on and that S0
+has now been shown not to have isolated** — discreteness, conditional on matching the variance-process
+dispersion itself. One gate, one dimension, one terminating outcome either way.
+
+**Pass licenses design, not execution.** Q1's stub returns for approval before any market data is
+read, and it inherits S0b's null, functional, block length, void rule and power clause rather than
+reopening the identification question. The proposition Q1 would then test is bounded in advance, and
+**structural breaks and long memory remain outside it** — to be handled by a declared robustness check
+inside Q1, never by commissioning another gate.
+
+**Failure terminates the programme** under §6 as INDETERMINATE, and the negative is worth stating:
+*the discreteness of the equity return-generating environment is not identifiable from a single daily
+history at this sample size, once every easier difference is matched away.* No market data would ever
+have been touched.
 
 ## 10. Scope discipline
 

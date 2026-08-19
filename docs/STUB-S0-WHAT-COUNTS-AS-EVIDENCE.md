@@ -403,7 +403,27 @@ establish, and is precisely what Q1 would be measuring.** If the market's states
 variance ratio of 2 rather than 4, this functional cannot see them at `n = 8,300` and Q1 will return
 INCONCLUSIVE rather than a negative — which must be written into Q1's stub in advance.
 
+### 8b. ADDENDUM 2026-08-19 — what the survivor turned out to be
+
+*Added below the results rule, after the fact, and changing nothing above it.*
+
+**The functional that survived, T3, does not carry evidence of discreteness.** One day after this
+experiment ran, an exact identity showed that its separation is reducible to a difference in
+variance-process dispersion — the quantity section 5.2's matching left free. Recorded as **R1** in
+[[docs/DECISION-Q1-CLAIM]] section 6b, with the algebra at section 1.2 there.
+
+**This does not retract S0 and does not amend anything above.** Every number reported here stands, the
+four anomalies stand, and the two eliminations — aggregate kurtosis and path geometry — stand
+untouched and remain binding on everything downstream. What changes is the *interpretation* of the
+survivor: S0 answered the question it asked, and the question turned out not to be the one the
+programme needed. **That is a determinate identification failure, not a failed experiment**, and
+section 9 below is superseded accordingly.
+
 ### 9. What this licenses, and what it does not
+
+**SUPERSEDED 2026-08-19 by section 8b and [[docs/DECISION-Q1-CLAIM]].** What follows is what this
+section said when the results were committed, preserved because a stub rewritten after the fact is
+worthless. Q1 was **not** licensed; [[docs/STUB-S0B-DISCRETENESS-GATE]] replaced it.
 
 Under §2 field 9, exactly one thing: **the design of Q1**, with the functional and horizon S0
 returned and not re-chosen.

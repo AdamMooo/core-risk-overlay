@@ -218,6 +218,45 @@ Not the weakest. The strongest the identification structure carries:
 The gap between those two sentences is the gate in §4, and closing it is the whole of what should
 happen next.
 
+## 6b. R1 — the result S0 actually produced, entered into the record
+
+**S0 is not an abandoned experiment and must never be described as one.** It produced a determinate,
+citable negative, and it is the first established result of the return-state programme. It is given an
+identifier here so that later documents cite it rather than re-deriving it.
+
+> ### R1 (2026-08-18, deductive + measured)
+>
+> **T3 — the dispersion of log realized variance over 21-day blocks — is not evidence of
+> discreteness. Its separation between a two-state chain and a matched GARCH(1,1) is algebraically
+> reducible to a difference in variance-process dispersion, which S0's matching left free.**
+>
+> The reduction is exact, not approximate: with `E[sigma^2] = 1`, kurtosis `K = 3 E[sigma^4]` gives
+> `Var(sigma^2) = K/3 - 1` for both classes, so the residual kurtosis mismatch S0 declared **is** the
+> unmatched variance-process dispersion, and T3 measures that dispersion at a 21-day scale. S0's
+> surviving functional and S0's declared mismatch are two estimators of one quantity; T3 won on
+> efficiency, not on content.
+>
+> **Kind:** `[D]` for the reduction, `[I]` for the `d'` magnitudes that motivated looking.
+> **Evidence:** [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] sections 6-8 for the measurement, section 1.2
+> above for the algebra. **Effective n:** 400 replications x 18 cells, synthetic; the reduction itself
+> needs none.
+
+**What R1 establishes, and it is a methodological result rather than a fact about markets:**
+
+1. **Matching two moments of a variance process does not isolate its shape.** Matching the level and
+   the autocorrelation of `sigma^2` leaves its *scale* free, and a great many natural functionals
+   respond to scale. A matching argument must state which moment each functional reads.
+2. **A void rule built from a second statistic of the same quantity is not a control.** S0's rule
+   required `d'(T3)` to exceed `d'(kurtosis)`; both estimate `Var(sigma^2)`, so the rule compared two
+   estimators of one difference and rewarded the more efficient one. **The rule was not wrong to be
+   there — it was wrong to be trusted**, and the way it failed is only visible because the rule was
+   declared in advance.
+3. **The functional that survives a synthetic gate is not thereby the functional the programme wants.**
+   S0 asked *what separates these classes* and got an honest answer to that question. The programme's
+   question was *what identifies discreteness*, and those turned out to be different questions.
+
+**R1 is why S0b exists**, and it is the reason S0b's control functional is T3 itself.
+
 ## 7. Carried forward unchanged
 
 - **S0's four anomalies stand exactly as reported.** `d'` falling with persistence remains **recorded
