@@ -285,10 +285,40 @@ its predecessor returns.
 
 | | question | status |
 |---|---|---|
-| **S0** | **What would constitute evidence that the return-generating environment has changed?** The identification problem worked before anything is measured: what a state claim must beat, at what horizon, on what functional, and what the available history can carry | **STUB COMMITTED 2026-08-18.** [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] |
-| **Q1** | **(A) Existence.** Does a discrete, persistent state structure produce forward return distributions that N1 does not, at a horizon and on a functional where the two are structurally capable of differing? | designable once S0 fixes the functional and horizon. **Kills the program under S1** |
+| **S0** | ~~What would constitute evidence that the return-generating environment has changed?~~ **RAN 2026-08-18. H(S0) SURVIVES, CONDITIONALLY.** One functional discriminates the classes after exact matching on the unconditional variance and the whole squared-return ACF: **T3, the dispersion of block realized variance**, `d'` up to 10.2 at 21-day blocks. Two candidates are **eliminated** and one deductive prediction was **wrong** — see §9.1. [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] | **CLOSED** |
+| **Q1** | **(A) Existence.** Does a discrete, persistent state structure produce forward return distributions that N1 does not — measured on **T3 at 21-day blocks**, the functional S0 returned? | **EXISTS, not yet designed.** Its functional, horizon and mismatch floor are fixed by S0 and are not re-chosen. **Kills the program under S1** |
 | **Q2** | **(B) Characterisation.** Which properties of `F_{s,h}` differ, and which do not? | **does not exist** until Q1 returns |
 | **Q3** | **(C) Transition.** Is the distribution conditional on a recent transition different from the distribution conditional on occupying the state? | **does not exist** until Q2 returns |
+
+### 9.1 What S0 fixed, and what it eliminated
+
+Recorded here because Q1 inherits all of it and may not re-open any of it.
+
+**Q1's functional is fixed: `T3`** — the standard deviation of log realized variance over
+non-overlapping blocks, block length **21** primary with **63** as the declared sensitivity. Not
+chosen; returned.
+
+**Three candidates are eliminated and are forbidden in Q1:**
+
+| | why it is out |
+|---|---|
+| the sample **squared-return ACF** | matched by construction, so it cannot discriminate — and its residual `d' = 1.03` comes from the *sampling distribution* of the estimator rather than the population ACF, a fourth-moment effect. **A sample ACF is not a clean discriminating statistic even where the population ACFs are provably equal** |
+| **aggregate kurtosis** at `h > 1` | max `d' = 1.59` against a kurtosis-mismatch floor reaching 6.80. Below its own floor in every cell. Aggregation washes the difference out |
+| **any drawdown or path-geometry functional** | `d' = 0.15` on max drawdown, `0.14` on CDaR(5%); mean max drawdown 0.645 versus 0.647; **6.1 excursions past 10% per simulated 33-year history.** Measured on synthetic data where the states exist *by construction*, so this is a foreclosure no market measurement could have given |
+
+**One preregistered deduction was wrong, and the correction is load-bearing.** §5.2 of the stub argued
+that matching the whole squared-return ACF would kill T3 deductively. It did not. **Matching the
+autocovariance function of squared returns is not matching the distribution of the latent variance
+process** — the ACF is second-order; the dispersion of block realized variance depends on the shape
+of the variance process. Identical autocovariance at every lag, different distribution. **Second-order
+equality is not equality**, and that sentence now constrains every future matching argument here.
+
+**Q1 inherits a condition it must state in advance.** T3 survives at variance ratios of 4 and 6.5 and
+**never at 2**, and 8 of its 9 surviving cells have the wide state occupying 30% of the time. Whether
+a real market's state contrast is that large is unknown and is not something S0 could establish. **So
+a negative from Q1 is INCONCLUSIVE rather than S1** unless Q1 also demonstrates power against the
+contrast the market actually appears to have — and that requirement goes in Q1's stub before it runs,
+not after it returns.
 
 **Two deductive results already constrain Q2 and bind before it is designed.** A finite Gaussian
 mixture is Gaussian in the far tail for any `k` and any weight (E7, algebra); and the squared-return

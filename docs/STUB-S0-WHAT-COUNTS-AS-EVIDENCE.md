@@ -318,7 +318,122 @@ false negative that looks exactly like a real one.
 
 ## Results
 
-Not yet run.
+**RAN 2026-08-18.** `states/s0_discriminating_functional.py`, seed 20260818, 400 replications per
+class per cell, 18 cells, all feasible. No market data. Full console output reproduced by re-running
+the module.
+
+### 6. Matching quality, reported first
+
+Matched **exactly**: unconditional variance, and the squared-return autocorrelation at every lag
+(`|rho_MS(1) - rho_G(1)| <= 1.8e-15` across the sweep). Residual mismatch is kurtosis, and it is
+**large** — GARCH sits 3.6% below the switching model at `kappa = 2` and **38.6% below at
+`kappa = 6.5`**. Three GARCH parameters cannot also match a fourth moment, as declared.
+
+That mismatch is the floor every separation has to clear, and §4's void rule is applied to **every**
+functional rather than only to T2. *(The first implementation applied it to T2 alone; applying it
+everywhere is strictly more stringent and can only remove survivors. Recorded because it is a change
+to the analysis, made before the verdict was read.)*
+
+### 7. The four functionals
+
+| | prediction | result | verdict |
+|---|---|---|---|
+| **T1** squared-return ACF | `d' ~ 0` — correctness check | max `d' = 1.035` | **matching confirmed in simulation.** Below threshold, but not zero — see §7.1 |
+| **T2** kurtosis of `h`-day sums | different but small | max `d'` at `h>1` is **1.59** against a mismatch floor reaching **6.80**. **0 surviving cells** | **PREDICTION HELD.** Aggregation washes it out. The size is: too small to use |
+| **T3** dispersion of block realized variance | **dies at the matching step** | max `d' = 10.22`. **9 surviving cell x block pairs** | **PREDICTION WRONG — and this is the finding.** See §7.2 |
+| **T4** max drawdown, CDaR(5%) | separates in expectation, unestimable at `n` | `d' = 0.151` and `0.136`. Mean max drawdown **0.645 switching vs 0.647 null**. **6.1 excursions past 10% per 8,300-day path** | **PREDICTION HELD**, and it is the most useful negative here. See §7.3 |
+
+#### 7.1 The T1 residue, which is a caveat rather than a failure
+
+`d'` reaches 1.035 at `kappa = 6.5`, `lambda = 0.995` — below the threshold, so the correctness check
+passes, but it is not zero and the reason matters. **The population ACF is identical by
+construction.** What differs is the *sampling distribution* of the estimator: the sample ACF of
+squared returns is a ratio of fourth-moment quantities, and the two classes' fourth moments differ.
+**A sample ACF is therefore not a clean discriminating statistic even when the population ACFs are
+provably equal**, and any future experiment proposing one inherits this caveat.
+
+#### 7.2 T3, and why the deductive prediction was wrong
+
+§5.2 argued deductively that matching the whole squared-return ACF would kill this coordinate. It
+did not, and the error is instructive:
+
+> **Matching the autocovariance function of squared returns is not matching the distribution of the
+> latent variance process.** The ACF is a second-order object. The dispersion of block realized
+> variance depends on the *shape* of the variance process — a two-state chain makes a 21-day block
+> mostly-one-state or mostly-the-other, while a GARCH variance drifts smoothly through a continuum.
+> Identical autocovariance at every lag; different distribution. **Second-order equality is not
+> equality.**
+
+The §5.2 amendment claimed this coordinate was resolved *before the run, deductively*. **That claim
+was wrong and is withdrawn.** It is left standing above the results rule, as written, because a stub
+edited after the fact is worthless — and because the whole point of preregistering a deduction is
+that it can be caught being wrong.
+
+#### 7.3 T4, and the route it forecloses
+
+Path geometry does not discriminate: `d' = 0.15` at best, and the mean max drawdown differs by
+**0.2 percentage points between the two classes** — 0.645 against 0.647. With **6.1 excursions past
+10% per simulated 33-year history**, the effective n of this coordinate is single digits, exactly as
+[[docs/PROBLEM-MAP]]'s standing sample-size result implies.
+
+**This closes drawdown geometry as a coordinate for a state-existence claim, and it does so on
+synthetic data where the states are known to exist by construction.** That is a stronger foreclosure
+than any market measurement could give: if the coordinate cannot see states that are *there*, its
+silence on real data would have meant nothing.
+
+### 8. Verdict
+
+**H(S0) SURVIVES, conditionally, on T3.**
+
+Best: `T3` at block 21, `d' = 10.22`, at `kappa = 6.5`, `pi2 = 0.30`, `lambda = 0.950`. Five of
+eighteen parameter cells carry at least one surviving functional.
+
+**The anti-flattery rule (§5.5) does not fire** — survival is not confined to the extreme corner, and
+in fact `d'` on T3 *falls* as `lambda` rises. **But the survival is conditional, and the condition
+travels with Q1:**
+
+```
+    survives at kappa  in {4.0, 6.5}          NEVER at kappa = 2.0
+    survives at pi2    in {0.15, 0.30}        but 8 of 9 surviving pairs are at pi2 = 0.30
+    survives at lambda in {0.95, 0.98, 0.995}
+```
+
+**Whether a real equity market has a state contrast that large is not known, is not something S0 can
+establish, and is precisely what Q1 would be measuring.** If the market's states are separated by a
+variance ratio of 2 rather than 4, this functional cannot see them at `n = 8,300` and Q1 will return
+INCONCLUSIVE rather than a negative — which must be written into Q1's stub in advance.
+
+### 9. What this licenses, and what it does not
+
+Under §2 field 9, exactly one thing: **the design of Q1**, with the functional and horizon S0
+returned and not re-chosen.
+
+```
+  Q1's functional      T3 -- sd of log realized variance over non-overlapping
+                       blocks. Block length 21 primary, 63 as the declared
+                       sensitivity. Both survived; 21 is stronger in 4 of 5 cells.
+
+  Q1's horizon         daily returns, 21-day blocks. NOT h in {1, 5, 63}.
+
+  FORBIDDEN in Q1      the sample squared-return ACF (T1 -- matched by
+                       construction, and see 7.1); aggregate kurtosis (T2 --
+                       below its own mismatch floor everywhere); ANY drawdown
+                       or path-geometry functional (T4 -- d' = 0.15 where the
+                       states are known to exist).
+
+  Q1's floor           any separation Q1 reports must clear the kurtosis-
+                       mismatch floor in the same way, and the floor must be
+                       computed and reported before the separation.
+```
+
+**It does not license:** a second synthetic study; a third model class; a search for a functional
+that works better than T3; any change to the null or the frequency; or any statement about equity
+returns. **S0 touched no market data and has said nothing about markets.**
+
+**And one thing it explicitly does not license, because it is the obvious next thought:** T3 is not a
+state detector. It is a statistic that distinguishes two *model classes* on synthetic data. Using it
+to label periods would be [[CHARTER]] §1's questions (A) and (D) collapsed into one, which §1
+forbids.
 
 ## Related
 

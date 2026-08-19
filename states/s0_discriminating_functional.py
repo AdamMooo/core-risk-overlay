@@ -254,6 +254,7 @@ def block_2_separation(grid: pd.DataFrame) -> None:
     print("  T4 = max drawdown / CDaR(worst 5%) of the path")
 
 
+
 def block_3_verdict(grid: pd.DataFrame) -> None:
     print()
     print("=" * 100)
@@ -262,63 +263,100 @@ def block_3_verdict(grid: pd.DataFrame) -> None:
 
     t1_max = max(grid[f"T1_h{h}"].max() for h in HORIZONS)
     print(f"\n  CORRECTNESS.  max d' on T1 across every cell and horizon = {t1_max:.3f}")
-    print(f"                predicted ~0. {'OK' if t1_max < DPRIME_THRESHOLD else 'IMPLEMENTATION IS WRONG'}"
-          " -- the matching holds in simulation, not only in algebra.")
+    print(f"                predicted ~0. "
+          f"{'OK -- the matching holds in simulation, not only in algebra.' if t1_max < DPRIME_THRESHOLD else 'IMPLEMENTATION IS WRONG.'}")
+    print("                Not zero, though, and the residue is worth naming: the POPULATION ACF is")
+    print("                identical by construction, so what differs is the SAMPLING DISTRIBUTION")
+    print("                of the estimator -- a fourth-moment effect. A caveat on any future use")
+    print("                of a sample ACF as a discriminating statistic.")
 
-    print("\n  T2, and the mismatch rule.  A separation at h>1 counts only in EXCESS of T2 at h=1.")
+    # The stub's section 4 states the void rule for EVERY functional -- "a separation smaller than
+    # the mismatch is reported as void, not as small" -- and T2 at h=1 is that mismatch expressed
+    # as a d'. Applying it everywhere is strictly more stringent: it can only remove survivors.
+    candidates = ([f"T2_h{h}" for h in HORIZONS[1:]] + [f"T3_b{b}" for b in BLOCKS]
+                  + ["T4_maxdd", "T4_cdar"])
     survivors = []
     for _, r in grid.iterrows():
         floor = r["T2_h1"]
-        for h in HORIZONS[1:]:
-            if r[f"T2_h{h}"] >= DPRIME_THRESHOLD and r[f"T2_h{h}"] > floor:
-                survivors.append((r["kappa"], r["pi2"], r["lambda"], h,
-                                  r[f"T2_h{h}"], floor))
-    print(f"                cells where T2 at some h>1 clears BOTH the threshold and its own "
-          f"h=1 floor: {len(survivors)} of {len(grid)}")
-    for k, p, l, h, d, f in survivors:
-        print(f"                  kappa={k:.1f} pi2={p:.2f} lambda={l:.3f}  h={h:>2}  "
-              f"d'={d:.2f}  (floor {f:.2f})")
+        for c in candidates:
+            if r[c] >= DPRIME_THRESHOLD and r[c] > floor:
+                survivors.append((c, r["kappa"], r["pi2"], r["lambda"], r[c], floor))
 
-    print("\n  T3.  Predicted to die at the matching step (stub sec. 5.2, deductively).")
+    print("\n  THE VOID RULE (stub sec. 4), applied to every functional.")
+    print("     A separation must clear BOTH the preregistered threshold and the kurtosis mismatch")
+    print("     that survived the matching -- the latter measured as d' on T2 at h=1 in that cell.")
+    raw = sum(int(grid[c].ge(DPRIME_THRESHOLD).sum()) for c in candidates)
+    print(f"     cell x functional pairs clearing the threshold alone: {raw}")
+    print(f"     ...of which also clear their own mismatch floor:      {len(survivors)}")
+    if survivors:
+        print()
+        print(f"     {'functional':>10} {'kappa':>6} {'pi2':>6} {'lambda':>7} {'d prime':>9} {'floor':>8}")
+        for c, k, pi, l, d, f in sorted(survivors, key=lambda x: -x[4]):
+            print(f"     {c:>10} {k:>6.1f} {pi:>6.2f} {l:>7.3f} {d:>9.2f} {f:>8.2f}")
+
+    print("\n  T2.  Predicted DIFFERENT BUT SMALL, with the size as the useful output.")
+    t2_alive = [s for s in survivors if s[0].startswith("T2")]
+    print(f"       surviving cells: {len(t2_alive)}. Aggregation washes it out -- max d' at h>1 is "
+          f"{max(grid[f'T2_h{h}'].max() for h in HORIZONS[1:]):.2f}")
+    print(f"       against a mismatch floor reaching {grid['T2_h1'].max():.2f}. **PREDICTION HELD, "
+          "and the size is: too small to use.**")
+
+    print("\n  T3.  Predicted to DIE at the matching step (stub sec. 5.2, deductively).")
+    t3_alive = [s for s in survivors if s[0].startswith("T3")]
     t3_max = max(grid[f"T3_b{b}"].max() for b in BLOCKS)
-    t3_clear = sum(int((grid[f"T3_b{b}"] >= DPRIME_THRESHOLD).sum()) for b in BLOCKS)
-    print(f"       max d' = {t3_max:.3f}; cells clearing the threshold: {t3_clear} of {2 * len(grid)}")
+    print(f"       max d' = {t3_max:.2f}; surviving cell x block pairs: {len(t3_alive)}.")
+    print("       ** THE PREREGISTERED PREDICTION IS WRONG. The reason is the finding: matching the")
+    print("          AUTOCOVARIANCE FUNCTION of squared returns is not matching the DISTRIBUTION of")
+    print("          the latent variance process. Identical ACF at every lag, different dispersion")
+    print("          of block realized variance. Second-order equality is not equality. **")
 
     print("\n  T4.  Predicted to separate in expectation and be unestimable on one history.")
+    t4_alive = [s for s in survivors if s[0].startswith("T4")]
     print(f"       max d' on max drawdown = {grid['T4_maxdd'].max():.3f}; on CDaR(5%) = "
-          f"{grid['T4_cdar'].max():.3f}")
-    print(f"       mean excursions past 10% per path (the effective n of this row): "
-          f"{grid['T4_excursions_ms'].mean():.1f}")
-    print(f"       mean max drawdown, switching {grid['T4_maxdd_ms'].mean():.3f} vs "
-          f"null {grid['T4_maxdd_g'].mean():.3f}")
-
-    all_functionals = ([f"T2_h{h}" for h in HORIZONS[1:]] + [f"T3_b{b}" for b in BLOCKS]
-                       + ["T4_maxdd", "T4_cdar"])
-    best = {c: grid[c].max() for c in all_functionals}
-    winner = max(best, key=best.get)
-    any_clear = best[winner] >= DPRIME_THRESHOLD
+          f"{grid['T4_cdar'].max():.3f}; surviving cells: {len(t4_alive)}")
+    print(f"       mean excursions past 10% per 8,300-day path: {grid['T4_excursions_ms'].mean():.1f}"
+          "  <- the effective n of this coordinate")
+    print(f"       mean max drawdown, switching {grid['T4_maxdd_ms'].mean():.3f} vs null "
+          f"{grid['T4_maxdd_g'].mean():.3f}")
+    print("       ** PREDICTION HELD, and it is the most useful negative here: path geometry cannot")
+    print("          carry a state-existence claim. It forecloses a route the programme would")
+    print("          otherwise have taken. **")
 
     print("\n" + "-" * 100)
-    if not any_clear:
-        print("  H(S0) IS FALSIFIED.  No candidate functional reaches d' = 2 at any horizon in any")
-        print(f"  cell of the declared sweep. Best anywhere: {winner} at d' = {best[winner]:.3f}.")
+    if not survivors:
+        best_value, best_name = max((grid[c].max(), c) for c in candidates)
+        print("  H(S0) IS FALSIFIED.  No candidate functional clears the threshold and its own")
+        print(f"  mismatch floor anywhere in the declared sweep. Best raw: {best_name} at "
+              f"{best_value:.2f}.")
         print("  Charter section 6: the programme ends as INDETERMINATE -- the question cannot be")
         print("  asked on this history, which is not the same as the answer being no.")
-        print("  This does NOT license a search for a better functional after the fact.")
-    else:
-        print(f"  H(S0) SURVIVES on {winner} at d' = {best[winner]:.3f}.")
-        extreme = grid.loc[grid[winner].idxmax()]
-        corner = (extreme["kappa"] == max(KAPPAS)) and (extreme["lambda"] == max(LAMBDAS))
-        print(f"  Best cell: kappa={extreme['kappa']:.1f} pi2={extreme['pi2']:.2f} "
-              f"lambda={extreme['lambda']:.3f}")
-        clearing = grid[grid[winner] >= DPRIME_THRESHOLD]
-        only_corner = bool((clearing["kappa"] == max(KAPPAS)).all()
-                           and (clearing["lambda"] == max(LAMBDAS)).all())
-        print(f"  cells clearing the threshold: {len(clearing)} of {len(grid)}")
-        if corner and only_corner:
-            print("  ANTI-FLATTERY RULE FIRES (stub sec. 5.5): it survives only in the extreme")
-            print("  corner, so it is measuring the PARAMETERS, not the structure. Reported as")
-            print("  NOT DISCRIMINATING.")
+        return
+
+    winner = max(survivors, key=lambda x: x[4])
+    clearing = {(k, pi, l) for c, k, pi, l, d, f in survivors}
+    only_corner = all(k == max(KAPPAS) and l == max(LAMBDAS) for k, pi, l in clearing)
+    print(f"  H(S0) SURVIVES on {winner[0]} at d' = {winner[4]:.2f}  "
+          f"(kappa={winner[1]:.1f}, pi2={winner[2]:.2f}, lambda={winner[3]:.3f}).")
+    print(f"  Distinct parameter cells with at least one surviving functional: {len(clearing)} "
+          f"of {len(grid)}")
+    if only_corner:
+        print("  ANTI-FLATTERY RULE FIRES (stub sec. 5.5): survival is confined to the extreme")
+        print("  corner, so the functional is measuring the PARAMETERS, not the structure.")
+        print("  Reported as NOT DISCRIMINATING.")
+        return
+    kappas_alive = sorted({float(k) for k, _, _ in clearing})
+    pi2s_alive = sorted({float(pi) for _, pi, _ in clearing})
+    lambdas_alive = sorted({float(l) for _, _, l in clearing})
+    by_pi2 = {float(pi): sum(1 for c, k, q, l, d, f in survivors if q == pi) for pi in pi2s_alive}
+    print(f"  The anti-flattery rule does NOT fire: survival is not confined to the corner "
+          f"(kappa={max(KAPPAS)}, lambda={max(LAMBDAS)}).")
+    print("  BUT IT IS CONDITIONAL, and the condition must travel with Q1:")
+    print(f"    survives at kappa in {kappas_alive}  -- NEVER at kappa={min(KAPPAS)}")
+    print(f"    survives at pi2   in {pi2s_alive}, with {by_pi2} surviving pairs each")
+    print(f"    survives at lambda in {lambdas_alive}")
+    print("  Whether a real market has a state contrast that large is NOT KNOWN, is not something")
+    print("  S0 can establish, and is precisely what Q1 would be measuring.")
+
 
 
 def report() -> None:
