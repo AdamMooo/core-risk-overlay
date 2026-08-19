@@ -1,6 +1,10 @@
 __pycache__/
 *.pyc
-data/
+# data/* rather than data/ so the negation below can bite -- git cannot re-include
+# a file whose parent directory is excluded.
+data/*
+# The manifest is the point: the caches are untracked, so their hashes must not be.
+!data/MANIFEST.md
 docs/literature/*.pdf
 
 # Scratch notebooks: exploration only, never a source of a reported result.

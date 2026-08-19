@@ -63,7 +63,13 @@ Run from the repository root, so the shared `data/` cache resolves:
 .venv\Scripts\python.exe closed-research/intervention/checks.py             # 17 checks
 ```
 
-E0 was verified to reproduce after the move on 2026-08-18.
+E0 was verified to reproduce after the move on 2026-08-18 -- 15% OTM row `+4.1 / +3.3 / +10.6 /
++11.8`, matching the published table.
+
+**The inputs are pinned.** `data/MANIFEST.md` records the sha256 of every cache file these scripts
+read, and `../../checks.py` verifies it. E4's four cross-market series in particular
+(`^GSPC` 1927+, `^N225`, `^FTSE`, `^GDAXI`) came from `yfinance` and there is no guarantee a
+re-download years from now returns the same history.
 
 ## The frozen copy, deliberately
 

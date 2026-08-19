@@ -75,6 +75,13 @@ Run from the repository root, so the shared `data/` cache resolves:
 
 Both flagship negatives were verified to reproduce bit-for-bit after the move on 2026-08-17.
 
+**And that claim now has something behind it.** `data/` is gitignored, and `density_spy.csv` -- which
+D3 and F2 are computed from -- is a **derived artifact from a long refit loop**, not a download. Until
+2026-08-18 "it reproduces" rested entirely on files git does not track. `data/MANIFEST.md` records the
+sha256, row count and date range of every cache file and **is** tracked; `checks.py` verifies the cache
+against it on every run. A cache that differs from the one that produced these numbers is now detected
+rather than silently used.
+
 ## Two frozen copies, deliberately
 
 `hedge_economics.py` and `src/data_loader.py` are **duplicated** here rather than imported from the

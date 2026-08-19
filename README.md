@@ -91,7 +91,8 @@ designed** — [[CHARTER]] §8.
 |---|---|
 | `src/data_loader.py` | working — daily and weekly returns, VIX, start-date invariant, explicit calendar |
 | `src/pathfunctionals.py` | working — drawdown process, excursions with censoring, CDaR curve, time under water. Retained because drawdown geometry is a **candidate state characteristic**, not because it was an objective |
-| `checks.py` | 35 checks, all passing, covering the two modules above |
+| `src/manifest.py` | working — the data cache's sha256 manifest. `data/` is gitignored and two caches are derived artifacts, so `data/MANIFEST.md` is what makes "the archives reproduce" checkable rather than asserted |
+| `checks.py` | 37 checks, all passing, covering the three modules above |
 | `closed-research/` | prediction program — 81 checks passing, D3 and F2 verified reproducible |
 | `closed-research/intervention/` | rolled-put program — 17 checks passing, E0 verified reproducible after the archive move |
 

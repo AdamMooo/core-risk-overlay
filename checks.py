@@ -1,7 +1,8 @@
-"""Regression checks for active infrastructure.
+r"""Regression checks for active infrastructure.
 
 Covers src/data_loader.py and src/pathfunctionals.py -- the two modules the
-return-state program inherits. The closed programs' checks are frozen with the
+return-state program inherits -- and verifies the data cache against
+data/MANIFEST.md. The closed programs' checks are frozen with the
 code they guard: closed-research/checks.py (prediction) and
 closed-research/intervention/checks.py (rolled-put / tenor).
 
@@ -21,6 +22,7 @@ import numpy as np
 import pandas as pd
 
 import data_loader as dl
+import manifest as mf
 import pathfunctionals as pf
 
 FAILURES: list[str] = []
@@ -174,7 +176,28 @@ def _raises(call) -> bool:
     return False
 
 
+def check_manifest() -> None:
+    """The cache is gitignored; its hashes are not.
+
+    MISSING is reported and not failed -- a fresh clone legitimately has no
+    cache, and the manifest cannot conjure one. PRESENT-AND-DIFFERENT is a
+    failure, because that is a number quoted from data other than the data that
+    produced it.
+    """
+    matched, missing, mismatched = mf.verify()
+    check("manifest: data/MANIFEST.md exists and parses", bool(matched or missing or mismatched))
+    check(f"manifest: no file differs from its recorded hash ({len(matched)} matched)",
+          not mismatched)
+    if mismatched:
+        for name in mismatched:
+            print(f"         MISMATCH: {name}")
+    if missing:
+        print(f"       (not failed) {len(missing)} manifest file(s) absent from this cache: "
+              f"{', '.join(missing)}")
+
+
 def main() -> None:
+    check_manifest()
     check_data_loader()
     check_vix_alignment()
     check_pathfunctionals()
