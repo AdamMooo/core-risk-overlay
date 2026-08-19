@@ -1,15 +1,29 @@
 # Core-Risk-Overlay
 
-Last updated: 2026-08-18
+Last updated: 2026-08-19
 
-> # THERE IS NO ACTIVE RESEARCH PROGRAMME IN THIS REPOSITORY.
+> # A RESEARCH LABORATORY FOR SYSTEMATIC MARKET AND PORTFOLIO RISK.
 >
-> Three programmes have run and all three are closed. The repository is a preserved, reproducible
-> record of what each established and why each stopped. **A fourth would require a new charter.**
+> **Purpose and agent behaviour: [[CLAUDE]] (read first).** This file is what is *established*.
+>
+> **There is no active research programme.** Three have run and all three are closed, and this file is
+> the preserved, reproducible record of what each established and why each stopped. **That is a fact
+> about the queue, not about the repository's purpose.** A fourth programme requires a new charter,
+> argued from the question — never from the code that happens to be here.
 
-**The repository name is historical**, as is everything else here that reads like an instruction.
+**The repository name is historical**, as is everything else here that reads like an instruction. It
+names a programme that no longer runs and does not bound the scope of admissible questions.
 
-- **The last programme's charter, and its termination record:** [[CHARTER]] §11 (**read first**)
+The order of work, and code is the last step:
+
+```
+real-world risk question -> literature -> mechanism -> observable data
+    -> mathematical formulation -> empirical test -> falsification
+    -> extension -> implementation
+```
+
+- **Purpose, agent behaviour, and the repository-gravity warning:** [[CLAUDE]]
+- **The last programme's charter, and its termination record:** [[CHARTER]] §11
 - **Process — the gate every experiment passes:** [[docs/RESEARCH-PROTOCOL]]
 - **Time basis and leak register:** [[docs/POINT-IN-TIME-DISCIPLINE]] · **Mathematics:**
   [[docs/MATH-REFERENCE]]
@@ -118,3 +132,34 @@ designed** — [[CHARTER]] §8.
 **There is no queue.** `src/data_loader.py`, `src/pathfunctionals.py` and `src/manifest.py` are
 retained because they are correct and general, not because anything is planned. **Nothing here is
 waiting to be run.**
+
+## 6. What counts as a result
+
+Profitability is not on this list, and is not required by any item on it.
+
+| criterion | what it demands |
+|---|---|
+| **measurement validity** | the quantity measures the phenomenon claimed, not a proxy for it |
+| **statistical validity** | it survives appropriate inference — effective n stated, overlap not counted as sample |
+| **incremental information** | it is not already carried by an established incumbent, tested at matched complexity |
+| **stability** | it survives reasonable temporal and specification changes |
+| **mechanistic coherence** | there is a defensible reason *why* the relationship exists |
+| **reproducibility** | it rebuilds from accessible data and documented procedure |
+| **decision relevance** | it could plausibly change a risk-management decision |
+| **economic relevance** | the phenomenon corresponds to a meaningful portfolio risk |
+
+A result satisfying some combination of these is valuable. **A closure is a result** — three of them
+are the substance of this repository. So is *"indeterminate on the available history"*, which is how
+programme 3 ended.
+
+**Risk intelligence is not alpha.** `X_t -> P(adverse outcome given X_t)` and `risk information ->
+risk posture` are the objects here; `X_t -> E[R_{t+h}]` is not, and nothing in this repository is
+required to solve it. A valid output is *"current conditions imply materially elevated exposure to
+this form of systematic risk"* — no asset named.
+
+**Public data is the constraint, stated rather than worked around.** Institutional researchers may
+hold proprietary data, positioning, order flow, execution records and deeper option histories. We do
+not, and acquiring them is not this project — so the question is usually what defensible risk
+information *public* data can carry. A phenomenon that is robust, reproducible and useful for
+monitoring but not directly tradable is an acceptable result. The constraint is not an excuse for a
+weak test.

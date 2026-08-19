@@ -1,6 +1,8 @@
 # Research Protocol
 
-Last updated: 2026-08-18. **Binding on everything in the active program.**
+Last updated: 2026-08-19. **Binding on every programme in this repository, including any future one.**
+There is no active programme; these rules do not lapse with the one that produced them, and a new
+charter inherits them rather than restating them.
 
 Companion to [[CHARTER]] (the question, the space, the queue) and
 [[docs/POINT-IN-TIME-DISCIPLINE]] (time basis and the leak register).
@@ -154,6 +156,34 @@ regime without showing the return distribution differs; using portfolio outcomes
 or tune a state; adding an experiment outside [[CHARTER]] §9; and reopening anything in [[PARKED]]'s
 permanently-closed list without meeting its stated condition.
 
+**P11 — Look outward before inward.** When a new question opens, the first move is to the field, not
+to `src/`. Establish what the literature already knows, what mechanism could generate the phenomenon,
+and what remains genuinely unanswered — *then* ask what is reconstructible from public data, and only
+then what is already in this repository. P6 makes literature part of the model; **P11 makes it part of
+the sequence.** The two run in order and the order is the point: a model chosen first and a paper found
+afterwards is a citation, not a mechanism.
+
+**P12 — Repository gravity is a defect, and it is named so it can be called.** Treating what is here —
+code, features, labels, datasets, abstractions, a working model — as the definition of the research
+problem. The containment runs one way and is never reversed:
+
+```
+research universe  >  literature  >  candidate mechanisms
+                   >  publicly measurable phenomena  >  repository experiments
+```
+
+**Existing code is evidence of what has been attempted, never evidence of what to attempt.** Two
+symmetrical errors follow from forgetting it, and both are violations: reusing a model because it is
+here, and excluding a model because a programme that used it failed. **The question chooses the
+model.** Full statement in [[CLAUDE]] §3.
+
+**P13 — The cheapest falsification runs first.** Before a model, a pipeline, a feature family, a state
+taxonomy or a backtest, ask: *what is the cheapest experiment that would make this entire programme
+unnecessary?* Run that one. P5 already requires the *smallest experiment separating the
+possibilities*; P13 applies the same test one level up, to the programme rather than the run. Do not
+escalate complexity because the original idea was attractive — that is [[CHARTER]] §6 S1 in a new
+costume.
+
 ## 2. Reporting
 
 - Every reported number carries its **claim tuple** and its **effective n**, per coordinate.
@@ -170,6 +200,16 @@ permanently-closed list without meeting its stated condition.
 ## Amendments
 
 Every change to this document after a result exists is logged here with date and reason.
+
+**2026-08-19 — repository-level philosophy alignment. Header rescoped from "the active program" to
+every programme including future ones; P11 (outward before inward), P12 (repository gravity) and P13
+(cheapest falsification first) added.** Not selected on a result: no experiment exists to select on,
+all three programmes are closed and no fourth is chartered. **The load-bearing addition is P12** — the
+repository had accumulated working model machinery and three closed programmes, and nothing in the
+documentation prevented a reader from inferring that the machinery defined the agenda. P11 and P13 were
+already implicit in P5 and P6 and are made explicit because implicit rules were the failure mode this
+protocol exists to correct. Repository purpose and agent behaviour now live in [[CLAUDE]], which did
+not previously exist.
 
 **2026-08-18 — program transition to return states. §0 field 6 re-enumerated to the charter's
 A/B/C/D; the null added to the claim tuple; field 5 restated off "decision"; P1, P3, P8, P9 and P10

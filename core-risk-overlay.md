@@ -4,14 +4,49 @@ type: project
 
 # Core-Risk-Overlay
 
-Last updated: 2026-08-18
+Last updated: 2026-08-19
 
 **NO ACTIVE RESEARCH PROGRAMME.** Three have run and all three are closed — see [[README]]. This file
-is the chronological record. **The last programme's termination is [[CHARTER]] §11.** Process in
-[[docs/RESEARCH-PROTOCOL]]. Time-basis rules in [[docs/POINT-IN-TIME-DISCIPLINE]]. Frozen evidence in
-[[docs/PROBLEM-MAP]]. Excluded, including the hedging mandate, in [[PARKED]].
+is the chronological record. **Repository purpose and agent behaviour are [[CLAUDE]].** **The last
+programme's termination is [[CHARTER]] §11.** Process in [[docs/RESEARCH-PROTOCOL]]. Time-basis rules
+in [[docs/POINT-IN-TIME-DISCIPLINE]]. Frozen evidence in [[docs/PROBLEM-MAP]]. Excluded, including the
+hedging mandate, in [[PARKED]].
 
 **The repository name is historical.** It names a program that no longer runs.
+
+## Status — 2026-08-19, second entry: PHILOSOPHY ALIGNMENT, NO RESEARCH CHANGE
+
+> **The repository's declared identity changes from "a record" to "a research laboratory that currently
+> has no active programme."** Nothing about the three closures changes, no programme reopens, no model
+> is built, and no charter is drafted. This is a documentation correction.
+>
+> **What it corrects.** The repository had accumulated working machinery and three closed programmes,
+> and nothing in the documentation stopped a reader from inferring that the machinery defined the
+> agenda. That inference now has a name — **repository gravity** — and a rule against it
+> ([[docs/RESEARCH-PROTOCOL]] P12, [[CLAUDE]] §3). The containment runs one way: the research universe
+> contains the literature, which contains candidate mechanisms, which contain publicly measurable
+> phenomena, which contain the experiments in this repository. **Existing code is evidence of what has
+> been attempted, never evidence of what to attempt.**
+>
+> **What was added.** [[CLAUDE]], which did not exist — repository purpose, the order of work
+> (question → literature → mechanism → data → formulation → test → falsification → extension →
+> implementation), the risk-intelligence-is-not-alpha split, the public-data constraint stated as a
+> research frame rather than an apology, and fifteen standing requirements. [[README]] §6 now states
+> what counts as a result, with profitability absent from the list. Protocol gains **P11** (outward
+> before inward), **P12** (repository gravity) and **P13** (cheapest falsification first), and its
+> header is rescoped from "the active program" to every programme including future ones.
+>
+> **The one substantive intellectual addition** is [[docs/PROBLEM-MAP]] §0.9, and it is labelled
+> interpretation rather than measurement: the closed prediction programme's containment result is what
+> unsupervised compression of volatility-dominated return features *predicts*, not a surprise. Its
+> reusable form is that the response to a negative result is to question the object and the
+> representation, not to substitute another model. It carries a free check for anyone who recovers that
+> machinery — the fitted labels should be nearly monotone in trailing realized volatility.
+>
+> **Not changed, deliberately:** [[CHARTER]] and `closed-research/` are historical and stay as written.
+> History is not tidied to make the past look like the present.
+
+
 
 ## Status — 2026-08-19: THE RETURN-STATE PROGRAMME IS TERMINATED
 

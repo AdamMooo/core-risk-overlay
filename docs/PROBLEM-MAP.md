@@ -133,6 +133,41 @@ cost in compound return. The question becomes what that path is worth — which 
 a procurement problem and a preference problem, and moves the preference explicitly downstream of
 research ([[closed-research/intervention/CHARTER-INTERVENTION|CHARTER-INTERVENTION]] §7).
 
+### 0.9 The methodological lesson, restated 2026-08-19 — misalignment, not model failure
+
+**Epistemic status: interpretation, not measurement.** This is a structural argument about the method
+class, offered as the mechanism behind the containment result in §0.2. It was not run and it is not
+evidence. It is recorded because the wrong version of this lesson is the one that gets reused.
+
+The wrong version is *"the HMM failed"*, or worse, *"try another clustering algorithm."*
+
+The accurate version:
+
+> **The representation was structurally misaligned with the target.** The forward quantity of interest
+> was never observed by the model, so the compression had no reason to preserve a target-relevant
+> direction. Unsupervised compression preserves the dominant-variance direction of its inputs, and for
+> a feature set built from the return series that direction is largely volatility level. A state
+> recovered that way is a volatility measure, and VIX is a better-measured volatility measure. **The
+> containment in §0.2 is what this method class predicts, not a disappointing surprise.**
+
+Three consequences, and the third is the reusable one:
+
+1. It applies to the whole unsupervised family — K-means, Gaussian mixtures, HMMs, hidden semi-Markov
+   models, statistical jump models, change-point detection. The jump model strictly nests K-means at
+   zero penalty and was built to fix the HMM's implausibly rapid switching, so it dominates *within*
+   the family. That ordering is irrelevant if the family is the wrong family for the target.
+2. It predicts something checkable about any such fitted state: **its labels should be very nearly a
+   monotone function of trailing realized volatility.** Anyone recovering that machinery should check
+   this before anything else, because it costs nothing and settles the diagnosis.
+3. **The correct response to a negative result is to ask whether the research object and the
+   representation are appropriate — not to substitute another model.** That is now
+   [[docs/RESEARCH-PROTOCOL]] P12, and it is the lesson worth carrying out of three closed programmes.
+
+**What this does not license.** It is not a reason to reuse the machinery, and not a reason to exclude
+it. A temporal-persistence penalty may turn out to be useful as a regulariser on some future
+representation; that is a hypothesis requiring its own charter and its own gate, not an inheritance.
+See [[PARKED]] for the standing condition.
+
 ---
 
 # Part II — the evidence base
