@@ -286,7 +286,8 @@ its predecessor returns.
 | | question | status |
 |---|---|---|
 | **S0** | ~~What would constitute evidence that the return-generating environment has changed?~~ **RAN 2026-08-18. H(S0) SURVIVES, CONDITIONALLY.** One functional discriminates the classes after exact matching on the unconditional variance and the whole squared-return ACF: **T3, the dispersion of block realized variance**, `d'` up to 10.2 at 21-day blocks. Two candidates are **eliminated** and one deductive prediction was **wrong** — see §9.1. [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] | **CLOSED** |
-| **Q1** | **(A) Existence.** ~~Does a discrete, persistent state structure produce forward return distributions that N1 does not~~ — **the wording over-claims relative to what the test can deliver, see §9.2** — measured on **T3 at 21-day blocks**, the functional S0 returned | **EXISTS, not yet designed.** Its functional, horizon and mismatch floor are fixed by S0 and are not re-chosen. Three issues must be resolved *in its stub* first: [[docs/IDENTIFICATION-UNDER-N1]]. **Kills the program under S1** |
+| **S0b** | **With the dispersion of the variance process ALSO matched, does any functional still separate a discrete two-state chain from a continuous-variance null at n = 8,300 — and is it a functional of the variance distribution's SHAPE rather than its spread?** | **NOT YET STUBBED.** The gate S0 should have been. Decision and reasoning: [[docs/DECISION-Q1-CLAIM]] §4. **Returns nothing ⇒ the programme ends as INDETERMINATE**, and that must be in its stub before it runs |
+| **Q1** | **(A) Existence**, on whatever functional S0b returns | **NOT LICENSED as framed on 2026-08-18**, and deferred behind S0b — see §9.2. No market-data experiment is licensed until S0b returns |
 | **Q2** | **(B) Characterisation.** Which properties of `F_{s,h}` differ, and which do not? | **does not exist** until Q1 returns |
 | **Q3** | **(C) Transition.** Is the distribution conditional on a recent transition different from the distribution conditional on occupying the state? | **does not exist** until Q2 returns |
 
@@ -372,6 +373,44 @@ i.e. favours this programme's own hypothesis**, and is therefore the direction r
 obtained. Neither supports any claim made here. The second matters because a published Econometrica
 comment exists on the exact test S0's stub cited approvingly, so **no proposal to use the Cho–White
 QLR here may proceed without reading it.**
+
+### 9.3 Q1 is NOT LICENSED, 2026-08-19 — and the reason is algebraic, not cautionary
+
+Full note: [[docs/DECISION-Q1-CLAIM]]. The decision was taken at the claim level before any Q1 design
+work, and it is stronger than §9.2's flag.
+
+**The identity.** For any `r = sigma * z` with `z ~ iid N(0,1)` and `E[sigma^2] = 1`, kurtosis
+`K = 3 E[sigma^4]`, hence
+
+```
+        Var(sigma^2) = K/3 - 1        exactly, and for BOTH classes S0 compared
+```
+
+S0 matched the unconditional variance and the whole squared-return ACF. Since
+`Cov(r_t^2, r_{t-k}^2) = Cov(sigma_t^2, sigma_{t-k}^2)`, that matched the variance process's
+autocorrelation **in shape but not in scale** — and the scale is `Var(sigma^2)`, which by the identity
+above **is** the residual kurtosis mismatch. **T3 measures variance-process dispersion.** So S0's
+surviving functional and S0's declared mismatch are two estimators of one quantity at two aggregation
+scales, and T3 wins only by being the more efficient of the two.
+
+**Consequence, and it is why Q1 does not run.** A Q1 rejection would say the market's variance process
+is more dispersed than a Gaussian-innovation GARCH implies. **That answer is already in this
+repository** — E5: every method breaches ~2x at `alpha = 0.01` and the recorded diagnosis is that the
+Gaussian assumption, not the model, is at fault. Under [[docs/RESEARCH-PROTOCOL]] §0 rule 2 a run
+whose outcome is derivable in advance **carries no information and does not run.** The rule is applied
+here to work this programme wants to do, which is the only situation in which it is worth having.
+
+**A necessary-condition framing does not rescue it**, because a necessary condition with a known
+answer is not a test. And six DGP classes produce the same rejection — GARCH-t first among them, which
+is the *standard* specification for equity returns and contains no states.
+
+**S0b replaces it**, closing the free parameter: a four-parameter continuous-variance null matches
+unconditional variance, the ACF **and** `Var(sigma^2)`, leaving free only the **shape** of the variance
+distribution — two point masses against a continuum. That is a test of discreteness, which §2 says is
+the claim actually under test and which S0, in retrospect, did not test.
+
+**The void-rule flag is upgraded, not resolved:** from "not demonstrably orthogonal" to **demonstrably
+not orthogonal**. S0's reported numbers and its four anomalies stand unaltered.
 
 ## 10. Scope discipline
 

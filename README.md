@@ -14,8 +14,8 @@ a research program on **return states**.
 - **Process — the gate every experiment passes:** [[docs/RESEARCH-PROTOCOL]]
 - **Time basis and leak register:** [[docs/POINT-IN-TIME-DISCIPLINE]] · **Mathematics:**
   [[docs/MATH-REFERENCE]]
-- **What is identified under the null, and what Q1's test can and cannot establish:**
-  [[docs/IDENTIFICATION-UNDER-N1]]
+- **What is identified under the null:** [[docs/IDENTIFICATION-UNDER-N1]] · **why Q1 is not licensed
+  and what replaces it:** [[docs/DECISION-Q1-CLAIM]]
 - **Evidence base from the closed programs, frozen:** [[docs/PROBLEM-MAP]]
 - **Deliberately excluded, including the hedging mandate:** [[PARKED]] · **Chronological log:**
   [[core-risk-overlay]]
