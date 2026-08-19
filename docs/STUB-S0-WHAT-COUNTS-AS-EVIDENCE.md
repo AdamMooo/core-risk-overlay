@@ -289,6 +289,27 @@ field 7 is made mechanical: if the surviving cells are only the extreme corner
 (`kappa = 6.5` and `lambda = 0.995`), the functional is reported as **measuring the parameters, not
 the structure** — which is a failure, not a partial success.
 
+### 5.6 Scale — AMENDMENT, committed 2026-08-18 after the checks, before any separation number
+
+`vbar = 1` normalises the unconditional variance for the algebra. **T1, T2 and T3 are scale-invariant
+and are unaffected by it** — an autocorrelation of squared returns, an excess kurtosis, and the sd of
+*log* realized variance all cancel a constant factor. **T4 is not.** Drawdown geometry depends on the
+actual volatility level, and at unit variance a single "day" is a 100% standard-deviation move: every
+path drops far enough that `1 - W/M` saturates at exactly 1.0 in floating point and the functional
+cannot discriminate anything, for reasons of units rather than structure.
+
+**Declared: `DAILY_SD = 0.01`**, applied at generation so every functional sees the same series.
+1% per day is ~16% annualised, the right order for a broad equity index. The choice is a *units*
+choice; it changes nothing about T1–T3 and it makes T4 computable at all.
+
+**How this was found, recorded because the sequence is the point.** The preregistered check
+`max drawdown lies in [0, 1)` failed on the first run of the test suite — **before a single
+discriminability number had been computed.** That is the check doing its job: the defect was in the
+units of a functional, it was caught by an invariant declared in advance, and the fix is a declared
+constant rather than a re-specification. Had the sweep been run first, T4 would have returned
+`d' ~ 0` everywhere and it would have been reported as "path geometry does not discriminate" — a
+false negative that looks exactly like a real one.
+
 ---
 
 *Results rule — nothing above this line may be edited once results exist below it.*
