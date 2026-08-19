@@ -1,296 +1,330 @@
-# Charter — Drawdown Intervention Design
+# Charter — Return States
 
-Adopted 2026-08-17. **This is the only active research program in this repository.**
+Adopted 2026-08-18. **This is the only active research program in this repository.**
 
-The program it replaces is closed and preserved at [[closed-research/README]]. The reasoning that
-produced the transition is recorded as a dated amendment in [[docs/PROBLEM-MAP]].
+Two programs are closed and preserved, reproducible, in `closed-research/`: the prediction/regime
+program ([[closed-research/README]], closed 2026-08-17) and the rolled-put / tenor intervention
+program ([[closed-research/intervention/README]], closed 2026-08-18). Neither is a branch, a
+dependency, or a backlog. The reasoning that closed the first is a dated amendment in
+[[docs/PROBLEM-MAP]] Part I; the reasoning that closed the second is in its own README and in §9
+below.
+
+**The repository name is historical.** `core-risk-overlay` names a program that no longer runs.
 
 ---
 
-## 1. The research question
+## 0. The sentence
 
-> **Under a permanent-long constraint, which features of the book's drawdown geometry are
-> demonstrably alterable by an admissible intervention; which of those alterations are identified in
-> magnitude from available data; and at what cost — with "not identified" treated as a legitimate
-> result rather than a gap to be filled by assumption.**
+> **We are not trying to win the pricing game. We are trying to determine whether the return
+> distribution itself enters distinguishable states, how those states transition, and whether the
+> change in distribution is real, persistent, and identifiable.**
 
-Not "which hedge is best." The question is what is *purchasable*, what is *knowable*, and what is
-neither.
+And the first principle, which the last two programs each violated in a different way:
 
-**Identification first, optimization second.** The closed program's failure was not carelessness —
-it measured extremely carefully. It optimized inside a space it had never identified. A ranking built
-from a single realized path is an in-sample ranking however rigorous the arithmetic, and calling it a
-frontier does not change that.
+> **We study changes in the distribution and dynamics of returns. We do not begin by selecting an
+> intervention.**
 
-## 2. Admissible interventions
+## 1. The research object
 
-The permanent-long constraint stated as mathematics. A share-count condition alone is vacuous — a
-short futures overlay satisfies it and is economically a sale. Two conditions are needed:
+Let `r_t` be returns on a stated frequency, `I_t` the information available at time `t`, and `h` a
+stated horizon. The object is the conditional law of the forward return path:
 
 ```
-(C1)  N_core(t) is non-decreasing in t                  no sale of the core
-(C2)  dV/dS_T = N_core  for all S_T above some S*       upside slope preserved
-      where V(S_T) is terminal wealth as a function of the core's terminal price
+    F_{s,h}(.)  =  law of  R_{t:t+h}  given  S_t = s
 ```
 
-C2 is the load-bearing one: **an admissible intervention buys asymmetry, not exposure reduction.**
-
-| candidate | C1 | C2 | verdict |
-|---|---|---|---|
-| long put | ok | ok | **admissible** |
-| put spread | ok | **fails** — payoff flattens below the short strike | inadmissible. C2 reproduces F12 *a priori* |
-| short futures / delta overlay | ok | **fails** — slope reduced everywhere | inadmissible; letter-legal, economically a sale |
-| variance targeting `w_equity` down | **fails** | fails | inadmissible at the level of the state variable |
-| additive convex sleeve (trend, duration, gold) | ok | ok | **admissible** |
-| monetize the hedge, buy shares | ok (raises `N_core`) | ok | **admissible, and required by the mandate's own value story** |
-
-**The space.**
+The program asks four questions, in this order and no other:
 
 ```
-I_opt    = { (tau, m, phase, h, rho) }    tenor, moneyness, roll phase,
-                                          notional, monetisation rule
-           consumes premium from the hedge sleeve
+  (A) EXISTENCE         is there a partition {s} with F_{s,h} != F_{j,h} for
+                        some s != j, against a STATED null, on a functional
+                        and horizon declared in advance?
 
-I_sleeve = { additive convex sleeves }
-           consumes capital from the hedge sleeve
+  (B) CHARACTERISATION  if so, WHICH properties of the distribution differ --
+                        and, equally reportable, which do not?
 
-I = I_opt  union  I_sleeve
+  (C) TRANSITION        how does S_t move? persistence, transition structure,
+                        and the distribution conditional on a transition
+                        having just occurred.
+
+  (D) IDENTIFICATION    is {s} recoverable from the sample -- and separately,
+                        is S_t measurable with respect to I_t, using no
+                        future information?
 ```
 
-Comparable **only at matched cash outlay from the hedge sleeve**, with outlay reported as a
-coordinate rather than held equal by assumption. The current grid compares at matched *notional*,
-which is a weaker equalization.
+**The active program terminates at (D).** Nothing downstream of (D) is in scope.
 
-**Not in the space, and why.** *New-capital deployment rate* is a different problem: its magnitude
-scales with (inflow / AUM), a personal parameter rather than a market one. *Monetisation* is not a
-standalone intervention — it is a coordinate `rho` of every structure, and a structure quoted without
-one is underspecified.
+**A, B, C and D are never collapsed.** "This state looks risky, therefore reduce exposure" is not a
+finding; it is four unstated inferences wearing one sentence, and it is the exact reasoning this
+charter exists to prevent.
 
-## 3. The objective space
+## 2. The null — the load-bearing definition
 
-Given marked wealth `W(t)`, running maximum `M(t) = sup_{s<=t} W(s)`, drawdown `D(t) = 1 - W(t)/M(t)`:
+`F_{s,h} != F_{j,h}` is satisfied trivially. Any conditional-variance process produces a different
+conditional distribution at every `t` with no states, no discreteness and no transition matrix. **A
+bare existence test therefore carries no information and is forbidden under §5 field 3.**
 
-```
-Phi(I) = ( g              geometric growth rate -- participation
-           premium_drag   decomposition of g, well sampled (~1700 rolls)
-           CDaR_alpha(.)  drawdown depth as a CURVE in alpha, not a point
-           {depth_i}      per-excursion depths -- the robustness object
-           U_theta        time under water: "smooth the ride", made measurable
-           R              recovery-time distribution
-           kappa )        shares purchasable at the trough under a stated rho
-```
-
-`kappa` is the mechanism by which drawdown reduction becomes future compounding. Without it,
-"recycled into the core at lower prices" is a sentence with no referent.
-
-**Excluded by construction, each for a stated reason.** Annualised volatility — symmetric, and the
-mandate never asked for it. Sharpe — same. Hedge efficiency — F7: the denominator goes to zero, so a
-structure protecting nothing scores best. **Max drawdown as a ranking key** — an extreme-value
-functional with effective n = 1 on one path.
-
-**Diagnostics travel with every row and never enter `Phi`:**
+The program's content is exactly whatever a state structure has that the null does not.
 
 ```
-Psi(I) = ( phase spread, pricing sensitivity, episode sign-consistency,
-           effective n per coordinate )
+  N0   iid draws from one fixed distribution
+       -> rejected a priori. NOT a permitted null; a run against it is decoration.
+
+  N1   one continuous, smoothly-reverting conditional-scale process with iid
+       standardized innovations
+       -> the honest opponent. Conditional distributions differ at every t;
+          there is no state.
+
+  N2   a continuous, slowly-varying latent state
+       -> discreteness is the claim under test; persistence is not.
 ```
 
-`Phi` is *how good is this*. `Psi` is *how well do we know it*. Conflating them is exactly how
-"efficiency 218.23 at a cost of 0.03pp/yr" happened.
+**DECISION D1, fixed 2026-08-18: the null is N1.** Reasons: it is the honest opponent rather than a
+strawman; [[closed-research/docs/TRANSLATION-LAYER]] §5 identifies it as the sharper comparison than
+EWMA and records that it was **never built in this repository**; and it makes the claim under test
+*discreteness and persistence structure* rather than "the conditional distribution varies", which is
+not in doubt and has not been since the 1980s.
 
-## 4. Falsifiable hypotheses
+**DECISION D2, fixed 2026-08-18: the frequency is daily.** E8 is decisive — the weekly series cannot
+resolve volatility memory at all: at n=1750 the ACF band is +/-0.0469 and the empirical
+squared-return ACF is inside it by lag 8, while daily resolves it to lag 212. Any persistence claim
+made on weekly data is unfalsifiable on this repository's own evidence. Carried cost, declared:
+`RELIABLE_MIN_OBSERVATIONS = 520` is a weekly figure and does not transfer (U5), and daily brings
+microstructure and non-synchronous-close issues weekly did not have.
 
-**No active hypothesis may assert a numerical effect magnitude as though it were identified when the
-underlying population is not identified.** Orderings, signs and falsifications only. This is the most
-important lesson carried out of the closed program.
+**Both decisions are fixed BEFORE the first experiment and are not revisited after seeing a result.**
+Changing the null or the frequency once a result exists is selection on outcome at the level of the
+whole program, and it is the leak this program is most exposed to.
 
-| | hypothesis | kill condition | assumption cost |
-|---|---|---|---|
-| **H1** | ~~Strike anchoring (M1) dominates re-striking for a multi-month drawdown at equal premium budget~~ **PAYOFF-GEOMETRY HALF RESOLVED 2026-08-18 (E4).** Preregistered rule: SURVIVES (4/29 episodes flip). Diagnostic declared in advance: **CONTRADICTED** (15/28 = 54% flip once zero-zero ties are excluded), so it may not be quoted as M1 holding. **M1 is a deductible-count effect** — it fails in 100% of episodes at m=5% and vanishes by identity at m=0 — **and it is conditional on decline shape**, winning grinds and losing V-shapes (2020: 0/53 in two markets) | ordering flips in >= 1/3 of episodes | **price paths only.** No option data |
-| **H2** | ~~The tenor ordering survives on `CDaR_alpha` and per-excursion depths, and the phase spread is small relative to the effect~~ **FULLY RESOLVED 2026-08-18. Phase clause KILLED (E1).** Excursion clause: **SURVIVES in marks** (52w ≥ 4w in 90–94% of episode×phase pairs) and **MARGINAL/KILLED in cash** (48–61%). CDaR clause: the ordering survives only at `q` where `Psi` shows the coordinate resting on 1–2 episodes, and fails wherever it is well sampled — **nowhere at all in cash** (E2) | sign flips across excursions, or phase spread > effect | free |
-| **H3** | ~~M3 is not the dominant source of the measured drawdown reduction~~ **REJECTED 2026-08-18 (E0)** — the gap is 82% (1993–) and 85% (2003–) of the 52w reduction, and exceeds the reduction entirely at 13w | marked-versus-cash gap exceeds half the measured reduction | free |
-| **H4** | Timing value at 26w and 52w does not exceed the 4w/13w EVPI ceiling | it materially exceeds it — in which case the branch is *undecidable* at n=33, not open | one line |
-| **H5** | The long-tenor cost advantage is not an artifact of `sqrt(4/tenor)` or a tenor-flat spread | a plausibly steeper long-tenor skew reverses the cost ordering. **Asymmetric: rejection clean, confirmation impossible** | archived chains |
-| **H6** | The measured reduction is realizable under a stated `rho`, not only marked | `kappa` under the rule is less than half the marked reduction | a policy |
-| **H7** | An additive convex sleeve reaches a robustly non-dominated point at matched outlay | dominated on every coordinate of `Phi` | one or two price series |
+## 3. What this program may and may not investigate
 
-## 5. Identification assumptions, declared in advance
+**MAY.** Return observations at stated frequency and horizon. Unconditional and conditional return
+distributions. Candidate partitions and their conditional laws. Distributional distance, divergence
+and density scoring. Persistence and transition structure. Distributions conditional on a recent
+transition. Which distributional properties differ across states and which do not. Sensitivity of
+all of the above to frequency, sample, market, horizon and representation class. **What is not
+identified.**
 
-- **Episodes are not draws from a superpopulation.** Market structure, monetary regime, index
-  composition and the depth of the listed options market all differ across 1987, 2000-02, 2008-09,
-  2020 and 2022. Cross-episode work establishes **robustness of a mechanism** and can **falsify** a
-  magnitude. It cannot **estimate** one. The entitled inference is binomial and conditional on our own
-  episode definition.
-- **Historical option costs are not identified**, and cannot be made so. The chain archive begins
-  2026-08-14.
-- **`max_drawdown` has no sampling distribution on one path.** On this sample it is set by one
-  episode, and the 1993- and 2003- samples share it entirely.
-- **Tax, currency and long-tenor liquidity are unmodelled terms with stated signs.** Tax on
-  monetisation and wider long-tenor spreads point against the hedge; USD strength in a crisis, which
-  raises a USD put's CAD value exactly when needed, points for it.
+**MAY NOT.** Allocation. Exposure. Position sizing. Instrument selection. Hedging. Options in any
+role — pricing, implied volatility, skew, surface, chains, tenor, strike, roll, monetisation.
+Trigger construction. Threshold tuning against portfolio performance. Trading. Alpha. Sharpe. Return
+maximisation. Drawdown *reduction*. Economic capture. Whether anything is worth doing.
 
-## 6. Robust non-dominance
+**Portfolio P&L may never define, select, validate or tune a state.** A state definition chosen
+because it produced better historical portfolio outcomes is not a state definition; it is a backtest
+with a latent variable in it.
 
-A point is admissible to the frontier only if it dominates **at every roll phase, across the full
-pricing sweep, on `CDaR_alpha` rather than max drawdown, under a stated `rho`, at matched outlay, with
-per-episode sign consistency above a preregistered threshold.** Anything weaker is reported as
-*conditionally better under assumptions A*, with A enumerated.
+**Three boundary cases, ruled in advance because they will otherwise be argued case by case:**
 
-**The robust set may be empty, or it may be most of the grid. Either is a finding.**
+- **Drawdown geometry is IN as a characteristic, OUT as an objective.** `D(t) = 1 - W(t)/M(t)` is a
+  functional of the return path and a legitimate coordinate on which `F_s` may differ. The moment a
+  number is reported as drawdown *bought*, *reduced* or *avoided*, the boundary has been crossed.
+- **Ex-ante observability is question (D), not a signal question.** *Is `S_t` measurable with respect
+  to `I_t`* is in scope. *Does knowing `S_t` help* is not. The test: if the answer would be reported
+  as a return, a Sharpe, a hit rate, a capture fraction or an exposure, it is out.
+- **Comparison against a public benchmark is IN as identification, OUT as competition.** Whether a
+  state representation's content is nested inside a cheaper public measurement is a question about
+  what has been identified — and the closed program's D3/F2 answered exactly that for one
+  representation. Whether it *beats* that measurement is not this program's question.
+
+**Crossing this boundary requires a NEW CHARTER** — its own question, its own admissible space, its
+own gate. Not an amendment. Not an experiment. Not a section added here.
+
+## 4. Naming discipline
+
+States are named by what distinguishes them, never by what one would do about them.
+
+```
+  FORBIDDEN as a state label:  bull / bear / neutral - risk-on / risk-off
+                               crisis / panic / calm-vs-danger
+                               buy / hold / sell - hedge / no-hedge
+  FORBIDDEN as an identifier:  signal, trigger, regime_score, exposure, hedge,
+                               allocation, position, alpha, edge
+```
+
+The precedent is retained because it worked. The closed program's state was named `high_variance`
+and never "crisis", because a model of variance is blind to sign by construction — and the measured
+drift difference between states **reversed sign between SPY and QQQ** while the down/up tail ratio
+straddled 1.0. The naming rule is what stopped a width measurement from being read as a directional
+one. Full contract: [[closed-research/docs/TRANSLATION-LAYER]].
+
+**And a model that emits discrete labels has not thereby found a regime.** A label is evidence of a
+fitted partition, not of a difference in the return-generating environment. The burden is on the
+distribution.
+
+## 5. The gate — nine fields, and no code before they are committed
+
+**No experiment runs until its stub is committed.** The stub is committed *before* the commit
+carrying its results. If any field cannot be filled honestly, the experiment does not run.
+
+```
+  1. QUESTION           which of A / B / C / D does this move?
+                        EMPTY => DO NOT RUN. It goes in PARKED.md.
+
+  2. CLAIM TUPLE        (frequency, horizon, functional, sample, null)
+                        A test of a one-step marginal cannot support a claim
+                        about a path functional, at any sample size.
+
+  3. HYPOTHESIS         and the PREDICTED OUTCOME with its reason, before any
+                        code. Confidently derivable from theory or a citable
+                        paper => the run carries no information; record the
+                        prediction instead. Includes the LITERATURE check:
+                        name the paper that settles this, or state in writing
+                        that none does.
+
+  4. WHY IT MATTERS     what it establishes about return states. Not
+                        "interesting". Not "we have the data".
+
+  5. DATA               series, frequency, span, provenance, and the
+                        EFFECTIVE n PER COORDINATE.
+
+  6. IDENTIFICATION     what population the claim addresses, what is identified
+                        in magnitude, and what is NOT. "Not identified" is a
+                        permitted answer and is written BEFORE the run.
+
+  7. FALSIFICATION      the observation that kills the hypothesis, stated
+                        numerically, declared in advance.
+
+  8. IF IT SUCCEEDS /   both branches written before the run, including the
+     IF IT FAILS        branch where it settles nothing.
+
+  9. WHAT IT MAY        exactly one thing, or nothing. NOTHING IS THE DEFAULT
+     MOTIVATE NEXT      and the most common correct answer.
+```
+
+### 5.1 Per-experiment discipline
+
+```
+  STUB -> PREDICTION -> IMPLEMENTATION -> TESTS -> RESULT -> VERDICT
+       -> GOVERNANCE UPDATE -> STOP
+```
+
+No metric is added after a result is seen. No threshold, window, horizon, sample boundary or
+representation is selected on outcome. When the preregistered question is answered the experiment is
+over — **including when the answer is interesting.**
+
+**On an interesting result:** `STOP -> RECORD -> INTERPRET -> TEST THE PREREGISTERED IMPLICATION ->
+STOP AGAIN.` An interesting result licenses at most the one thing field 9 named. A result that
+suggests five new experiments has produced zero; all five are written into [[PARKED]] and none runs.
+
+**If an experiment changes the research question, STOP and ask.** That is a charter amendment, not a
+finding.
+
+## 6. Stopping rules — program level
+
+The program **ends, successfully**, on any of:
+
+```
+  S1  the state structure is not distinguishable from N1 on the declared
+      functional, with power DEMONSTRATED rather than assumed
+  S2  it is distinguishable in sample and does not survive out of sample or
+      across independent markets
+  S3  it is distinguishable but its content is nested inside a measurement
+      already available, so nothing new is identified
+  S4  it is distinguishable and real, but S_t is not measurable with respect
+      to I_t -- states exist and cannot be located in real time
+  S5  A, B, C and D are all answered
+```
+
+**S1 through S4 are findings, not failures.** Each **ends the program** rather than motivating a
+search for a representation that avoids it.
+
+This clause is here because [[docs/RESEARCH-PROTOCOL]] P4 records that "do not optimise toward
+usefulness" was enforced rigorously on individual runs and **never once applied to the program
+itself**. Two programs have now closed. The pressure at this moment is to make the third produce
+something.
+
+A fourth outcome is preregistered and legitimate: **indeterminate — cannot be settled on the
+available history.** A result failing its power or identification requirement is INCONCLUSIVE, never
+NULL.
+
+**The research is allowed to end without producing a trading strategy. That is a successful result.**
 
 ## 7. The research / decision firewall
 
-**Research may establish:** mechanism, ordering, robustness, identified quantities, unknown
-quantities.
+**Research may establish:** that states exist or do not; what distinguishes them; how they persist
+and transition; what is identified and what is not; whether the state is observable in real time.
 
-**Research may not establish:** *therefore allocate x%.*
+**Research may not establish:** that anything should be done about it.
 
-That belongs downstream and there is no `decision/` directory yet, deliberately — an empty directory
-is an invitation to fill it. Preference ordering, sizing, account and tax structure, and whether
-anything goes live are the decision layer's, and it is created when it has contents.
+There is no `decision/` directory and none will be created empty — an empty directory is an
+invitation to fill it. If a decision layer is ever built it begins with its own charter and inherits
+from this one only the *findings*: never the code, never the framing, and never an implicit
+obligation created by a phrase like "this could be used to".
 
-**Dominance requires no preferences at all.** A point is dominated if another is at least as good on
-every coordinate; that is a fact about the world. Preferences are needed only to select *among*
-non-dominated points, and if the robust set turns out thin they barely matter. So: build the frontier,
-publish the dominated set, and ask for a preference only if several non-dominated points survive.
+**The motivation is recorded in [[PARKED]], not here.** The reason anyone cares whether return states
+exist is that the risk/reward of remaining fully exposed might change across them. That sentence
+contains an exposure decision. If it sits in the charter, every experiment gets read against it — and
+reading experiments against an intended intervention is precisely how the last two programs ended up
+where they did.
 
-## 8. The gate — seven fields, and no code before they are filled
+## 8. The first phase is an observatory, not a controller
 
-Extends the closed program's five-field stub, which is the best process asset it produced.
+There is no allocation engine, hedge engine, trigger engine, optimizer or portfolio decision rule,
+and none is designed. What the program is trying to become able to say at time `t` is:
 
 ```
-1. CLAIM TUPLE        (frequency, horizon, functional, sample)
-2. PREDICTED OUTCOME  with its reason, before any code. Confidently derivable
-                      from theory -> the run carries no information; do not run it.
-3. LITERATURE         name the paper that settles this, or state that none does.
-4. MECHANISM          the structural difference, the horizon AND the functional
-                      at which it becomes observable. Invisible in either -> void.
-5. SURPRISE           the outcome that would move a decision. None -> decoration.
-
-6. BOUNDARY           which of the six does this move?  identification /
-                      mechanism validity / robustness / realizability /
-                      economic comparability / frontier.
-                      BOUNDARY = empty  =>  DO NOT RUN. It goes in PARKED.md.
-
-7. IDENTIFICATION     what population the claim addresses, what is identified in
-                      magnitude, what is not. "Not identified" is a permitted
-                      answer and is written BEFORE the run.
+    STATE                          = ?
+    IDENTIFICATION QUALITY         = ?
+    WHAT CHANGED IN THE            = ?
+      RETURN DISTRIBUTION
+    HOW PERSISTENT IS IT           = ?
+    WHAT EVIDENCE SUPPORTS THIS    = ?
+    WHAT REMAINS UNKNOWN           = ?
 ```
 
-## 9. The experiment queue
+The last two lines are not decoration. They are the columns the closed programs kept omitting.
 
-**One queue. No parallel programs. Each experiment must be capable of killing the next.**
+## 9. The queue
 
-**E0 closed 2026-08-18 and it killed a magnitude rather than an experiment** — which is what §9 was
-built to allow. The queue order is unchanged; what changed is that E6 now gates the interpretation
-of every row above it, and E1 inherited E0's urgency.
+**One queue. One experiment at a time. Each must be capable of killing the next.**
 
-**E1 closed 2026-08-18 and triggered nothing automatically.** E2 and E3 stand where they were;
-what runs next is an open decision, deliberately not taken inside the experiment that preceded it.
+Nothing is listed here without a committed stub or a stated dependency on one. Q2 and Q3 are **not
+queued** — they are recorded so the sequence is visible, and neither exists as an experiment until
+its predecessor returns.
 
-**E2 closed 2026-08-18 and also triggered nothing.** E3 was not started. Three of the queue's
-cheap experiments have now run and all three removed claims rather than adding them, which is the
-queue working as designed.
-
-**E4 closed 2026-08-18 and triggered nothing.** No pricing, no monetisation, no additional
-structures, no progression to E5/E6/E7 — the stopping rule was written into its stub before the
-result was known. **Whether the rolled-put/tenor branch closes is a decision about the programme,
-recorded as open, and deliberately not taken inside the experiment.**
-
-### 9.1 Status of the tenor claim after E0 and E1
-
-Recorded here because two results have now landed on one claim and the parts must not travel
-together.
-
-**KILLED — the magnitude, in both accountings.** *"Extending tenor buys three to four times the
-protection for the same money or less"* (E10) is withdrawn as a quantity. E0 removed 82–85% of it
-as unrealised mark; E1 showed the remainder is smaller than the spread produced by an arbitrary
-roll-calendar offset, and that in cash the sign itself is alignment-dependent. **No number
-describing how much drawdown a tenor buys may be quoted from this repository.**
-
-**PRESERVED — the ordering, and only as a structural result, with the qualifier E2 attached.** A
-long-dated put struck near a peak spans a multi-month decline; a short-dated program re-strikes
-downward through it and never spans the peak-to-trough distance. That is **M1**, it is arithmetic
-about where the strike sits, it needs no pricing and no distributional assumption, and it held at
-**56 of 56 alignments** on max drawdown under marked accounting in both samples.
-
-**E2's qualifier, and it is not optional when the claim is stated.** Measured across the drawdown
-path rather than at its maximum, the ordering is an **episode-level, marked-accounting**
-regularity — 52w ≥ 4w in **90–94%** of (episode × phase) pairs — and on the `CDaR(worst q%)` curve
-it survives **only where `Psi` shows the coordinate resting on one or two episodes** (`q <= 25%`
-on 1993–, `q <= 5%` on 2003–). Where the coordinate is well sampled it is **absent**. It is
-therefore a regularity about deep episodes, not a property of the drawdown path.
-
-**E4's qualifier, and it is the one that decides what M1 is.** Tested as pure payoff geometry —
-no premium, no pricing, no IV — across four markets and a century, M1 turns out to be a
-**deductible-count effect**: the advantage is `m · (SUM of re-strike levels − S_0)`, it vanishes
-by identity at `m = 0` (where re-striking *always* wins), and it **fails in 100% of episodes at a
-5% deductible**. It is also **conditional on the shape of the decline** — it wins persistent
-grinds and loses V-shaped crashes, with 2020 voting 0 of 53 informative starts against it in two
-markets independently.
-
-**And the condition is not observable in advance.** Knowing whether a decline will grind or
-V-bottom, at the moment the contract must be bought, is the forecasting problem this repository
-closed ([[docs/PROBLEM-MAP]] Part I). **M1 is therefore real, conditional, and unusable without
-the one capability the programme has established it does not have.**
-
-**Permitted sentence, updated:** *a deductible charged once beats the same deductible charged
-`H/s` times, when the decline persists — which is a statement about deductibles and decline shape,
-not about tenor.* **The earlier permitted sentence, which said the ordering holds at every
-alignment tested, is withdrawn as unconditional** — it was measured on one path in one accounting
-and does not survive cross-market payoff geometry in that form.
-
-**The preserved part is a claim about contract geometry. It is NOT an economic benefit, and it may
-not be used as evidence of one.** Three reasons, each independent:
-
-- E0: the reduction it describes is 82–85% unrealised mark, and the cash-recognised reduction is
-  flat from 26w to 52w — the ordering that survives in marks is nearly absent in cash.
-- E1: under cash accounting the ordering does **not** survive alignment (separation −9.0pp and
-  −7.5pp) — so the surviving ordering exists only in the accounting the investor cannot bank.
-- E2: in cash the ordering survives at **no `q` on the curve**, in either sample, and the 52-week
-  programme **deepens** episodes in 72–84% of (episode × phase) pairs. The 2020 episode is the
-  clearest case: +24.9pp of marked protection, **−0.0pp in cash**.
-- E9: no structure in the grid beats the naked book on compound return. A better-ordered purchase
-  is still a purchase.
-
-**Permitted sentence:** *at long tenor the contract spans a decline that short tenor re-strikes
-through, and this holds at every alignment tested in marks.* **Forbidden sentence:** anything of
-the form *therefore long tenor is worth X*, or *therefore long tenor is the better hedge*, in any
-accounting. The structural ordering and the economic case are separate objects; E10 became a
-problem precisely by letting one stand in for the other.
-
-| | experiment | why here |
+| | question | status |
 |---|---|---|
-| **E0** | ~~M3 decomposition~~ **RAN 2026-08-18. H3 REJECTED.** 82% of the 52w reduction is mark; +16.8pp becomes +3.0pp in cash; the cash reduction is flat from 26w to 52w and negative at 4w/13w. [[docs/STUB-E0-M3-DECOMPOSITION]] | It ran first, and it was right to. Every magnitude in the repo now carries an accounting label, and E6 stopped being optional |
-| **E1** | ~~Roll-phase sweep~~ **RAN 2026-08-18. H2's phase clause killed in cash, marginal in marks.** In cash the *sign* of the 52w result is set by the roll calendar (−6.3 to +7.8pp). Phase is now a declared coordinate of every row. [[docs/STUB-E1-ROLL-PHASE]] | it cost one parameter and removed a magnitude the repo had published for three days |
-| **E2** | ~~Per-excursion depths and the `CDaR_alpha` curve~~ **RAN 2026-08-18.** The estimand is repaired and H2 is fully resolved: no ordering survives in cash anywhere on the path; in marks it survives per-episode and only on the least-identified part of the curve. [[docs/STUB-E2-DRAWDOWN-PATH]] | the sample-size problem did become an output — `Psi` and the surviving `q` set line up point for point |
-| **E3** | Clairvoyant bound at 26w and 52w (`TENOR_WEEKS`) | one line; closes or renders undecidable the old program's last open corner |
-| **E4** | ~~M1 payoff-only anchoring test~~ **RAN 2026-08-18.** 12,601 weekly observations across four markets and a century. M1 is a deductible-count effect, conditional on decline shape, and **the condition is not observable in advance — exploiting it would require the forecast this repo closed.** [[docs/STUB-E4-STRIKE-ANCHORING]] | it was the only real escape from one episode, and it took the last surviving claim from unconditional to conditional |
-| **E5** | Surface shape as a bounded sensitivity, rejection only | procurement, firewalled from any forecasting use |
-| **E6** | Specify `rho`, then measure `kappa` — **reclassified by E0 from queued experiment to PRECONDITION.** The marked-versus-cash interval is wider than the effect inside it, so no drawdown magnitude is interpretable until a rule is stated | the mandate's value story, never once implemented |
-| **E7** | Additive sleeve at matched outlay | the instrument comparison never run |
+| **S0** | **What would constitute evidence that the return-generating environment has changed?** The identification problem worked before anything is measured: what a state claim must beat, at what horizon, on what functional, and what the available history can carry | **STUB COMMITTED 2026-08-18.** [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] |
+| **Q1** | **(A) Existence.** Does a discrete, persistent state structure produce forward return distributions that N1 does not, at a horizon and on a functional where the two are structurally capable of differing? | designable once S0 fixes the functional and horizon. **Kills the program under S1** |
+| **Q2** | **(B) Characterisation.** Which properties of `F_{s,h}` differ, and which do not? | **does not exist** until Q1 returns |
+| **Q3** | **(C) Transition.** Is the distribution conditional on a recent transition different from the distribution conditional on occupying the state? | **does not exist** until Q2 returns |
 
-**Block bootstrap is explicitly demoted.** With block length far below crisis length it shatters the
-path dependence drawdown is made of; near crisis length it resamples the same episode as a unit. It
-manufactures pseudo-replications of one path and cannot create a second independent crisis. Admissible
-only as a *stated* variance estimate under block-scale exchangeability, never as evidence for a
-magnitude.
+**Two deductive results already constrain Q2 and bind before it is designed.** A finite Gaussian
+mixture is Gaussian in the far tail for any `k` and any weight (E7, algebra); and the squared-return
+ACF of any Markov-switching model decays geometrically for any `k` and any parameters (E6,
+Timmermann 2000 Prop. 5). **If tail thickness or non-geometric memory is proposed as a
+distinguishing property, the mixture class is disqualified a priori and the comparison does not run
+against it.**
+
+**And the warning that attaches to Q2 and Q3 in advance.** The characteristics most likely to
+distinguish states interestingly — tail probability, downside concentration, drawdown geometry — are
+exactly the ones with effective n ~ 10-15 in all of SPY history. The characteristics with large
+effective n — dispersion, serial dependence — are the ones the closed program established are
+measurable, are a **width meter with no direction content**, and are **nested inside VIX**. That is
+not a reason to skip Q2. It is why §5 field 5 demands effective n *per coordinate*, and it is a live
+route to an S3 ending.
 
 ## 10. Scope discipline
 
 **The codebase must make scope creep harder, not easier.**
 
-- A new idea passes charter, boundary, identification and preregistration **before** it gets code.
-- An interesting idea that does not belong goes in [[PARKED]], written down rather than built around.
-- A closed idea goes in `closed-research/` and does not come back without meeting its own stated
-  reopening condition.
+- Everything in this repository is **ACTIVE**, **ARCHIVED**, or **PARKED**. Nothing is ambiguous.
+- No "maybe useful later", no "next experiment", no "future signal", no "we could also test", no
+  "interesting extension". Those go in [[PARKED]] or they do not exist.
+- A new idea passes the §5 gate **before** it gets code. Field 1 empty means parked, not queued.
+- A closed idea does not return without meeting its own stated reopening condition.
 - An experiment appears in **exactly one** queue — §9 above.
-- No orphan TODOs. No "we should also test" branches accumulating quietly.
+- No orphan TODOs. No speculative branches. No "while we're here" refactors. No utilities
+  accumulated without a current research need. No empty directories.
+- **Do not inherit an old assumption because it already has code.** The question is always: does this
+  help identify or characterise a return state? If not, it is archived, not retrofitted.
 
 ## Related
 
-- [[README]] — the mandate · [[docs/PROBLEM-MAP]] — evidence base and the transition amendment
+- [[README]] — what the project is · [[PARKED]] — deliberately excluded, including the mandate
 - [[docs/RESEARCH-PROTOCOL]] — the gate and the standing principles
-- [[docs/POINT-IN-TIME-DISCIPLINE]] — the leak register, including this program's own channels
-- [[docs/MATH-REFERENCE]] — path functionals · [[PARKED]] — deliberately excluded
-- [[closed-research/README]] — the completed prediction program
+- [[docs/POINT-IN-TIME-DISCIPLINE]] — the leak register
+- [[docs/PROBLEM-MAP]] — the evidence base, frozen · [[core-risk-overlay]] — chronological log
+- [[closed-research/README]] — the prediction program · [[closed-research/intervention/README]] — the
+  intervention program

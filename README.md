@@ -2,136 +2,99 @@
 
 Last updated: 2026-08-18
 
-A research program on **drawdown intervention design** for a permanently long, globally diversified
-equity book: which features of the book's drawdown geometry can be purchased, which of them are
-identified from the data available, and at what cost.
+**The repository name is historical.** It names a program that no longer runs. What is active here is
+a research program on **return states**.
 
-- **The active program — question, admissible space, hypotheses, experiment queue:** [[CHARTER]]
+> **We are not trying to win the pricing game. We are trying to determine whether the return
+> distribution itself enters distinguishable states, how those states transition, and whether the
+> change in distribution is real, persistent, and identifiable.**
+
+- **The active program — object, null, boundary, gate, stopping rules, queue:** [[CHARTER]]
   (**read first**)
-- **Evidence base, and why the previous program was closed:** [[docs/PROBLEM-MAP]]
 - **Process — the gate every experiment passes:** [[docs/RESEARCH-PROTOCOL]]
-- **Mathematics:** [[docs/MATH-REFERENCE]] · **Time basis and leak register:**
-  [[docs/POINT-IN-TIME-DISCIPLINE]]
-- **Deliberately excluded:** [[PARKED]] · **Chronological log:** [[core-risk-overlay]]
-- **The completed prediction/regime program:** [[closed-research/README]] — closed research, preserved
-  and reproducible, **not an active branch**
+- **Time basis and leak register:** [[docs/POINT-IN-TIME-DISCIPLINE]] · **Mathematics:**
+  [[docs/MATH-REFERENCE]]
+- **Evidence base from the closed programs, frozen:** [[docs/PROBLEM-MAP]]
+- **Deliberately excluded, including the hedging mandate:** [[PARKED]] · **Chronological log:**
+  [[core-risk-overlay]]
+- **Closed research, preserved and reproducible, not active branches:**
+  [[closed-research/README]] (prediction) · [[closed-research/intervention/README]] (rolled-put)
 
 ---
 
-## 1. The mandate
+## 1. The question
 
-The portfolio is long equities and stays long — SPY, QQQ, international developed and emerging,
-effectively XEQT/VT. Nothing here ever recommends selling the core.
+> **Are there empirically distinguishable states in which the distribution of future equity returns
+> is sufficiently different from the ordinary state that the statistical character of the risk one is
+> holding has materially changed?**
 
-Three things a good answer buys: **cap drawdown depth, smooth the path, stay invested.**
+The object of study is the conditional law of the forward return path, `F_{s,h} = law of R_{t:t+h}
+given S_t = s`. The program asks whether such states **exist**, what **characterises** them, how they
+**transition**, and whether they are **identified** — in the sample, and in real time.
 
-### 1.1 What "permanently long" actually constrains
+**It terminates there.** What one should do about a state is a different question, belonging to a
+different charter that does not exist. See [[CHARTER]] §3 and §7.
 
-Stated as mathematics, because as prose it turned out to be ambiguous enough to admit an intervention
-it was meant to exclude. A condition on share count alone is vacuous — a short futures overlay
-satisfies it and is economically a sale. Two conditions are needed:
+## 2. What this is not
 
-```
-(C1)  N_core(t) is non-decreasing in t                  the core is never sold
-(C2)  dV/dS_T = N_core  for all S_T above some S*       upside slope preserved
-```
+Three things, each considered and rejected explicitly, each with evidence behind the rejection rather
+than a preference.
 
-**C2 is the load-bearing one: an admissible intervention buys asymmetry, not exposure reduction.** It
-admits long puts, additive convex sleeves, and monetising a hedge to buy more shares. It excludes
-selling the core, delta overlays that replicate selling, variance targeting on equity weight, and — as
-it happens — put spreads, whose payoff flattens exactly in the tail the program exists to insure.
+**Not a hedging or option-structure project.** That program ran, and it closed on 2026-08-18. Its
+code, results and preregistrations are preserved at [[closed-research/intervention/README]]. Summary
+of why: 0 of 40 structures beat the naked book on compound return; 82–85% of the measured drawdown
+reduction turned out to be unrealised **mark** rather than cash; the remaining magnitude was smaller
+than the spread produced by an arbitrary roll-calendar offset, and in cash its **sign** flipped with
+that offset; with the estimand repaired no tenor ordering survived anywhere on the drawdown path in
+cash; and the last surviving structural claim proved conditional on whether a decline grinds or
+V-bottoms — a quantity knowable only by the forecast the *prediction* program had already closed.
 
-**What the constraint is for.** It is a **pre-commitment device**: it removes discretionary timing from
-the choice set, which is what makes a negative-expected-value insurance purchase a coherent decision
-rather than a bet. It is also a friction minimiser (one-time FX conversion, no realized gains on the
-core). It is *not* a belief that equities always rise. Tested by removal: without it the problem becomes
-dynamic asset allocation on public data, and this repo's own evidence says it has no edge there. **The
-constraint is what makes the problem small enough to have a positive answer.**
+**Not a prediction or timing project.** That program ran too, and closed on 2026-08-17
+([[closed-research/README]]). A latent-state model's forward-downside information proved strictly
+nested inside VIX's, on levels and on dynamics, with power demonstrated rather than assumed; and a
+clairvoyant bound capped what *any* timing rule could be worth near +3pp/yr where it was measured.
+**The closure is scoped, not universal** — public return-volatility estimators, for decision
+purposes, on SPY, against VIX, at h=4 and h=13. Credit, funding, breadth and positioning were never
+tested and are out of scope rather than refuted.
 
-## 2. What the overlay is, and what it is not
+**Not an attempt to out-price the option market.** That needs a fair-value model better than the
+market's, plus chain depth, execution infrastructure and a market-maker's information set. We have
+none of them and acquiring them is not this project.
 
-**It is a purchase.** A put program buys a different path of portfolio outcomes at a cost in
-compound return. That is the honest frame and it is where the measurements point.
+## 3. What the two closed programs left behind
 
-**An earlier version of this file argued otherwise**, and the argument is withdrawn. It held that
-truncating the left tail raises the geometric return *provided premium drag is smaller than the
-drawdown avoided*, and treated that proviso as the project's premise. The proviso was measured for the
-first time on 2026-08-15: **0 of 40 structures beat the naked book on compound return, in both
-samples.** The inequality fails on average at every point tested. That is not a failure of the program —
-it is price discovery, and it reframes the question from *does this pay* to *what does this cost and is
-the path it buys worth that*.
+They are evidence and institutional memory, **not a dependency**. Nothing in the active tree imports
+from `closed-research/`, and nothing there imports from the active tree.
 
-**Two things it is not, both considered and rejected on page one, both still rejected:**
+**Findings that constrain the new program directly** — these are boundary conditions, not history:
 
-- **Predicting drawdowns.** Roughly 10-15 systemic drawdowns in all of SPY history, heavily
-  overlapping. No model learns a rare, path-dependent label from a dozen examples.
-- **Out-pricing the option market.** That needs a fair-value model better than the market's, plus chain
-  depth, execution infrastructure and a market-maker's information set. We have none of them, and
-  acquiring them is not this project. **Using the surface to know what protection costs is a different
-  activity** — procurement, not prediction — and is admissible on that footing only.
+| | binds how |
+|---|---|
+| A finite Gaussian mixture is **Gaussian in the far tail** for any `k` and any weight; the squared-return ACF of any Markov-switching model decays **geometrically** for any `k` | if tail thickness or non-geometric memory is a proposed distinguishing property, the mixture class is disqualified *a priori* |
+| At α=0.01 every method breaches ~2x — constant 1.87%, EWMA 2.03–2.36%, MS 1.79% | the tail failure belongs to **the data under a Gaussian assumption**, not to any model |
+| Weekly data cannot resolve volatility memory at all; daily resolves it to lag 212 | the active program is **daily** ([[CHARTER]] D2) |
+| The fitted state was a **width meter** — vol separating 2.4x, no direction content, drift difference reversing sign between SPY and QQQ | states are named by what distinguishes them, never by what one would do about them |
+| Anything whose value depends on counting systemic episodes has effective n ~ 10–15 in all of SPY history | effective n is reported **per coordinate**, before the run |
 
-## 3. What the previous program established, scoped precisely
+**Methodological lessons, carried into the protocol:** identification before optimization; mechanism
+before magnitude; robustness before ranking; no single-path economic claims; a mark is not a cash
+flow, an ordering is not a magnitude, and a bound is not an estimate; effective sample size is
+explicit; phase and path dependence matter; negative results are evidence; **"not identified" is a
+legitimate result**; research boundaries are explicit; archived research stays reproducible.
 
-The repository spent its first phase asking whether a real-time latent-state model of volatility could
-say *when* to scale a standing overlay. That program is **closed**, and the closure is worth stating
-carefully in both directions.
+## 4. Implementation status
 
-**What is established.** The model's forward-downside information is strictly nested inside VIX's, on
-levels (`c = +0.0009`, `p = 0.99`; joint R² equal to VIX-alone to four decimals) and on dynamics (adds
-0.0004 of R², with power demonstrated rather than assumed). Independently, the clairvoyant bound caps
-what *any* timing rule could be worth at roughly +3pp/yr at the tenors tested, and real rules captured
-4-7% of it. The measurement itself is honest and characterised: a **width meter** separating realized
-volatility ~2.4x out of sample, carrying no direction content, and reading "wide" when the book is
-already ~13% below its running peak.
-
-**What is not established, and must not be claimed.** That no predictive edge exists. The closure covers
-one family — **public return-volatility estimators** — for **decision** purposes, on **SPY**, against
-**VIX**, on forward downside semivolatility at h=4 and h=13. Credit, funding, breadth and positioning
-were never tested. They are **out of scope, not refuted.** And the clairvoyant bound was computed only at
-4 and 13 weeks, which the structure work suggests are the wrong tenors; closing that corner is a queued
-experiment ([[CHARTER]] E3), not a settled fact.
-
-**The diagnosis that matters most for what came next.** The variable that dominated outcomes — option
-tenor — had been fixed by assumption in the original plan, while the variable that turned out to be
-nearly worthless got the research. The failure was in what was held constant, not in how carefully
-anything was measured.
-
-## 4. Capital plumbing (Canadian framework)
-
-Two sub-accounts, to avoid ongoing currency friction:
-
-1. **Core bucket (CAD).** Long-term compounding index assets (VFV, XEQT) or direct blue chips. Never
-   sold — C1.
-2. **Hedge bucket (USD).** A small dedicated sleeve. CAD converted to USD **once**, via Norbert's
-   Gambit or IBKR native conversion, to eliminate repeated spread costs. That USD funds the
-   intervention.
-
-**Monetisation is the mandate's stated source of value and has never been implemented.** The claim is:
-sell the appreciated hedge in a crash, move the proceeds to the core bucket, buy index exposure at a
-discount — which raises `N_core` and is admissible under C1. The simulator holds every position to
-expiry instead. Whether the measured drawdown reduction is realizable cash or an unrealized mark was
-[[CHARTER]] E0, it ran first as designed, and **the answer is mostly mark**: 82% of the 52-week
-reduction on the full sample, 85% on the 2003– subsample. The +16.8pp and +19.9pp headline figures
-are **+3.0pp each in cash**, and in the well-sampled `CDaR_alpha` coordinate the full-sample cash
-reduction is approximately zero. The mandate's value story is therefore not a refinement to be added
-later — it is the precondition for quoting any drawdown magnitude at all ([[CHARTER]] E6). Full
-result: [[docs/STUB-E0-M3-DECOMPOSITION]] §9.
-
-## 5. Implementation status
+The active tree is deliberately small. **There is no model, no detector, no engine, and none is
+designed** — [[CHARTER]] §8.
 
 | component | state |
 |---|---|
 | `src/data_loader.py` | working — daily and weekly returns, VIX, start-date invariant, explicit calendar |
-| `research/hedge_economics.py` | working — priced rolled put programs, weekly marks, clairvoyant (EVPI) bound. Carries the two switches E0 and E1 rest on: `mark_hedge` and `phase`. **Benefit-side effective n = 1** |
-| `research/structure_map.py` | working — tenor × strike × outright/spread grid, no timing anywhere |
-| `research/pathfunctionals.py` | working — drawdown process, excursions, CDaR curve, time under water |
-| `research/m3_decomposition.py` | working — E0, the marked-versus-cash accounting decomposition. **H3 rejected 2026-08-18** |
-| `research/phase_sweep.py` | working — E1, the roll-phase sweep. **H2's phase clause killed in cash, marginal in marks, 2026-08-18** |
-| `research/path_outcomes.py` | working — E2, the CDaR curve and episode-matched depths. **H2 fully resolved 2026-08-18** |
-| `research/anchoring.py` | working — E4, payoff-geometry anchoring test across four markets and a century. **No pricing anywhere in it** |
-| `checks.py` | 52 checks, all passing — six for the E0 accounting invariant, five for E1's roll-phase grid, four for E2's window-matched depth, six for E4's payoff arithmetic |
-| `closed-research/` | 81 checks passing; D3 and F2 verified reproducible after the transition |
+| `src/pathfunctionals.py` | working — drawdown process, excursions with censoring, CDaR curve, time under water. Retained because drawdown geometry is a **candidate state characteristic**, not because it was an objective |
+| `checks.py` | 35 checks, all passing, covering the two modules above |
+| `closed-research/` | prediction program — 81 checks passing, D3 and F2 verified reproducible |
+| `closed-research/intervention/` | rolled-put program — 17 checks passing, E0 verified reproducible after the archive move |
 
-No live path exists and none is designed. The decision layer — preferences, sizing, tax, whether to run
-anything with real money — is downstream of research by construction ([[CHARTER]] §7) and has no
-directory yet, deliberately.
+**Everything else is a document.** That is the intended shape at this stage: the first experiment is
+not written until [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] fixes what a state claim would have to
+beat.
