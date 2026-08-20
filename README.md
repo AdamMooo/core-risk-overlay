@@ -1,178 +1,174 @@
 # Core-Risk-Overlay
 
-Last updated: 2026-08-12
+Last updated: 2026-08-20
 
-A systematic tail-risk hedge for a permanently long, globally diversified equity book — and a
-research program testing whether the risk measure it needs can be built honestly.
+> # A RESEARCH LABORATORY FOR SYSTEMATIC MARKET AND PORTFOLIO RISK.
+>
+> **Purpose and agent behaviour: [[CLAUDE]] (read first).** This file is what is *established*.
+>
+> **There is no active research programme.** Three have run and all three are closed, and this file is
+> the preserved, reproducible record of what each established and why each stopped. **That is a fact
+> about the queue, not about the repository's purpose.** A fourth programme requires a new charter,
+> argued from the question — never from the code that happens to be here.
 
-- **The question and how it gets answered:** `docs/RESEARCH-PROTOCOL.md` (binding, preregistered)
-- **Current state and next build:** `core-risk-overlay.md`
-- **Mathematics:** `docs/MATH-REFERENCE.md` · **Time-basis rules:** `docs/POINT-IN-TIME-DISCIPLINE.md`
+**The repository name is historical**, as is everything else here that reads like an instruction. It
+names a programme that no longer runs and does not bound the scope of admissible questions.
+
+The order of work, and code is the last step:
+
+```
+real-world risk question -> literature -> mechanism -> observable data
+    -> mathematical formulation -> empirical test -> falsification
+    -> extension -> implementation
+```
+
+- **Purpose, agent behaviour, and the repository-gravity warning:** [[CLAUDE]]
+- **The last programme's charter, and its termination record:** [[CHARTER]] §11
+- **Process — the gate every experiment passes:** [[docs/RESEARCH-PROTOCOL]]
+- **Time basis and leak register:** [[docs/POINT-IN-TIME-DISCIPLINE]] · **Mathematics:**
+  [[docs/MATH-REFERENCE]]
+- **What is identified under the null:** [[docs/IDENTIFICATION-UNDER-N1]] · **why Q1 is not licensed
+  and what replaces it:** [[docs/DECISION-Q1-CLAIM]]
+- **Evidence base from the closed programs, frozen:** [[docs/PROBLEM-MAP]]
+- **Deliberately excluded, including the hedging mandate:** [[PARKED]] · **Chronological log:**
+  [[core-risk-overlay]]
+- **Closed research, preserved and reproducible, not active branches:**
+  [[closed-research/README]] (prediction) · [[closed-research/intervention/README]] (rolled-put)
 
 ---
 
-## 1. The mandate
+## 1. The three programmes, and how each ended
 
-The portfolio is long equities and stays long — SPY, QQQ, international developed and emerging,
-effectively XEQT/VT. Nothing here ever recommends selling the core. The overlay answers one
-question:
+| | programme | closed | how it ended |
+|---|---|---|---|
+| 1 | **prediction / regime** — can a public-data latent-state signal say *when* to change a standing overlay? | 2026-08-17 | the measurement was **nested inside VIX** on levels and dynamics, with power demonstrated; and a clairvoyant bound capped any timing rule near +3pp/yr where it was measured |
+| 2 | **rolled-put / tenor intervention** — which features of drawdown geometry are purchasable, identified, and at what cost? | 2026-08-18 | 82–85% of the measured reduction was **unrealised mark**; the remainder was smaller than the spread from an arbitrary roll offset; no tenor ordering survived in cash anywhere on the drawdown path; and the last structural claim was **conditional on a forecast programme 1 had closed** |
+| 3 | **return states** — do distinguishable return-distribution states exist? | 2026-08-19 | **INDETERMINATE.** Two synthetic identification gates, **no market data ever touched**. The observable proposed to read variance-distribution *shape* could not be separated from the instrument used to match variance *dispersion* |
 
-> **Is there a real, systemic threat to a long global equity book right now — large enough that
-> paying for a hedge is worth it?**
+**Programmes 1 and 2 closed each other**: the intervention branch's last surviving claim required
+exactly the forecast the prediction branch had ruled out. **Programme 3 stopped before reaching data**
+— which is the cheapest place a programme can stop.
 
-**Systemic is the operative word.** SPY wobbling alone is noise. SPY, QQQ and international falling
-together is the event worth insuring. Those markets correlate 0.77-0.87 with SPY weekly, and it is
-that joint behaviour the signal should read.
+## 2. What programme 3 was asking, and where it got to
 
-**The measure is continuous; the action is rare.** A smoothly moving exposure estimate crossing a
-high, sustained threshold an expected 1-4 times per year. Discrete on/off tiering of the *measure*
-was a first-pass simplification and is not used.
+The object was the conditional law of the forward return path, `F_{s,h} = law of R_{t:t+h} given
+S_t = s`, against a stated null and on a functional declared in advance. It asked four questions in
+order — existence, characterisation, transition, identification — and **terminated inside the first.**
 
-Three things a good answer buys: smooth the ride, cap drawdown depth, stay invested — the hedge is
-funded by a small sleeve, monetized in a crash and recycled into the core at lower prices.
+The obstruction, stated once because it is the programme's terminal result:
 
-## 2. Risk management, not alpha — which is why it can work
+```
+    RV_B = SUM sigma2_t z2_t
+```
 
-The model does **not** predict crashes and does **not** try to out-price the option market. Both
-were considered and rejected:
+The observed block-variance distribution depends on both the latent variance distribution and the
+innovation distribution. Matching the latent *dispersion* required using `E[z^4]` as the instrument,
+which necessarily changed the observation noise in the same statistic. **The mechanism that removed
+the difference under test also contaminated the measurement of it.** Full record:
+[[closed-research/return-states/README]].
 
-- **Predicting drawdowns** is untrainable: ~10-15 systemic drawdowns in all of SPY history, heavily
-  overlapping. No model learns a rare, path-dependent label from ~12 examples.
-- **Trading mispriced insurance** needs a fair-value model better than the market's. Ours rejects
-  ARCH-LM at 55.6 (p = 2.4e-11) — demonstrably misspecified, so any gap between its forecast and
-  VIX is more likely our error than the market's.
+## 3. What this is not
 
-**What survives is risk management.** Buying *fairly priced* insurance is not a losing trade — fire
-insurance has negative expected value and is entirely rational, because it truncates a tail you
-cannot afford. The question is not "is this cheap" but "how exposed am I right now."
+Four things, each rejected explicitly. The first three have evidence behind the rejection rather than a
+preference; the fourth is a statement of scope.
 
-This works for a structural reason: **the core is never sold.** Given that pre-commitment, options
-are the only lever, so the comparison is not "puts versus cash" but "puts versus bearing the entire
-drawdown" — a far lower bar than beating the option market.
+**Not a hedging or option-structure project.** That program ran, and it closed on 2026-08-18. Its
+code, results and preregistrations are preserved at [[closed-research/intervention/README]]. Summary
+of why: 0 of 40 structures beat the naked book on compound return; 82–85% of the measured drawdown
+reduction turned out to be unrealised **mark** rather than cash; the remaining magnitude was smaller
+than the spread produced by an arbitrary roll-calendar offset, and in cash its **sign** flipped with
+that offset; with the estimand repaired no tenor ordering survived anywhere on the drawdown path in
+cash; and the last surviving structural claim proved conditional on whether a decline grinds or
+V-bottoms — a quantity knowable only by the forecast the *prediction* program had already closed.
 
-And risk management is alpha, arithmetically. Compounding is path-dependent: -50% needs +100% to
-recover. Truncating the left tail raises the *geometric* return even at negative expected value,
-provided premium drag is smaller than the drawdown avoided. The edge is reshaping the distribution,
-not forecasting it.
+**Not a prediction or timing project.** That program ran too, and closed on 2026-08-17
+([[closed-research/README]]). A latent-state model's forward-downside information proved strictly
+nested inside VIX's, on levels and on dynamics, with power demonstrated rather than assumed; and a
+clairvoyant bound capped what *any* timing rule could be worth near +3pp/yr where it was measured.
+**The closure is scoped, not universal** — public return-volatility estimators, for decision
+purposes, on SPY, against VIX, at h=4 and h=13. Credit, funding, breadth and positioning were never
+tested and are out of scope rather than refuted.
 
-**Scope boundary.** The model answers *when*. It never decides *what* to buy or *how much*.
+**Not an attempt to out-price the option market.** That needs a fair-value model better than the
+market's, plus chain depth, execution infrastructure and a market-maker's information set. We have
+none of them and acquiring them is not this project.
 
-## 3. The research question
+**Not a component of another repository's system.** This repository stands alone — no upstream, no
+downstream, no sibling to reconcile with, and no governing document outside its own tree. It shares the
+`systematic-investing-research/` directory with three governed repositories and is not one of them; it
+is neither an extension nor a successor of `regime-detection`; nothing here imports from another
+repository and nothing there imports from here. The one cross-repository fact on record is that
+point-in-time option chains exist elsewhere, and that is an acquisition option for a question nobody has
+argued yet — not a dependency and not an agenda. [[CLAUDE]] §3.
 
-> **How well does a Markov-switching model provide real-time information about Value at Risk and
-> the tail risk of equity assets?**
+## 4. What the closed programmes left behind
 
-Stated absolutely, not comparatively, and answerable with no benchmark at all. **Real-time** is
-load-bearing: it excludes Kim-smoothed probabilities by definition, and it is the property that
-matters rather than the algorithm that delivers it — the Hamilton filter is *the* filter for this
-model class, so naming it would add nothing and would not generalise across the specifications in
-protocol §3. The full protocol —
-estimand, tests, preregistered decision thresholds — is `docs/RESEARCH-PROTOCOL.md`. Why it is
-shaped this way:
+They are evidence and institutional memory, **not a dependency**. Nothing in the active tree imports
+from `closed-research/`, and nothing there imports from the active tree.
 
-- **Absolute.** The model emits a predictive density. Density calibration (PIT / Berkowitz) and
-  quantile coverage (Kupiec, Christoffersen, dynamic quantile) score it on *every observation*,
-  against nothing but its own stated risk level. That is what makes it settleable rather than
-  arguable.
-- **The independence tests are the discriminating ones.** A constant, unconditional VaR passes
-  Kupiec trivially — set it at the historical 5th percentile and ~5% of observations breach it by
-  construction. But if volatility clusters, its breaches *bunch*, and the independence and dynamic
-  quantile tests reject. So "does conditioning on a latent regime state add anything?" is answered
-  inside the absolute test.
-- **ES is the headline functional**, VaR the better-tested one. The mandate is about drawdown
-  *depth*; VaR measures frequency, ES measures depth. Both are functionals of the same density.
-- **Economic value is gated** and not designed. Apparent economic value from an uncalibrated signal
-  is a small-sample artifact.
-- **Filtered, never smoothed.** Any VaR built on Kim-smoothed probabilities is evaluated against
-  data it has already seen. Reporting both quantifies how much apparent skill in naive
-  regime-switching studies is hindsight — the two disagree at the 0.5 threshold in 9.7% of weeks.
+**Findings that would constrain any new programme directly** — these are boundary conditions, not
+history:
 
-A constant VaR and a trailing-realized-volatility VaR are computed as **context rungs**, not gates —
-they say whether conditioning helps at all and whether the model beats naive conditioning. VIX is
-the one real gate, and it is the *system's* gate rather than the paper's bar (protocol §7).
+| | binds how |
+|---|---|
+| A finite Gaussian mixture is **Gaussian in the far tail** for any `k` and any weight; the squared-return ACF of any Markov-switching model decays **geometrically** for any `k` | if tail thickness or non-geometric memory is a proposed distinguishing property, the mixture class is disqualified *a priori* |
+| At α=0.01 every method breaches ~2x — constant 1.87%, EWMA 2.03–2.36%, MS 1.79% | the tail failure belongs to **the data under a Gaussian assumption**, not to any model |
+| Weekly data cannot resolve volatility memory at all; daily resolves it to lag 212 | the active program is **daily** ([[CHARTER]] D2) |
+| The fitted state was a **width meter** — vol separating 2.4x, no direction content, drift difference reversing sign between SPY and QQQ | states are named by what distinguishes them, never by what one would do about them |
+| Anything whose value depends on counting systemic episodes has effective n ~ 10–15 in all of SPY history | effective n is reported **per coordinate**, before the run |
 
-**Deliberately not used:** crisis-detection hit rate, lead time versus other signals, accuracy on
-hand-selected episodes. All three were invented after seeing the data, and each selects its own test
-bed from hindsight.
+**Methodological lessons, carried into the protocol:** identification before optimization; mechanism
+before magnitude; robustness before ranking; no single-path economic claims; a mark is not a cash
+flow, an ordering is not a magnitude, and a bound is not an estimate; effective sample size is
+explicit; phase and path dependence matter; negative results are evidence; **"not identified" is a
+legitimate result**; research boundaries are explicit; archived research stays reproducible.
 
-## 4. Naming
+## 5. Implementation status
 
-`src/jump_model.py` was renamed to `src/markov_switching.py` on 2026-08-12 because the name was
-simply wrong. What the file implements is a **Markov-switching model** (Hamilton 1989): a latent
-discrete state with a Markov transition matrix, estimated by maximum likelihood via the Hamilton
-filter, yielding a predictive density.
-
-"Statistical jump model" is the established name of a *different* method (Bemporad et al. 2018;
-Nystrup et al. 2020-21) that minimizes a penalized loss over the state path by dynamic programming
-and yields no density. Nothing in this repo implements it. The old name invited that confusion, so
-it is gone.
-
-The high-variance regime is called **`high_variance`**, never "jump", "panic" or "crisis". The label
-is resolved by argmax of fitted regime variances and nothing makes it directional — it scores a
-violent rally nearly as high as an equal crash. A directional name would overclaim.
-
-## 5. Settled, and open
-
-**Settled by evidence:**
-
-- **Daily data, weekly decisions — separate choices.** Estimate on daily closes (~8,400 observations
-  vs 1,750; materially less lag; volatility from higher-frequency data is substantially more
-  accurate — Andersen-Bollerslev). *Decide* weekly, because the target is 1-4 actions per year.
-  Estimate fast, act slow. Intraday tick data and Hawkes processes remain out of scope.
-- **Filtered, never smoothed.** `statsmodels`' `smoothed_marginal_probabilities` runs the Kim
-  smoother over the whole sample including the future.
-- **Post-hoc regime relabelling is load-bearing.** Regime indices are not identified by the
-  likelihood; the label flips across refits on real data. Any hardcoded index inverts the signal.
-- **Ten-year (520-week) minimum history**, measured. **This is a weekly figure and does not transfer
-  to daily by multiplying by 5** — it must be re-measured before any daily result is quoted.
-
-**Open:**
-
-- **Number of regimes.** Corrected AIC *and* BIC both prefer **k=3** over k=2 decisively (ΔAIC 66,
-  ΔBIC 44) on real data. An earlier version of this file mandated k=2; that was a guess, not a
-  result.
-- **Whether a discrete-regime model is the right class.** ARCH-LM rejects at 55.6 (p = 2.4e-11)
-  *after* regime-switching — volatility keeps moving continuously within regimes. MS(2) has exactly
-  two possible conditional variances; at daily frequency that handicap gets worse, not better.
-- **Which functional.** Conditional variance is symmetric, and symmetry is not what hurts a long
-  book (up/down probability ratio 1.0000 at |return| ≥ 7% with a common mean; 0.9279 with a
-  switching mean). Downside semivariance, VaR and ES all measure the thing that matters.
-- **Single asset.** Systemic risk is joint; the current model sees only SPY.
-- **Detection lag.** A causal filter is late by construction — it must observe bad returns before it
-  can raise the probability. For a put buyer that lag is transmitted through premium: by the time the
-  measure fires, VIX has repriced. A preregistered threat to economic value (protocol §7), not to
-  calibration.
-
-**What VIX is for:** the **price** side — what acting costs — never a benchmark to beat. Loaded in
-`data_loader.py` and currently used by nothing.
-
-Machine-learning clustering and rigid binary classifiers are out of scope — a preference for
-interpretable likelihood-based models, stated as a preference rather than a law.
-
-## 6. Capital plumbing (Canadian framework)
-
-Two sub-accounts, to avoid ongoing currency friction:
-
-1. **Core bucket (CAD).** Long-term compounding index assets (VFV, XEQT) or direct blue chips.
-   Never sold during a crash.
-2. **Hedge bucket (USD).** A small dedicated cash sleeve. CAD converted to USD **once**, via
-   Norbert's Gambit or IBKR native conversion, to eliminate repeated spread costs. That USD buys
-   liquid US-listed SPY puts.
-
-When a hedge pays off: sell the inflated puts, move proceeds to the core bucket, buy index exposure
-at the discount. If markets recover instead, the core was never sold.
-
-## 7. Implementation status
+The active tree is deliberately small. **There is no model, no detector, no engine, and none is
+designed** — [[CHARTER]] §8.
 
 | component | state |
 |---|---|
-| `src/data_loader.py` | working — weekly returns and VIX, start-date invariant, validated |
-| `src/markov_switching.py` | working — 2-regime switching mean/variance, filtered, no look-ahead |
-| `src/evaluation.py` | working — coverage tests, forward-aligned targets, Newey-West encompassing |
-| `src/predictive.py` | working — mixture predictive density, VaR by Brent, closed-form ES |
-| `checks.py` | 64 checks, all passing |
-| `walkforward.py` | walk-forward correctness harness (weekly; vintage parameters) |
-| `main.py` | placeholder — no live path until the preregistered gates D1-D3 clear |
+| `src/data_loader.py` | working — daily and weekly returns, VIX, start-date invariant, explicit calendar |
+| `src/pathfunctionals.py` | working — drawdown process, excursions with censoring, CDaR curve, time under water. Retained because drawdown geometry is a **candidate state characteristic**, not because it was an objective |
+| `src/manifest.py` | working — the data cache's sha256 manifest. `data/` is gitignored and two caches are derived artifacts, so `data/MANIFEST.md` is what makes "the archives reproduce" checkable rather than asserted |
+| `closed-research/return-states/` | return-state programme — 140 checks passing, S0b verified to reproduce after the archive move (control `d' = 7.416`) |
+| `checks.py` | 37 checks, all passing — the two retained modules and the data manifest. **The three closed programmes carry their own suites, frozen with the code they guard** |
+| `closed-research/` | prediction program — 81 checks passing, D3 and F2 verified reproducible |
+| `closed-research/intervention/` | rolled-put program — 17 checks passing, E0 verified reproducible after the archive move |
 
-The model has never been run in the mode it exists for. Sizing and threshold logic is deliberately
-unwritten because the open questions above determine its shape.
+**There is no queue.** `src/data_loader.py`, `src/pathfunctionals.py` and `src/manifest.py` are
+retained because they are correct and general, not because anything is planned. **Nothing here is
+waiting to be run.**
+
+## 6. What counts as a result
+
+Profitability is not on this list, and is not required by any item on it.
+
+| criterion | what it demands |
+|---|---|
+| **measurement validity** | the quantity measures the phenomenon claimed, not a proxy for it |
+| **statistical validity** | it survives appropriate inference — effective n stated, overlap not counted as sample |
+| **incremental information** | it is not already carried by an established incumbent, tested at matched complexity |
+| **stability** | it survives reasonable temporal and specification changes |
+| **mechanistic coherence** | there is a defensible reason *why* the relationship exists |
+| **reproducibility** | it rebuilds from accessible data and documented procedure |
+| **decision relevance** | it could plausibly change a risk-management decision |
+| **economic relevance** | the phenomenon corresponds to a meaningful portfolio risk |
+
+A result satisfying some combination of these is valuable. **A closure is a result** — three of them
+are the substance of this repository. So is *"indeterminate on the available history"*, which is how
+programme 3 ended.
+
+**Risk intelligence is not alpha.** `X_t -> P(adverse outcome given X_t)` and `risk information ->
+risk posture` are the objects here; `X_t -> E[R_{t+h}]` is not, and nothing in this repository is
+required to solve it. A valid output is *"current conditions imply materially elevated exposure to
+this form of systematic risk"* — no asset named.
+
+**Public data is the constraint, stated rather than worked around.** Institutional researchers may
+hold proprietary data, positioning, order flow, execution records and deeper option histories. We do
+not, and acquiring them is not this project — so the question is usually what defensible risk
+information *public* data can carry. A phenomenon that is robust, reproducible and useful for
+monitoring but not directly tradable is an acceptable result. The constraint is not an excuse for a
+weak test.

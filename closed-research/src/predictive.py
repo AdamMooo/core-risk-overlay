@@ -5,6 +5,15 @@ This is the missing link between `markov_switching` (which returns regime
 probabilities) and `evaluation` (which scores risk estimates). Regime
 probabilities are not a risk measure; a predictive distribution is.
 
+NAMING, because the word collides with something this project rejected.
+"Predictive density" is the standard term (Rosenblatt 1952; Diebold, Gunther &
+Tay 1998) for f(r_{t+1} | data through t) -- the conditional distribution of
+next period's return. It is NOT crash prediction, which README section 2
+rejects outright as untrainable on ~12 overlapping drawdowns. The density here
+is sign-blind by construction: it is a WIDTH, saying how far out the left tail
+sits right now, and it says nothing about direction. README section 3 uses this
+same term to state the research question.
+
 Three steps, per docs/RESEARCH-PROTOCOL.md section 1.1:
 
     w[j]  = sum_i P[i,j] * filtered[t][i]              push the state forward

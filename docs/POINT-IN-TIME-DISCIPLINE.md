@@ -1,16 +1,31 @@
 # Point-in-Time Discipline
 
-Last updated: 2026-08-12
+Last updated: 2026-08-18. **Binding on the active program.**
 
-Standing rules for this repo. Companion to [[MATH-REFERENCE]] (§4.3 has the mechanism).
+Standing rules for this repo. Companion to [[CHARTER]] and [[docs/RESEARCH-PROTOCOL]].
 
 ## The rule
 
-> **Every input to the signal at week `t` must have been knowable at week `t`.**
+> **Every input to a reported number must have been knowable at the time the number claims to
+> describe — and every researcher choice must have been fixed before the result it selects among was
+> seen.**
 
-No exceptions, no "it's probably fine," no "the effect is small." The overlay exists to tell us
-what to do *next*, so any number that could not have been computed in real time is not evidence —
-it is a description of history.
+Two clauses, because both bind the return-state program and they bind for different reasons. The
+first is classical look-ahead: a quantity computed from the future. The second is **selection on
+outcome**: a threshold, an offset, a parameter or a sample boundary chosen after seeing which value
+gives the answer.
+
+**The return-state program is exposed to both, and this is a change from either closed program.** It
+is exposed to the first because a latent state estimated on the whole sample is a smoothed state, and
+question (D) is precisely whether `S_t` is measurable with respect to `I_t` — so rows 1 and 2 below
+stop being provenance and become live again. It is exposed to the second because the number of
+representations, state counts, horizons and functionals available is large and there is one realized
+path to try them against. **The charter's answer to the second is structural: the null and the
+frequency were fixed before the first experiment ([[CHARTER]] D1, D2) and are not revisited after a
+result exists.**
+
+No exceptions, no "it's probably fine," no "the effect is small." A number that could not have been
+produced without knowing the answer is not evidence; it is a description of history.
 
 ## Why this file exists
 
@@ -48,33 +63,103 @@ plausible next change introduces it. **ACCEPTED** = present, understood, judged 
 | 7 | **Full-sample scaling / standardization.** No scaler exists in the pipeline today. | **N/A** | — | If one is ever added, fit it on the training window only. |
 | 8 | **Survivorship bias.** Single liquid ETF, no universe selection. | **N/A** | `src/data_loader.py` | Becomes live the moment this goes multi-asset or screens a universe. |
 
+**Rows 1-8 were written for the closed prediction program, and 2026-08-18 changes their status.**
+Rows 1, 2, 4 and 5 concern a filter that no longer runs in the active tree — but they describe leaks
+that any latent-state estimator reintroduces, so they are **retained as live design constraints for
+the return-state program**, not merely as provenance. **Row 1 in particular is the one to read
+before writing anything:** the smoothed state conditions each observation on the whole sample, the
+filtered state does not, and the two disagreed about the 0.5 threshold in 9.7% of real weeks. Rows
+2b, 6, 7 and 8 are general data discipline and still bind; row 8 (survivorship) becomes live the
+moment the program goes multi-market, which [[CHARTER]] S2 requires. Row 3 is **N/A** — there is no
+signal and no live path.
+
+### Rows 9-13 — the CLOSED intervention program's channels
+
+Added 2026-08-17 and **closed 2026-08-18 with the program that owned them.** Every one is selection on
+outcome rather than classical look-ahead, and they are retained because the *class* of defect is
+exactly what the return-state program must guard against with different knobs. Rows 10 and 11 —
+choosing an episode threshold or a CDaR `alpha` after seeing the result — remain live in form the
+moment drawdown geometry is used as a state characteristic, and `src/pathfunctionals.py` is still the
+place they would bite.
+
+**The return-state program's own channels are added with the experiment that creates them.** S0
+created none — it estimated no state, read no market data, and its researcher choices were declared in
+its stub before the run.
+
+**Row 1 is the one to watch, and it is declared live now rather than when it bites.** The closed
+program measured the cost of getting it wrong: the smoothed state conditions each observation on the
+whole sample, the filtered state does not, and **the two disagreed about the 0.5 threshold in 9.7% of
+real weeks**, with quarterly refits revising ~7.5% of weeks and a p95 revision of 0.19–0.25.
+
+**Q1 is structurally immune to this and that is worth stating**, because it is a property of the design
+rather than of anyone's care: Q1's statistic is a moment of the observed return series, so there is no
+state path to infer and no smoothing to leak. **Q2 and Q3 are not immune.** The moment any experiment
+in this programme infers a state path:
+
+- the state at `t` is filtered, never smoothed, with vintage parameters;
+- **the state construction is declared in the stub as a fixed choice, not tuned** — number of states,
+  estimation window, refit cadence and any threshold are researcher degrees of freedom, and a state
+  definition adjusted until the distributional difference appears is the same defect as a threshold
+  chosen on the result;
+- a smoothed quantity may still be computed, and must be **labelled as an in-sample description**, on
+  the precedent of `simulate(foresight=True)` — the honest form is to compute the unavailable quantity
+  and say so.
+
+| # | Channel | Status | Where | Fix |
+|---|---|---|---|---|
+| 9 | **Roll-phase selection.** Blocks walk a fixed calendar grid from index 0, so at 52 weeks the program makes 33 decisions in 33 years and the phase of every roll relative to the crisis is set by the sample's first date. Choosing the offset that maximises the effect is choosing the answer. | **OPEN** | `closed-research/intervention/hedge_economics.py` `simulate` | E1 sweeps offsets `1..tau-1` and reports the **spread** as a `Psi` coordinate. No single phase may be quoted without it. |
+| 10 | **Episode-threshold selection.** The depth `theta` defining "an excursion worth counting" is ours to pick, and it changes `n`. | **OPEN** | `src/pathfunctionals.py` `excursions` | `theta` is declared in the experiment's stub before the run, with a sensitivity band, not chosen from the result. |
+| 11 | **CDaR `alpha` selection.** `alpha` interpolates from a well-sampled statistic to an n=1 one. Picking the `alpha` that gives the answer is the same defect one level up. | **OPEN** | `src/pathfunctionals.py` `cdar` | Report the **whole curve**, always. The `alpha` at which the estimate destabilises is an output, not a choice. |
+| 12 | **Pricing-assumption selection.** `skewed_vol` scales skew as `sqrt(4/tenor)`, which makes long tenor cheap and **favours the conclusion**, and a flat 5% offer spread is applied at every tenor when long-dated puts are thinner. Sweeping and then quoting the favourable slope is selection. | **ACCEPTED and declared** | `closed-research/intervention/hedge_economics.py` `skewed_vol` | Dominance must hold **across the whole sweep**, not at the primary slope. E5 can reject the shape; it cannot confirm historical costs, because the chain archive begins 2026-08-14. |
+| 13 | **Monetisation fitted to the path.** A rule `rho` that references the realized trough is clairvoyant, and it will look excellent. | **LATENT** — no rule exists yet, and the first one written is where this bites | E6 | `rho` is causal: it may use only information available at the decision date. The clairvoyant version is computed **separately and labelled as a bound**, never as a policy. |
+
+**Row 13 has a precedent worth naming.** The closed program's own EVPI construction is exactly the
+honest form of this: `simulate(foresight=True)` looks at the expiry price before buying, is documented
+as not implementable, and exists only to bound others. Any monetisation work follows that pattern.
+
 ## Pre-flight checklist
 
-Run this before any backtest number is quoted, written down, or acted on:
+Run this before any number is quoted or written down. **Rewritten 2026-08-18 for the return-state
+program**; the intervention program's version is preserved in git history and its four middle rows
+are the ones that changed.
 
-- [ ] Every probability in the signal path is **filtered**, never smoothed
-- [ ] Parameters used at week `t` were fitted only on data up to and including `t`
-- [ ] The bar that generated the signal had **closed** before the signal timestamp
-- [ ] The execution price is timestamped at or after the signal
-- [ ] No threshold, scaler, or hyperparameter was chosen using data after the decision date
+- [ ] Every input was knowable at the time the number claims to describe
+- [ ] **The state at `t` was estimated from data up to `t`**, filtered and not smoothed, with vintage
+      parameters — or the number is explicitly labelled as an in-sample description
+- [ ] **The null and the frequency are the charter's**, not ones chosen for this result
+- [ ] **Every researcher choice — state count, horizon, functional, window, sample boundary — was
+      declared in the stub** before the result was seen
+- [ ] The comparison is one the hypothesis could have LOST
+- [ ] The claim tuple and the **effective n per coordinate** are attached
+- [ ] No magnitude is asserted from a population that is not identified
+- [ ] The state is named for what distinguishes it, not for what one would do about it
 - [ ] Someone asked out loud: *"is this too good?"*
 
 ## The smell test
 
 **If a backtest looks excellent on the first run, assume leakage until proven otherwise.**
 
-Strategy-specific tell: a risk measure that reliably rises *before* crashes rather than *during*
-them is the signature of a smoother, not a forecast. Real-time regime detection is late and
-hesitant by construction — the filter needs to actually observe bad returns before it can raise the
-probability. A crisis indicator that anticipates crises has read the answer sheet.
+**Tells specific to the return-state program.** There is a filter to leak again *and* many knobs, so
+watch both:
 
-Concrete illustration from the synthetic fixture in `checks.py`, week 99 — the last calm week
-before the crash:
+- **A state that separates the return distribution beautifully.** Check first whether it was estimated
+  with information the observer had. A smoothed state is a description of history, and it will look
+  excellent.
+- **A statistic whose effective n was never stated.** The characteristics most likely to distinguish
+  states — tails, downside concentration, drawdown geometry — have effective n ~ 10-15 in all of SPY
+  history. A clean separation on those is a statement about a handful of episodes.
+- **A representation that arrived after a negative result.** If the state structure appeared only
+  after the model class changed, the model class is the finding, and it is a finding about the
+  representation rather than about the market ([[docs/RESEARCH-PROTOCOL]] P8).
+- **A difference reported without what it is a difference from.** A conditional distribution that
+  varies is not evidence of a state; it is what every conditional-variance process does
+  ([[CHARTER]] §2).
+- **A state that turns out to be measurable only in hindsight.** That is not a leak if it is *labelled*
+  — it is charter outcome S4, which is a legitimate ending. It is a leak the moment it is quoted as
+  though the observer had it.
 
-```
-filtered  high-variance probability = 0.0059   <-  0.6%, what we could actually have known
-smoothed  high-variance probability = 0.2008   <- 20.1%, after peeking at week 100
-```
-
-Same model, same week. The 34x gap is the Kim smoother's backward revision, and it grows as calm
-persistence is pinned higher — see [[MATH-REFERENCE]] §4.3.
+**The honest form is already in the repo and should be copied.** The closed program's
+`simulate(foresight=True)` peeks at the future before deciding, says so in its own docstring, and
+exists solely to bound what any rule could achieve. **A clairvoyant quantity that is labelled as a
+bound is one of the most useful things here. The same quantity presented as a capability would be the
+worst.**

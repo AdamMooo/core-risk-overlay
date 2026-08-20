@@ -31,14 +31,17 @@ import pandas as pd
 from statsmodels.tsa.regime_switching.markov_regression import MarkovRegression
 
 import data_loader as dl
+import evaluation as ev
 import markov_switching as ms
+import predictive as pr
 
 TICKERS = ("SPY", "QQQ")
+ALPHAS = (0.10, 0.05, 0.01)    # RESEARCH-PROTOCOL section 5.2
 MIN_TRAIN_WEEKS = 520          # 10 years; see markov_switching.RELIABLE_MIN_OBSERVATIONS
 REFIT_EVERY_WEEKS = 13         # quarterly, a realistic operational cadence
 STATE_THRESHOLD = 0.50        # the 0.5 convention used throughout the docs;
                               # tiering is out of scope (RESEARCH-PROTOCOL section 9)
-DATA_DIR = Path(__file__).parent / "data"
+DATA_DIR = Path(__file__).parent.parent / "data"
 
 
 def load_returns(ticker: str) -> pd.Series:
@@ -57,14 +60,15 @@ def load_returns(ticker: str) -> pd.Series:
     return returns
 
 
-def filter_with(returns: pd.Series, params: np.ndarray) -> np.ndarray:
+def filter_with(returns: pd.Series, params: np.ndarray,
+                k_regimes: int = ms.N_REGIMES) -> np.ndarray:
     """Filtered marginal probabilities over the full series at fixed params.
 
     Slicing this is legitimate: the Hamilton filter is a forward recursion, so
     the value at week t depends only on returns up to t. Running it over the
     whole series and reading position t gives exactly what was knowable at t.
     """
-    model = MarkovRegression(returns, k_regimes=ms.N_REGIMES, trend="c",
+    model = MarkovRegression(returns, k_regimes=k_regimes, trend="c",
                              switching_trend=True, switching_variance=True)
     return np.asarray(model.filter(params).filtered_marginal_probabilities)
 
@@ -105,6 +109,141 @@ def walk_forward(returns: pd.Series) -> pd.DataFrame:
 
     print(f"  refits attempted: {len(refit_points)}   failures: {failures}")
     return pd.DataFrame(rows)
+
+
+def walk_forward_density(returns: pd.Series,
+                         k_regimes: int = ms.N_REGIMES) -> pd.DataFrame:
+    """Vintage-correct one-step-ahead VaR, ES and PIT for every live week.
+
+    RESEARCH-PROTOCOL step 5. The alignment discipline, stated because this is
+    exactly where look-ahead hides. For a live week t served by the refit made
+    at `start`:
+
+      parameters   fitted on returns[:start]     -- data through week start-1
+      state        filtered[t-1]                 -- data through week t-1
+      weights      w = filtered[t-1] @ P         -- the forward step
+      density      mixture(w, means, sigmas)     -- formed BEFORE r_t exists
+      scored on    returns[t]                    -- the realized week
+
+    Nothing on the right of "known at t-1" appears on the left. Running the
+    Hamilton filter over the whole series and reading position t-1 is legitimate
+    for the same reason `filter_with` documents: it is a forward recursion, so
+    position t-1 depends only on returns up to t-1.
+
+    Note the label-flip defect that dogs the probability signal is IRRELEVANT
+    here. The mixture sums over all regimes, so which index is called
+    high-variance never enters. That is a real advantage of scoring the density
+    rather than the state.
+    """
+    refit_points = list(range(MIN_TRAIN_WEEKS, len(returns), REFIT_EVERY_WEEKS))
+    values = returns.to_numpy(dtype=float)
+    rows, failures = [], 0
+
+    for n, start in enumerate(refit_points):
+        try:
+            model, results, _ = ms.fit_markov_switching(
+                returns.iloc[:start], k_regimes=k_regimes)
+        except (RuntimeError, ValueError):
+            failures += 1
+            continue
+
+        means, sigmas = pr.regime_parameters(model, results)
+        transition = pr.transition_matrix(results)
+        filtered = filter_with(returns, np.asarray(results.params, dtype=float),
+                               k_regimes)
+        stop = refit_points[n + 1] if n + 1 < len(refit_points) else len(returns)
+
+        # Index of the widest regime, for reporting the weight only. The density
+        # itself never needs it -- see the docstring.
+        wide = int(np.argmax(sigmas))
+
+        for t in range(start, stop):
+            weights = pr.state_prediction(filtered[t - 1], transition)
+            row = {
+                "date": returns.index[t],
+                "realized": values[t],
+                "refit_end": returns.index[start - 1],
+                "w_wide": float(weights[wide]),
+                "sigma_wide": float(sigmas.max()),
+                "sigma_calm": float(sigmas.min()),
+                "pit": pr.mixture_cdf(values[t], weights, means, sigmas),
+            }
+            for alpha in ALPHAS:
+                risk = pr.mixture_tail_risk(weights, means, sigmas, alpha)
+                row[f"var_{alpha}"] = risk.var
+                row[f"es_{alpha}"] = risk.expected_shortfall
+            rows.append(row)
+
+    if failures:
+        print(f"  WARNING: {failures} refit(s) failed and were skipped")
+    return pd.DataFrame(rows).set_index("date")
+
+
+def report_density(ticker: str, k_regimes: int = ms.N_REGIMES) -> None:
+    print("=" * 76)
+    print(f"WALK-FORWARD PREDICTIVE DENSITY — {ticker}   k={k_regimes}")
+    print("=" * 76)
+
+    returns = load_returns(ticker)
+    print(f"  weeks: {len(returns)}  {returns.index[0].date()} .. {returns.index[-1].date()}")
+    print(f"  first fit at week {MIN_TRAIN_WEEKS}, refit every {REFIT_EVERY_WEEKS} weeks")
+    print("  NO look-ahead: parameters and state at t use only data through t-1.")
+
+    frame = walk_forward_density(returns, k_regimes)
+    print(f"\n  out-of-sample forecasts: {len(frame)}  "
+          f"{frame.index[0].date()} .. {frame.index[-1].date()}")
+
+    print()
+    print("TABLE 3 — QUANTILE COVERAGE")
+    print(f"  {'alpha':>6s} {'breaches':>9s} {'rate':>8s} {'Kupiec p':>10s} "
+          f"{'indep p':>9s} {'CC p':>9s}")
+    for alpha in ALPHAS:
+        hits = frame["realized"] < frame[f"var_{alpha}"]
+        c = ev.coverage_tests(hits, alpha)
+        print(f"  {alpha:6.2f} {c.exceedances:9d} {c.observed_rate:8.4f} "
+              f"{c.p_uc:10.4f} {c.p_ind:9.4f} {c.p_cc:9.4f}")
+
+    print()
+    print("TABLE 2 — DENSITY CALIBRATION (primary)")
+    full = ev.berkowitz_test(frame["pit"])
+    print(f"  Berkowitz full   LR {full.lr:8.2f}  df {full.df}  p {full.p_value:.4f}")
+    print(f"    mu {full.mu:+.4f}   rho {full.rho:+.4f}   sigma2 {full.sigma2:.4f}"
+          f"   clipped {full.n_clipped}")
+    for alpha in (0.10, 0.05):
+        try:
+            tail = ev.censored_berkowitz_test(frame["pit"], alpha)
+            print(f"  Berkowitz tail alpha={alpha:.2f}  LR {tail.lr:8.2f}  df {tail.df}  "
+                  f"p {tail.p_value:.4f}   mu {tail.mu:+.4f}  sigma2 {tail.sigma2:.4f}"
+                  f"  n_tail {tail.n_tail}")
+        except ValueError as exc:
+            print(f"  Berkowitz tail alpha={alpha:.2f}  not run: {exc}")
+
+    diagnostics = ev.pit_diagnostics(frame["pit"])
+    print(f"  PIT uniformity chi2 {diagnostics.uniformity_chi2:.2f} "
+          f"p {diagnostics.uniformity_p:.4f}")
+    print(f"  Ljung-Box  u      Q {diagnostics.ljung_box_level:8.2f} "
+          f"p {diagnostics.ljung_box_level_p:.4f}")
+    print(f"  Ljung-Box (u-.5)^2 Q {diagnostics.ljung_box_squared:8.2f} "
+          f"p {diagnostics.ljung_box_squared_p:.4f}   <- unabsorbed vol dynamics")
+
+    print()
+    print("TABLE 4 — ES BREACH SEVERITY (point estimate; bootstrap not yet built)")
+    print(f"  {'alpha':>6s} {'n':>5s} {'mean realized':>14s} {'mean predicted ES':>18s} "
+          f"{'ratio':>7s}")
+    for alpha in ALPHAS:
+        breached = frame[frame["realized"] < frame[f"var_{alpha}"]]
+        if breached.empty:
+            continue
+        realized_mean = float(breached["realized"].mean())
+        predicted_mean = float(breached[f"es_{alpha}"].mean())
+        print(f"  {alpha:6.2f} {len(breached):5d} {realized_mean:14.4f} "
+              f"{predicted_mean:18.4f} {realized_mean / predicted_mean:7.3f}")
+    print("  ratio > 1 means the model UNDERSTATES how bad the bad weeks are.")
+
+    suffix = "" if k_regimes == ms.N_REGIMES else f"_k{k_regimes}"
+    out = DATA_DIR / f"density_{ticker.lower()}{suffix}.csv"
+    frame.to_csv(out)
+    print(f"\n  series written to {out.relative_to(Path(__file__).parent.parent)}")
 
 
 def report(ticker: str) -> None:
@@ -184,13 +323,20 @@ def report(ticker: str) -> None:
 
     out = DATA_DIR / f"walkforward_{ticker.lower()}.csv"
     ok[["refit_end", "n_obs", "hv_regime", "llf", *pnames]].to_csv(out, index=False)
-    print(f"\n   parameter path written to {out.relative_to(Path(__file__).parent)}")
+    print(f"\n   parameter path written to {out.relative_to(Path(__file__).parent.parent)}")
 
 
 def main() -> None:
-    tickers = [t.upper() for t in sys.argv[1:]] or list(TICKERS)
+    args = sys.argv[1:]
+    density = bool(args) and args[0].lower() == "density"
+    rest = args[1:] if density else args
+    k = ms.N_REGIMES
+    if rest and rest[-1].lower().startswith("k="):
+        k = int(rest[-1].split("=")[1])
+        rest = rest[:-1]
+    tickers = [t.upper() for t in rest] or list(TICKERS)
     for ticker in tickers:
-        report(ticker)
+        report_density(ticker, k) if density else report(ticker)
         print()
 
 
