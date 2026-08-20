@@ -134,7 +134,8 @@ designed** — [[CHARTER]] §8.
 | `src/pathfunctionals.py` | working — drawdown process, excursions with censoring, CDaR curve, time under water. Retained because drawdown geometry is a **candidate state characteristic**, not because it was an objective |
 | `src/manifest.py` | working — the data cache's sha256 manifest. `data/` is gitignored and two caches are derived artifacts, so `data/MANIFEST.md` is what makes "the archives reproduce" checkable rather than asserted |
 | `closed-research/return-states/` | return-state programme — 140 checks passing, S0b verified to reproduce after the archive move (control `d' = 7.416`) |
-| `checks.py` | 37 checks, all passing — the two retained modules and the data manifest. **The three closed programmes carry their own suites, frozen with the code they guard** |
+| `src/jumpmodel.py`, `src/sjm_features.py`, `repro_sjm2024.py` | **reproduction in progress, not established** — Shu-Yu-Mulvey (2024) rebuilt with the reactive incumbents the paper omits. Findings and the open list: [[docs/REPRO-SJM2024-FINDINGS]]. **Unverified (D4), and no checks yet** |
+| `checks.py` | 37 checks, all passing — the two retained modules and the data manifest. The reproduction modules are **not** covered yet. **The three closed programmes carry their own suites, frozen with the code they guard** |
 | `closed-research/` | prediction program — 81 checks passing, D3 and F2 verified reproducible |
 | `closed-research/intervention/` | rolled-put program — 17 checks passing, E0 verified reproducible after the archive move |
 

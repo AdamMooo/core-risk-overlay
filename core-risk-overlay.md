@@ -14,6 +14,44 @@ hedging mandate, in [[PARKED]].
 
 **The repository name is historical.** It names a program that no longer runs.
 
+## Status — 2026-08-20, second entry: A REPRODUCTION IS RUNNING, AND IT IS NOT A PROGRAMME
+
+> **Resume here: [[docs/REPRO-SJM2024-FINDINGS]]. The first job is D4, and nothing is evidence until it
+> is discharged.**
+>
+> **What is running.** A reproduction of Shu, Yu & Mulvey (2024), *Downside Risk Reduction Using
+> Regime-Switching Signals: A Statistical Jump Model Approach*, J. Asset Management 25(5) — with the two
+> reactive incumbents the paper's comparison set omits. This is a **reproduction** under [[CLAUDE]] §1
+> and standing requirement 5, not a fourth programme: no charter, no queue, no new question adopted. The
+> paper's 0/1 exposure rule is **F9** ([[PARKED]] §4) and is reconstructed only because reproducing the
+> claim requires reproducing the rule. The output is a verification result and there is no live path.
+>
+> **What reproduced.** Path dominance, against benchmarks the paper never ran. Lowest CDaR at every alpha
+> from the worst 1% to the pain index — 4.6% against 7.1% for a 200-day moving average, 5.8% for a capped
+> volatility target and 10.8% naked. Reported as the whole curve per leak row 11, so unlike max drawdown
+> the high-alpha end is not an n=1 statistic.
+>
+> **What did not.** The paper's margin. It is **not a return result**: CAGR 6.3% against buy-and-hold's
+> 7.9%, so 1.6pp/yr is paid for the path, and Sharpe ties at 0.40 vs 0.37 because Sharpe divides by total
+> volatility and cannot see path shape. **The advantage is one decade** — +8.3pp/yr in the 2000s, negative
+> in every other, -9.3pp/yr in the 1990s — so effective n on what generates it is two episodes, dot-com
+> and the GFC. QQQ 2011-2026 confirms it from the other side: no systemic episode, 3.5 and 8.8pp/yr given
+> up, episode depth still halved.
+>
+> **The finding worth keeping.** Sweeping the paper's own jump-penalty grid, the AUC for separating the
+> fitted state using nothing but trailing 60-day realized volatility climbs monotonically with the
+> penalty: 0.762 at lambda=0 to **0.947** at lambda=150, and 0.955 on QQQ. **The better it performs, the
+> more exactly the state is a slow volatility threshold.** [[docs/PROBLEM-MAP]] §0.9 firing as written:
+> the jump penalty adds persistence, not information, and persistence is what makes a noisy volatility
+> classifier tradeable (Sharpe 0.04 at 1503% turnover becomes 0.44 at 144%).
+>
+> **Also written, and also not a programme:** [[docs/ASSESSMENT-RETURN-AT-RISK]], the 10-point assessment
+> for a possible fourth question. STATUS: PROPOSAL. Nothing authorised, literature field marked
+> PROVISIONAL.
+>
+> Branch `repro-sjm2024`. Code `src/jumpmodel.py`, `src/sjm_features.py`, `repro_sjm2024.py`. 37 checks
+> still pass; **the new modules have no checks yet, which is part of D4.**
+
 ## Status — 2026-08-20: THIS REPOSITORY STANDS ALONE, AND THE RECORD IS ON `main`
 
 > **No research change.** Three closures stand, no programme reopens, no charter is drafted, no code is
