@@ -29,6 +29,9 @@ Regenerate after any deliberate cache change:
 | `n225_e4_weekly.csv` | `3d7b14107256709808e55fb85c6351480a9b65a4c8fbd6ac392480386b116dc8` | 88396 | 3213 | 1965-01-08 | 2026-08-21 | closed-research/intervention/anchoring.py -- ^N225, E4 |
 | `panel_daily.csv` | `b5aadfa9ba0956d40b3a4610d6482d06bfb8f5b5bcad0c4eefe24156fc9bee97` | 574786 | 5868 | 2003-04-15 | 2026-08-13 | closed-research/systemic_state.py -- SPY/QQQ/EFA/EEM daily panel |
 | `qqq_weekly.csv` | `57f4f82f79c347603e49771ce3ce08e956cefa1f462d8bd6d1cdc87c3de656e1` | 47448 | 1431 | 1999-03-19 | 2026-08-14 | src/data_loader.py -- same |
+| `sjm_dtb3.csv` | `1e6ba32b3b6de7baee955a044aca4f93216dec9aa01b21cf0b44a0e650828915` | 307281 | 18148 | 1954-01-04 | 2026-08-18 | repro_sjm2024.py -- FRED DTB3 3-month T-bill, the risk-free leg and the excess-return basis |
+| `sjm_gspc_daily.csv` | `39115269867752d7509c4a92e43dddf4dacd96e633cb9a831472c4037377f91e` | 421362 | 14277 | 1970-01-02 | 2026-08-20 | repro_sjm2024.py -- ^GSPC daily closes, price index (no dividends: declared deviation D2) |
+| `sjm_qqq_daily.csv` | `1982434d1c0fea57ea379cb6696819e3274885e849f8a2bcdf35706c69b91fc9` | 208551 | 6905 | 1999-03-10 | 2026-08-20 | repro_sjm2024.py -- QQQ daily closes, auto_adjust total return |
 | `spy_daily.csv` | `5a177caec2a2884874920ed0dcdfcde48a124680c763ee3fca87a335b6579293` | 283083 | 8441 | 1993-02-01 | 2026-08-13 | src/data_loader.py -- yfinance daily closes, auto_adjust |
 | `spy_weekly.csv` | `406c08cd741f6c5a7f5add03b14faedd1a6a991ccb078741ac3b6d501823d218` | 58252 | 1750 | 1993-02-05 | 2026-08-14 | src/data_loader.py -- daily resampled to an explicit W-FRI grid |
 | `vix_weekly.csv` | `eb1740ff3663d13a21944087dd57abac1d53a40652a30a667bd6ae3623c196b0` | 57408 | 1911 | 1990-01-05 | 2026-08-14 | src/data_loader.py -- ^VIX on the same W-FRI grid |

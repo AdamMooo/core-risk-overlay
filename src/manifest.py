@@ -44,6 +44,9 @@ PROVENANCE = {
     "n225_e4_weekly.csv": "closed-research/intervention/anchoring.py -- ^N225, E4",
     "ftse_e4_weekly.csv": "closed-research/intervention/anchoring.py -- ^FTSE, E4",
     "gdaxi_e4_weekly.csv": "closed-research/intervention/anchoring.py -- ^GDAXI, E4",
+    "sjm_gspc_daily.csv": "repro_sjm2024.py -- ^GSPC daily closes, price index (no dividends: declared deviation D2)",
+    "sjm_qqq_daily.csv": "repro_sjm2024.py -- QQQ daily closes, auto_adjust total return",
+    "sjm_dtb3.csv": "repro_sjm2024.py -- FRED DTB3 3-month T-bill, the risk-free leg and the excess-return basis",
 }
 
 
