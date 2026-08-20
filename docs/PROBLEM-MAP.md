@@ -1,6 +1,6 @@
 # Problem Map
 
-Last updated: 2026-08-18
+Last updated: 2026-08-20 — header status note only. **The evidence is unchanged and stays frozen.**
 
 **What this document is.** The standing answer to *what is the problem, what has been established,
 and why the project is pointed where it is.* Organised by epistemic status, not by date.
@@ -11,6 +11,13 @@ closed programs** and sets no agenda whatever. [[CHARTER]] does. Part I is the r
 prediction program was closed; Part II is the evidence, and its §1.1 tenor table is the single most
 misreadable object in the repository — read the E0/E1/E2/E4 qualifiers attached to it or do not quote
 it. The intervention program's own closure is recorded at [[closed-research/intervention/README]].
+
+**§4's remedy column names another repository, and it is historical too.** The U1 row points at an
+option-chain archive held in a different repository, and its "worth doing" verdict was written for a
+programme about contracts that has since closed. No feed exists, none is planned, and this repository has
+no dependency in either direction — [[CLAUDE]] §3. It is left as written because it records what the
+closed programme believed; it is not an action item, and a dataset existing elsewhere is not a research
+question.
 
 **Nothing in this file is a queue, and its §3 "genuinely unknown" and §4 "worth doing?" columns are
 now historical.** They were written for a program about contracts. U1 (the skew surface), U2 (the

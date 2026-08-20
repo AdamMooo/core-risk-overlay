@@ -1,6 +1,6 @@
 # Research Protocol
 
-Last updated: 2026-08-19. **Binding on every programme in this repository, including any future one.**
+Last updated: 2026-08-20. **Binding on every programme in this repository, including any future one.**
 There is no active programme; these rules do not lapse with the one that produced them, and a new
 charter inherits them rather than restating them.
 
@@ -177,6 +177,12 @@ symmetrical errors follow from forgetting it, and both are violations: reusing a
 here, and excluding a model because a programme that used it failed. **The question chooses the
 model.** Full statement in [[CLAUDE]] §3.
 
+**The defect points sideways as well as inward.** Another repository's code, data, history or charter is
+not evidence of what to attempt here either. This repository stands alone and no document outside it has
+authority over it; a dataset held elsewhere is an acquisition option for a question already argued on its
+own terms, never a reason to choose the question. Relating a question here to another repository is a P12
+violation and is called as one.
+
 **P13 — The cheapest falsification runs first.** Before a model, a pipeline, a feature family, a state
 taxonomy or a backtest, ask: *what is the cheapest experiment that would make this entire programme
 unnecessary?* Run that one. P5 already requires the *smallest experiment separating the
@@ -200,6 +206,13 @@ costume.
 ## Amendments
 
 Every change to this document after a result exists is logged here with date and reason.
+
+**2026-08-20 — P12 extended sideways.** Not selected on a result: nothing has run since 2026-08-19. The
+inward form of repository gravity was named and the sideways form was not, and the sideways form is the
+one with a documented history here — `regime-detection` was raised three times in a single day as a
+"migration risk" ([[core-risk-overlay]], Registration) and a closed programme's remedy column still reads
+as an action item pointing at another repository's option archive ([[docs/PROBLEM-MAP]] §4, U1). The
+standalone status is stated in [[CLAUDE]] §3 and §7 and [[README]] §3; nothing about any closure changes.
 
 **2026-08-19 — repository-level philosophy alignment. Header rescoped from "the active program" to
 every programme including future ones; P11 (outward before inward), P12 (repository gravity) and P13

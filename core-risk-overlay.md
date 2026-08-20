@@ -4,7 +4,7 @@ type: project
 
 # Core-Risk-Overlay
 
-Last updated: 2026-08-19
+Last updated: 2026-08-20
 
 **NO ACTIVE RESEARCH PROGRAMME.** Three have run and all three are closed — see [[README]]. This file
 is the chronological record. **Repository purpose and agent behaviour are [[CLAUDE]].** **The last
@@ -13,6 +13,36 @@ in [[docs/POINT-IN-TIME-DISCIPLINE]]. Frozen evidence in [[docs/PROBLEM-MAP]]. E
 hedging mandate, in [[PARKED]].
 
 **The repository name is historical.** It names a program that no longer runs.
+
+## Status — 2026-08-20: THIS REPOSITORY STANDS ALONE, AND THE RECORD IS ON `main`
+
+> **No research change.** Three closures stand, no programme reopens, no charter is drafted, no code is
+> touched, 37 active checks still pass. One rule is added and two pieces of drift are fixed.
+>
+> **The rule — cross-repository gravity.** Relating this repository to another one is now named as the
+> same defect as repository gravity, pointed sideways: [[CLAUDE]] §3 (with the four sentences that give
+> it away), [[CLAUDE]] §6 requirement 16, [[CLAUDE]] §7 (**no document outside this repository has
+> authority over it** — the charter in `regime-detection/governance/` governs three other repositories
+> and not this one), [[README]] §3 as a fourth "what this is not", and
+> [[docs/RESEARCH-PROTOCOL]] P12. This repository has no upstream, no downstream, no sibling to
+> reconcile with and no governing document outside its own tree; it shares a directory with three
+> governed repositories and is not one of them; it is **neither an extension nor a successor** of
+> `regime-detection`.
+>
+> **The corollary that matters in practice.** A dataset held in another repository is a fact about the
+> world, not a research question — an acquisition option for a question already argued on its own terms.
+> [[docs/PROBLEM-MAP]] §4's U1 remedy column had drifted into reading as an action item pointing at
+> another repository's option archive; its header now says explicitly that the row is historical, and the
+> evidence itself is untouched.
+>
+> **Drift 1 — the record was not on the default branch.** `origin/main` pointed at a merge of an *early*
+> state of `cleanup-and-retarget`, and 58 commits — every run, every closure, the governance reset —
+> existed only on the feature branch. The branch is merged and `main` now carries the record.
+>
+> **Drift 2 — the repository was registered nowhere.** It appeared in neither `C:\dev\INDEX.md` nor the
+> repo table in `C:\dev\CLAUDE.md`. Both now list it, in both cases marked **standalone and outside the
+> governed stack**. The vault manual also claims a `systematic-investing-research/README.md` that does
+> not exist; that is the vault's drift, not this repository's, and it is left alone.
 
 ## Status — 2026-08-19, second entry: PHILOSOPHY ALIGNMENT, NO RESEARCH CHANGE
 
@@ -1242,13 +1272,17 @@ E6. The objective question is answered by [[CHARTER]] §1.
 
 ## Registration
 
-Not in [[INDEX]] nor the repo table in [[CLAUDE]] — worth adding when convenient, not a blocker.
+Registered 2026-08-20 in `C:\dev\INDEX.md` and in the repo table in `C:\dev\CLAUDE.md`, in both cases
+**as a standalone repository that shares the `systematic-investing-research/` directory and is not part
+of the governed stack.** It is not covered by the charter in `regime-detection/governance/` and is not
+audited against it. Remote: `github.com/AdamMooo/core-risk-overlay`.
 
 **`regime-detection` is not this repo's problem and is not to be raised here.** It was a learning
 ground — jump models, k-means, lag experiments — it lives on `AdamMooo/regime-detection`, and it will
-be revisited on its own terms. This repo is an extension, not a successor, and owes it no
-reconciliation. Raised three times on 2026-08-15 as a "migration risk"; that was wrong each time and
-is exactly the reflex [[docs/PROBLEM-MAP]] standing rule 5 now forbids.
+be revisited on its own terms. This repository is **neither an extension nor a successor** of it and owes
+it no reconciliation. Raised three times on 2026-08-15 as a "migration risk"; that was wrong each time,
+and it is now [[CLAUDE]] §3 cross-repository gravity, [[docs/RESEARCH-PROTOCOL]] P12, and
+[[docs/PROBLEM-MAP]] standing rule 5.
 
 ## Related
 

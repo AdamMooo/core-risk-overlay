@@ -1,6 +1,6 @@
 # Core-Risk-Overlay — Operating Manual
 
-Last updated: 2026-08-19. **Read this before reading any code.** Companion to [[README]] (what is
+Last updated: 2026-08-20. **Read this before reading any code.** Companion to [[README]] (what is
 established), [[docs/RESEARCH-PROTOCOL]] (what has to be true before a run) and
 [[docs/POINT-IN-TIME-DISCIPLINE]] (time basis).
 
@@ -60,6 +60,24 @@ research universe  >  literature  >  candidate mechanisms
 **Existing code is evidence of what has been attempted. It is not evidence of what to attempt.**
 When a new question opens, the first move is *outward* — to the field — not *inward* to `src/`.
 
+**Cross-repository gravity is the same defect, pointed sideways.** This repository stands alone. It has
+no upstream, no downstream, no sibling it must reconcile with, and no governing document outside its own
+tree (§7). It shares the `systematic-investing-research/` directory with three governed repositories and
+is **not one of them**. `regime-detection` is not a predecessor, and this repository is neither its
+extension nor its successor. Nothing here imports from another repository and nothing there imports from
+here.
+
+It sounds like this, and every one of these is wrong too:
+
+- "This continues what `regime-detection` was doing."
+- "Another repository has that dataset, so that is the question to ask."
+- "The systematic-investing charter governs this, so the question has to fit the stack."
+- "This repository needs to be reconciled with / migrated into / justified against that one."
+
+A dataset held in another repository is a fact about the world, not a research question. If a question
+argued *here* turns out to need data that exists elsewhere, that is an acquisition decision taken after
+the question stands on its own — never a reason to choose the question.
+
 ## 4. Risk intelligence is not alpha
 
 Three distinct problems. This repository works on the second and third, and is not required to solve
@@ -111,6 +129,8 @@ weak test.
 14. **A direction having been pursued does not make it the project's future.**
 15. **Stop when the evidence closes a branch.** "Not identified" and "indeterminate on the available
     history" are legitimate, reportable results.
+16. **This repository stands alone.** Never relate a question, a model, a result or a justification to
+    another repository — §3, cross-repository gravity.
 
 ## 7. Where authority lives
 
@@ -128,6 +148,11 @@ weak test.
 
 Change the authoritative documents first, and never edit [[CHARTER]] or `closed-research/` to make the
 past look tidier than it was.
+
+**No document outside this repository has authority over it.** The charter in
+`regime-detection/governance/` governs three other repositories; this one is not in that stack, is not
+audited against it, and owes it no reconciliation. If a rule is meant to bind work here, it is written
+here.
 
 ## 8. Run commands
 

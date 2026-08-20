@@ -1,6 +1,6 @@
 # Core-Risk-Overlay
 
-Last updated: 2026-08-19
+Last updated: 2026-08-20
 
 > # A RESEARCH LABORATORY FOR SYSTEMATIC MARKET AND PORTFOLIO RISK.
 >
@@ -69,8 +69,8 @@ the difference under test also contaminated the measurement of it.** Full record
 
 ## 3. What this is not
 
-Three things, each considered and rejected explicitly, each with evidence behind the rejection rather
-than a preference.
+Four things, each rejected explicitly. The first three have evidence behind the rejection rather than a
+preference; the fourth is a statement of scope.
 
 **Not a hedging or option-structure project.** That program ran, and it closed on 2026-08-18. Its
 code, results and preregistrations are preserved at [[closed-research/intervention/README]]. Summary
@@ -93,12 +93,21 @@ tested and are out of scope rather than refuted.
 market's, plus chain depth, execution infrastructure and a market-maker's information set. We have
 none of them and acquiring them is not this project.
 
+**Not a component of another repository's system.** This repository stands alone — no upstream, no
+downstream, no sibling to reconcile with, and no governing document outside its own tree. It shares the
+`systematic-investing-research/` directory with three governed repositories and is not one of them; it
+is neither an extension nor a successor of `regime-detection`; nothing here imports from another
+repository and nothing there imports from here. The one cross-repository fact on record is that
+point-in-time option chains exist elsewhere, and that is an acquisition option for a question nobody has
+argued yet — not a dependency and not an agenda. [[CLAUDE]] §3.
+
 ## 4. What the closed programmes left behind
 
 They are evidence and institutional memory, **not a dependency**. Nothing in the active tree imports
 from `closed-research/`, and nothing there imports from the active tree.
 
-**Findings that constrain the new program directly** — these are boundary conditions, not history:
+**Findings that would constrain any new programme directly** — these are boundary conditions, not
+history:
 
 | | binds how |
 |---|---|
