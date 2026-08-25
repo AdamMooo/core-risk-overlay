@@ -38,6 +38,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from src.caching import cached_series
 from src.data_loader import download_daily_prices
 from src.jumpmodel import fit_jump_model, online_states, order_states_by
 from src.pathfunctionals import cdar_curve, depth_in_window, time_under_water
@@ -68,14 +69,7 @@ EPISODES = {
 
 
 def _cached(name: str, build):
-    CACHE.mkdir(exist_ok=True)
-    path = CACHE / name
-    if path.exists():
-        frame = pd.read_csv(path, index_col=0, parse_dates=True)
-        return frame.iloc[:, 0]
-    series = build()
-    series.to_frame().to_csv(path)
-    return series
+    return cached_series(CACHE, name, build)
 
 
 def load_prices(ticker: str, start: str) -> pd.Series:
