@@ -14,6 +14,29 @@ hedging mandate, in [[PARKED]].
 
 **The repository name is historical.** It names a program that no longer runs.
 
+## Status — 2026-08-25, sixth entry: COMMITTED CLEAN, SCREEN 1 WITHDRAWN SAME-DAY, THE TWO MAPS ARE DRAWN
+
+> **Everything through Screen 0 is committed** (7 logical commits on `repro-sjm2024`, tree clean).
+> D7 (3-sigma clip-then-scale) and D8 (warm-started refits) are declared from the authors' own
+> package source — implementation choices absent from the paper's text. SJM and Lunde-Timmermann
+> PDFs are local in `docs/literature/`; Xie (SSRN 2517868) is recorded unobtainable.
+>
+> **Screen 1 (duration/hazard) was preregistered and withdrawn the same day, before any code** — it
+> hazarded a *binarized* band's exit, violating the filtration-not-states directive
+> (`_daily/2026-08-24`). Kept-and-struck per [[CHARTER]] §9.3 precedent. The continuous redesign
+> object is named: **the local-projection decay profile** (log range-vol at t+h on log range-vol at
+> t, h = 1…120 — no model, no state; the curve's shape adjudicates model families first). Needs its
+> own preregistration before any code.
+>
+> **Two literature surveys distilled to vault notes** ([[knowledge/backtest-inference]],
+> [[knowledge/volatility-persistence-continuous]]). Load-bearing corrections caught before any run:
+> block bootstrap has **no validity for deep-drawdown statistics** (never quote a bootstrap CI on
+> MaxDD — the matched plan is Ledoit-Wolf for Sharpe, blocks for the shallow half only, parametric
+> MC under 2–3 nulls or descriptive-only for the deep tail, Bonferroni over the 3 bands); and
+> HAR-CJ jump decomposition is **ruled out on daily-only data**. Next session: learning first
+> (range estimators, local projections), then the Screen 1 redesign preregistration; the SJM
+> inference step follows and decides whether that thread closes.
+
 ## Status — 2026-08-24, fifth entry: SCREEN 0 RAN — THE SIX COORDINATES ARE NOT ONE AXIS
 
 > **A new assessment exists and its first screen has run** — [[docs/ASSESSMENT-PRESENT-STATE-RISK]]
