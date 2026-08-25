@@ -47,6 +47,13 @@ PROVENANCE = {
     "sjm_gspc_daily.csv": "repro_sjm2024.py -- ^GSPC daily closes, price index (no dividends: declared deviation D2)",
     "sjm_qqq_daily.csv": "repro_sjm2024.py -- QQQ daily closes, auto_adjust total return",
     "sjm_dtb3.csv": "repro_sjm2024.py -- FRED DTB3 3-month T-bill, the risk-free leg and the excess-return basis",
+    "ofr_fsi.csv": "screen0.py -- OFR Financial Stress Index daily CSV from financialresearch.gov",
+    "vix3m_cboe.csv": "screen0.py -- CBOE VIX3M daily closes from cdn.cboe.com (history begins 2009-09-18)",
+    "s0_vix_daily.csv": "screen0.py -- ^VIX daily closes via src/data_loader.py",
+    "s0_spy_daily.csv": "screen0.py -- SPY daily closes (prices; distinct from spy_daily.csv, which holds log returns)",
+    "s0_efa_daily.csv": "screen0.py -- EFA daily closes, turbulence panel",
+    "s0_tlt_daily.csv": "screen0.py -- TLT daily closes, turbulence panel",
+    "s0_gld_daily.csv": "screen0.py -- GLD daily closes, turbulence panel",
 }
 
 

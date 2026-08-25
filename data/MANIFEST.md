@@ -27,13 +27,20 @@ Regenerate after any deliberate cache change:
 | `gspc_e4_weekly.csv` | `91280f3580c2b3927b6aa5001d77c4af9b70b7184bf0f9c75b3fd1fa6706f6a2` | 152685 | 5147 | 1927-12-30 | 2026-08-21 | closed-research/intervention/anchoring.py -- ^GSPC 1927+, E4 |
 | `k3.log` | `a69690aaa6db4413fe83ad82fb8d32df4296bbc77cd70763aa4f998ea9997520` | 77609 | 583 | - | - | run log for density_spy_k3.csv. Not an input to any result |
 | `n225_e4_weekly.csv` | `3d7b14107256709808e55fb85c6351480a9b65a4c8fbd6ac392480386b116dc8` | 88396 | 3213 | 1965-01-08 | 2026-08-21 | closed-research/intervention/anchoring.py -- ^N225, E4 |
+| `ofr_fsi.csv` | `620a00b1e89198accda17e8d90b0a94c37c5013aeb4265c84af9607b5c9b1e3e` | 129864 | 6741 | 2000-01-03 | 2026-08-20 | screen0.py -- OFR Financial Stress Index daily CSV from financialresearch.gov |
 | `panel_daily.csv` | `b5aadfa9ba0956d40b3a4610d6482d06bfb8f5b5bcad0c4eefe24156fc9bee97` | 574786 | 5868 | 2003-04-15 | 2026-08-13 | closed-research/systemic_state.py -- SPY/QQQ/EFA/EEM daily panel |
 | `qqq_weekly.csv` | `57f4f82f79c347603e49771ce3ce08e956cefa1f462d8bd6d1cdc87c3de656e1` | 47448 | 1431 | 1999-03-19 | 2026-08-14 | src/data_loader.py -- same |
+| `s0_efa_daily.csv` | `b090c3ded70f0fc6473dec5f4fc14cd15bdc4e02f72c1cb2102948cac42daf26` | 189846 | 6284 | 2001-08-27 | 2026-08-24 | screen0.py -- EFA daily closes, turbulence panel |
+| `s0_gld_daily.csv` | `17541a70ae61e249dac6ba509214e26643a26e8017722f7d51607cfaaee32ea0` | 164053 | 5474 | 2004-11-18 | 2026-08-24 | screen0.py -- GLD daily closes, turbulence panel |
+| `s0_spy_daily.csv` | `4091dd79231041cfd852ad6c33ce74a457409fb45d73fb1b692531e5b2e27caa` | 193801 | 6448 | 2001-01-02 | 2026-08-24 | screen0.py -- SPY daily closes (prices; distinct from spy_daily.csv, which holds log returns) |
+| `s0_tlt_daily.csv` | `4644a9723490cea8d301531c09c3ff8e26a3fce59585366212d7c724b2ee2ebe` | 182013 | 6056 | 2002-07-30 | 2026-08-24 | screen0.py -- TLT daily closes, turbulence panel |
+| `s0_vix_daily.csv` | `73f2f7809d054f88869261ea8632949ec526312045a55eba56bcde454b26e66b` | 277911 | 9229 | 1990-01-02 | 2026-08-24 | screen0.py -- ^VIX daily closes via src/data_loader.py |
 | `sjm_dtb3.csv` | `1e6ba32b3b6de7baee955a044aca4f93216dec9aa01b21cf0b44a0e650828915` | 307281 | 18148 | 1954-01-04 | 2026-08-18 | repro_sjm2024.py -- FRED DTB3 3-month T-bill, the risk-free leg and the excess-return basis |
 | `sjm_gspc_daily.csv` | `39115269867752d7509c4a92e43dddf4dacd96e633cb9a831472c4037377f91e` | 421362 | 14277 | 1970-01-02 | 2026-08-20 | repro_sjm2024.py -- ^GSPC daily closes, price index (no dividends: declared deviation D2) |
 | `sjm_qqq_daily.csv` | `1982434d1c0fea57ea379cb6696819e3274885e849f8a2bcdf35706c69b91fc9` | 208551 | 6905 | 1999-03-10 | 2026-08-20 | repro_sjm2024.py -- QQQ daily closes, auto_adjust total return |
 | `spy_daily.csv` | `5a177caec2a2884874920ed0dcdfcde48a124680c763ee3fca87a335b6579293` | 283083 | 8441 | 1993-02-01 | 2026-08-13 | src/data_loader.py -- yfinance daily closes, auto_adjust |
 | `spy_weekly.csv` | `406c08cd741f6c5a7f5add03b14faedd1a6a991ccb078741ac3b6d501823d218` | 58252 | 1750 | 1993-02-05 | 2026-08-14 | src/data_loader.py -- daily resampled to an explicit W-FRI grid |
+| `vix3m_cboe.csv` | `4617d8ddf811ac748212f5c6c4fde7e738d29d27bf53b494e18e594ec5ab0ce3` | 76233 | 4258 | 2009-09-18 | 2026-08-24 | screen0.py -- CBOE VIX3M daily closes from cdn.cboe.com (history begins 2009-09-18) |
 | `vix_weekly.csv` | `eb1740ff3663d13a21944087dd57abac1d53a40652a30a667bd6ae3623c196b0` | 57408 | 1911 | 1990-01-05 | 2026-08-14 | src/data_loader.py -- ^VIX on the same W-FRI grid |
 | `walkforward_qqq.csv` | `470600b5fbd0974773d383a0e7cf492624f03d75dc55b3aa5277cf2e9572ea6a` | 11695 | 70 | 2009-02-27 | 2026-08-07 | DERIVED. closed-research/walkforward.py -- same, QQQ |
 | `walkforward_spy.csv` | `a782fa82e16c91e0781b260a0d1d2bcc44392275ffabf14674f3e2bdf7a86425` | 15777 | 95 | 2003-01-17 | 2026-06-19 | DERIVED. closed-research/walkforward.py -- state vintages |
