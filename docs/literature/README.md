@@ -1,6 +1,6 @@
 # Reading list — a gate, not a list to admire
 
-Last updated: 2026-08-18
+Last updated: 2026-08-25
 
 Protocol §0 rule 3: **name the paper that already settles this, or state in writing that none does.**
 A finding rediscovered empirically that was already in a cited paper is a process failure and gets
@@ -21,6 +21,20 @@ The prediction program's reading list is preserved at
 [[closed-research/docs/literature/README]] and is not maintained either.
 
 ---
+
+## Blocking now — the SJM reproduction and the present-state assessment (added 2026-08-25)
+
+These rows gate live work. Nothing else was added, deliberately: the assessment's own literature
+table ([[docs/ASSESSMENT-PRESENT-STATE-RISK]] §3) holds the context papers (Moreira-Muir, Cederburg
+et al., Bollerslev-Tauchen-Zhou, Kritzman) whose experiments have already run — duplicating them
+here would be the agenda this file warns about.
+
+| paper | status | gates | why |
+|---|---|---|---|
+| **Shu, Yu & Mulvey (2024), "Downside Risk Reduction Using Regime-Switching Signals"**, J. Asset Management 25(5), arXiv 2402.05272 | `[READ]` — v3 read directly 2026-08-24 for the fidelity audit; PDF local as of 2026-08-25 | the whole reproduction — [[docs/REPRO-SJM2024-FINDINGS]] | the object under reproduction. The fidelity audit, the D1–D8 deviation register and the critique of its own weaknesses all live in the findings doc, not here |
+| **Lunde & Timmermann (2004), "Duration Dependence in Stock Prices"**, JBES 22(3):253–273; UCSD working-paper PDF local | `[UNREAD]` — obtained 2026-08-25 | **Screen 1a** ([[docs/ASSESSMENT-PRESENT-STATE-RISK]] §11a) | establishes that bull/bear regime hazard depends on age — but on Bry-Boschan-style directional regimes, not an RV band, and the **sign and shape of each hazard must be read from the primary before 1a's result is interpreted**; search-snippet knowledge of it disagreed with itself on the bull-hazard direction |
+| **Xie, "Asset Pricing Implications of Volatility Term Structure Risk"**, SSRN 2517868 | `[WANTED]` — **unobtainable**: SSRN 403s direct fetch, the citeseerx mirror redirects to an archive that is also unreachable | **Screen 1b** (§11b) | the regime-switching disaster model in which VIX term-structure slope prices expected disaster *length* — the mechanism behind 1b's null. Only the abstract-level claim is used, stated as such in §11, per the [[CHARTER]] §9.2 precedent for an unobtained source |
+| **Politis & Romano (1994), stationary bootstrap** | `[WANTED]` — carried up from the closed list below, where it had lost its gate | **the block bootstrap**, open item 6 of [[docs/REPRO-SJM2024-FINDINGS]] — every ordering in that doc is a point estimate awaiting it | regains a gate: read before the bootstrap is implemented, since the demotion note in the closed intervention charter (what block resampling *cannot* license) still binds |
 
 ## Was blocking — these gated experiments that are now closed
 
