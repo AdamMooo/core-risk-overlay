@@ -4,7 +4,7 @@ type: project
 
 # Core-Risk-Overlay
 
-Last updated: 2026-08-20
+Last updated: 2026-08-24
 
 **NO ACTIVE RESEARCH PROGRAMME.** Three have run and all three are closed — see [[README]]. This file
 is the chronological record. **Repository purpose and agent behaviour are [[CLAUDE]].** **The last
@@ -13,6 +13,132 @@ in [[docs/POINT-IN-TIME-DISCIPLINE]]. Frozen evidence in [[docs/PROBLEM-MAP]]. E
 hedging mandate, in [[PARKED]].
 
 **The repository name is historical.** It names a program that no longer runs.
+
+## Status — 2026-08-24, fifth entry: SCREEN 0 RAN — THE SIX COORDINATES ARE NOT ONE AXIS
+
+> **A new assessment exists and its first screen has run** — [[docs/ASSESSMENT-PRESENT-STATE-RISK]]
+> (STATUS: PROPOSAL), grown out of the SJM reproduction's "the state is a vol threshold" ending and an
+> outward literature pass (Moreira-Muir and its Cederburg refutation, the variance risk premium, the
+> VIX term structure, Kritzman turbulence, and the OFR FSI as the free external incumbent).
+>
+> **Screen 0 (`screen0.py`, preregistered §7b) did not close the family.** On 15.7 years: the largest
+> elevated-state Jaccard is RV-vs-VIX at 0.54, everything else 0.06-0.36, and the matrix is stable
+> across halves. The VRP is the most independent axis (35-47 solo episodes against everything); the
+> VIX/VIX3M slope is a rare subset flag, not an axis; the coordinates differ in clock as much as
+> content (median spells 102/12/9/5/2 days). **The practitioner backwardation claim ("21 of 22") is
+> refuted as stated on primary data**: 63 episodes, 21% hit rate against a 15.4% base; an exploratory
+> >=5-day cut (42% on n=24) is recorded as post-hoc only.
+>
+> **Nothing is authorised beyond this.** The next question — do disagreement states carry distinct,
+> well-sampled outcome base rates — needs its own preregistered screen, and F9 still forbids any
+> threshold-to-action output. New data files are manifest-registered (26 files); 51 checks pass.
+
+## Status — 2026-08-24, fourth entry: D6 CLOSED, AND THE VOL BAND MATCHES THE JUMP MODEL'S SHALLOW HALF
+
+> Two preregistered runs, both scored — [[docs/REPRO-SJM2024-FINDINGS]].
+>
+> **D6 is closed as immaterial.** The CV rerun under the paper's own naming rule (`d1_cv.py --naming
+> cumret`) reproduces every conclusion: Sharpe 0.50 unchanged, lambda-hat median still 150, only the
+> fixed paper-70/150 rows move by hundredths — and in the direction the mechanism predicted (the paper's
+> rule is slightly *hurt* by calling the melt-up state bull into the dot-com top). The CV row is now
+> quotable as the paper's procedure.
+>
+> **The falsifier bit.** A two-parameter trailing-RV band with hysteresis — preregistered, three variants,
+> none selected — **matches or beats the jump model on the shallow half of the drawdown distribution**:
+> the (75,55) band's pain index is 4.2% against the JM's 4.6/4.4, same Sharpe as the JM's best fixed run
+> at half the turnover. The JM's distinguishable residual is confined to the deepest 1–25% of drawdown
+> days, is **under 1pp of CDaR**, and rests on two episodes — a point estimate until the block bootstrap.
+> Y3 failed: the band family is parameter-fragile (exit at p85 instead of p75 doubles the pain index), so
+> the JM's honest surviving claim is dial-robustness near its sweet spot, not a new observable.
+>
+> **The reproduction's summary line as it stands:** the paper's strategy is, to within episode-level
+> noise, a persistence-regularised volatility threshold; its return claim replicates directionally under
+> the CV procedure at the cost of crash depth; and its margin over a two-parameter band is unproven.
+> Remaining: block bootstrap, `^SP500TR`, the HMM benchmark. No charter, no programme, no live path.
+
+## Status — 2026-08-24, third entry: D1 RAN, THE RETURN CLAIM REPLICATES, AND IT COSTS CRASH DEPTH
+
+> **The D1/D6 run (`d1_cv.py`) is preregistered, run, and scored — [[docs/REPRO-SJM2024-FINDINGS]].**
+> X2, X3, X4 confirmed; X1 failed narrowly and informatively.
+>
+> **The return claim replicates directionally.** The paper's monthly CV selector, implemented exactly as
+> extracted, earns CAGR 8.4% against buy-and-hold's 7.9% on the paper window — a win on price-only data
+> before the ~0.45pp/yr relative dividend penalty, so roughly par on TR against the paper's +1.0pp. The
+> dividend-adjusted Sharpe residual shrinks from 0.17 to ~0.07. Finding 2's return-cost half belongs to
+> the fixed-lambda configuration, not the procedure; **its durable half is the trade the CV makes: it
+> buys the return back by surrendering crash depth (MaxDD −34.0% against the fixed-lambda −20.3%),
+> because Sharpe-selected lambda drifts to the persistent end (median lambda-hat 150 paper units, 58% of
+> months at the top of the grid) where the state rides into crashes before exiting.** Sharpe cannot see
+> that surrender, and the paper never runs the fixed-lambda column that would show it.
+>
+> **D6 is not innocent.** The two naming rules disagree on 4 of 540 fits — none at paper-lambda <= 35,
+> all at 70/150, sitting at the 1987 crash and the dot-com top: at high persistence the melt-up's
+> high-vol high-return days can land in the high-downside-deviation state, so "bear = high DD" and
+> "bear = low cumret" diverge exactly where the money is. No quoted table is touched, but a rule-B CV
+> rerun is now gating before the CV row may be called "the paper's procedure."
+>
+> **Also:** the full-grid sweep is not monotone in lambda (Sharpe dips at paper-70; so does the
+> state-vs-RV AUC) — the earlier "monotone rise" was a truncation artifact of the half-strength grid.
+> The lambda-hat series the paper never published is written to `figures/sjm2024_lambda_hat.csv`.
+> Next: rule-B rerun, then the persistence-matched vol-threshold incumbent (the cheapest falsification
+> left), then `^SP500TR`, block bootstrap, the HMM benchmark. Still a reproduction — no charter, no
+> programme, no live path; the 0/1 rule stays F9-parked.
+
+## Status — 2026-08-24, second entry: THE PAPER IS READ DIRECTLY, AND THE AUDIT NARROWS FINDING 2
+
+> **No new runs.** arXiv 2402.05272v3 was read against the reproduction line by line —
+> [[docs/REPRO-SJM2024-FINDINGS]] now carries a fidelity audit, a critical read of the paper's own
+> weaknesses, and a fully specified open list. Three things came out of it.
+>
+> **Finding 2's scope is narrowed.** "It is not a return result" is a fact about *this configuration*
+> (fixed half-strength lambda, price index) — the paper's own Table 4 reports JM CAGR **11.2% against
+> buy-and-hold's 10.2%** on total-return data with monthly CV lambda, a return win at **44%/yr
+> turnover** against our 179%. Dividends favour buy-and-hold, so D2 cannot produce their direction of
+> the gap; D1 is what separates the two claims, and the turnover fingerprint (0.44 switches/yr — beyond
+> our most persistent sweep point) says their CV lives at or past the top of the grid we ran. D1+D2
+> decide whether their return claim replicates.
+>
+> **The audit confirms and declares.** Confirmed at the source: the paper's §3.4 loss is
+> `0.5*||x-theta||^2`, so D5 stands on the text, not only the package; features, training window, refit
+> cadence, costs and execution timing all match exactly. Newly declared: **D6** — the paper names bull
+> as the higher-cumulative-return state, this repro names it by the downside-deviation centroid; almost
+> surely coincident at K=2, to be verified on the fitted blocks, not assumed. The paper's grid in our
+> units is {0, 10, 30, 70, 140, 300}; the HMM benchmark is now fully specified from the text.
+>
+> **What the paper itself gets wrong, kept as lessons rather than inherited:** no statistical inference
+> anywhere (confirmed); the hyperparameter selected on the metric being reported, with the lambda-hat
+> path never shown (when D1 runs here, that series is a required output); Sharpe as the headline for a
+> downside claim, max drawdown as an n=1 statistic, no subperiods; no reactive incumbent in the
+> comparison set; and anticipation language for what our diagnostic shows is a persistence-regularised
+> trailing-volatility threshold. What it gets right is also recorded: total-return data, delay
+> robustness, honest online inference.
+
+## Status — 2026-08-24, first entry: D4 IS DISCHARGED, AND IT SURFACED THE LAMBDA CONVENTION
+
+> **The reproduction's findings are now evidence.** Three verification legs, all passing:
+> the dynamic programme against brute-force enumeration of every state path (exact); known-state
+> recovery on synthetic regimes, in feature space (0.991) and end-to-end through the feature pipeline
+> (0.979 away from switches); and exact equivalence with the authors' `jumpmodels` package — identical
+> paths and online states at every matched penalty, free-fit label agreement 1.0000 on synthetic
+> features and on a real cached `^GSPC` window. `checks.py` is now 51 checks covering the reproduction
+> modules; `d4_crosscheck.py` (28 checks) holds the package leg. Details: [[docs/REPRO-SJM2024-FINDINGS]].
+>
+> **The correction D4 surfaced — D5, the lambda convention.** The authors' package computes the loss as
+> `0.5*||x-theta||^2`; `src/jumpmodel.py` uses the unscaled square, so **a lambda here is worth half its
+> face value in paper units — the headline "lambda=50" run reproduces the paper's lambda=25**, and the
+> sweep's grid is really paper-lambda {0, 2.5, 7.5, 17.5, 25, 35, 75}. No outputs change, no finding
+> reverses; the labels reinterpret, and D1 (the fixed penalty) sharpens as the suspect for the residual
+> 0.17 Sharpe gap since performance was still rising at the top of the half-strength grid.
+>
+> **Also recorded from the verification work:** at lambda=30 (ours) on synthetic data with 18% true bear
+> days, coordinate descent lands in a local optimum calling **73%** of days bear, 10 restarts
+> notwithstanding — the penalty changes *which* fit is found, not just its persistence. And the EWM
+> feature set cannot resolve regimes shorter than its own 60-day Sortino memory, a bound on the paper's
+> features, not on the optimizer.
+>
+> **Next per the findings doc:** rerun headline and sweep at paper-unit lambdas (cheap, same code), then
+> D1 (monthly CV selection), D2 removal (`^SP500TR`), block-bootstrap inference, the HMM benchmark.
+> Still a reproduction under [[CLAUDE]] §1 — no charter, no programme, no live path.
 
 ## Status — 2026-08-20, second entry: A REPRODUCTION IS RUNNING, AND IT IS NOT A PROGRAMME
 
