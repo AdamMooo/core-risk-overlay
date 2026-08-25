@@ -480,6 +480,40 @@ the band does not is dial-robustness near its sweet spot — a legitimate, small
    returns, 3000-day window refit daily, online Viterbi, median filter with CV-selected length — to
    check the paper's own margin over it rather than only over buy-and-hold.
 
+## Scope decision on the open list — 2026-08-25, before the inference run
+
+**Four open items become one, and the reason is §4 of this repository's own operating manual.**
+
+Items 5 (D2, `^SP500TR`), 7 (the HMM benchmark) and the two source-fidelity deviations D7 (3-sigma
+clip-then-scale) and D8 (warm-started refits) all exist to close **the paper's Sharpe margin** — the
+residual return gap between this reproduction and the published table. [[CLAUDE]] §4 states that
+return prediction is not this repository's object and that a result does not have to name an asset or
+beat a benchmark to count. Chasing a Sharpe gap is scoring on direction. It is also **unbounded**:
+there is always one more undeclared implementation choice in someone else's package, and each one
+buys a hundredth of a Sharpe point and no risk knowledge whatsoever.
+
+The question this reproduction actually opened is the **diagnostic** one, and it is a risk-description
+question: the fitted state's AUC against trailing realized volatility is 0.85–0.95, and three
+preregistered two-parameter volatility bands matched or beat the jump model on the shallow half of the
+drawdown distribution (Y1 confirmed) while leaving a sub-1pp deep-tail residual (Y2 confirmed
+narrowly). **Exactly one open item can close that: item 6, inference.**
+
+Accordingly:
+
+| item | disposition |
+|---|---|
+| 6 — inference | **the closing item.** Preregistered next, then run |
+| 5 — D2 (`^SP500TR`) | **retired as not required by the question.** Unpickable only if inference leaves the Y2 residual standing and the residual is then worth attributing |
+| 7 — HMM benchmark | **retired as not required by the question.** It benchmarks the paper's return margin, not the state's risk content |
+| D7 — feature clipping | **retired as not required by the question.** Named in this document as a candidate explanation for the *Sharpe* gap; that gap is not the object |
+| D8 — warm-started refits | **retired, with one caveat kept.** D8 plausibly affects *switch counts and state persistence*, which are risk-description quantities rather than return ones. If inference finds the deep-tail residual real, D8 is the first item unpicked, because a persistence artefact is the leading alternative explanation for it |
+
+**Nothing is deleted.** These remain declared deviations; the reproduction's fidelity claim is bounded
+by them and says so. Recording why an experiment is *not* run is an output under §6.10, not an
+omission — and a reproduction that keeps grinding at a return margin it has already declared outside
+its own remit is how a laboratory turns into a product.
+
+
 ## Related
 
 - [[docs/PROBLEM-MAP]] §0.9 — the diagnostic this run confirmed · [[PARKED]] §4 — F9, the constraint

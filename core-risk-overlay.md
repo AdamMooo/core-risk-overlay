@@ -4,7 +4,7 @@ type: project
 
 # Core-Risk-Overlay
 
-Last updated: 2026-08-24
+Last updated: 2026-08-25
 
 **NO ACTIVE RESEARCH PROGRAMME.** Three have run and all three are closed — see [[README]]. This file
 is the chronological record. **Repository purpose and agent behaviour are [[CLAUDE]].** **The last
@@ -13,6 +13,43 @@ in [[docs/POINT-IN-TIME-DISCIPLINE]]. Frozen evidence in [[docs/PROBLEM-MAP]]. E
 hedging mandate, in [[PARKED]].
 
 **The repository name is historical.** It names a program that no longer runs.
+
+## Status — 2026-08-25, seventh entry: THE LEDGER GETS KILL CONDITIONS, AND THREAD A'S SCOPE IS CUT FROM FOUR ITEMS TO ONE
+
+> **No code ran. Two decisions, both scope-reducing, and the goal restated because the question was
+> asked directly.** The operating goal is [[CLAUDE]] §4/§9 as written — determine what is true about
+> systematic risk from public data; a **closure is a delivery**; no result here carries a usability or
+> profitability requirement. Progress is measured in closures, not commits.
+>
+> **The live-thread ledger is now explicit, and every thread carries a written kill condition and a
+> decision point.** A thread with no kill condition is closed by default. The cap is two, and no third
+> thread opens until one closes. Thread A — the SJM reproduction (does the jump model's state carry risk
+> information a volatility threshold does not). Thread B — present-state risk description (is current
+> elevated risk staying or leaving).
+>
+> **Thread A's open list is cut from four items to one, on this repository's own §4.** D2 (`^SP500TR`),
+> D7/D8 (3-sigma clipping, warm-started refits) and the HMM benchmark all exist to close *the paper's
+> Sharpe margin*. That is scoring on direction, which §4 states is not this repository's object — and it
+> is unbounded besides, because there is always one more fidelity deviation. The question the reproduction
+> actually opened is the diagnostic one (state-vs-RV AUC 0.85–0.95), and exactly one open item can close
+> it: **item 6, inference.** The three retired items are recorded in
+> [[docs/REPRO-SJM2024-FINDINGS]] as *not required by the question*, unpickable if inference leaves the
+> Y2 residual standing.
+>
+> **Thread B's redesign is corrected before it was preregistered.** Yesterday's named object — the
+> unconditional local-projection decay profile — was checked and is, with a single regressor,
+> `b_h = rho(h)`: the log-vol autocorrelation function, whose hyperbolic shape and `d ~ 0.4` are already
+> published (Andersen, Bollerslev, Diebold & Ebens 2001). **Its informational content about markets is
+> near zero.** It is demoted to a *calibration check* — does our daily-OHLC range measurement recover a
+> known result — and the informative object becomes the **level-conditional** profile: decay as a
+> function of the starting rank. A single slope assumes decay is the same from a high level as from a low
+> one, which is the question itself, assumed away; the VIX term structure inverting at high spot is the
+> options market pricing that assumption false. **Kill condition, preregisterable in one sitting: the
+> profile is flat in starting level, or it adds nothing over the VIX/VIX3M slope.**
+>
+> **Next: Thread A's inference — preregistered, then run.** Ledoit-Wolf 2008 on the Sharpe difference,
+> block machinery for the shallow half only, parametric MC under 2–3 nulls for the deep tail, Bonferroni
+> over the three preregistered bands. Both outcomes close the reproduction.
 
 ## Status — 2026-08-25, sixth entry: COMMITTED CLEAN, SCREEN 1 WITHDRAWN SAME-DAY, THE TWO MAPS ARE DRAWN
 

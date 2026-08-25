@@ -302,6 +302,122 @@ any duration claim is asserted with confidence. Nothing else. If 1a fails its ow
 closes, and the closure is itself the reportable result — "present-state duration is not resolvable from
 this coordinate at this sample size," same shape as the closed return-state programme's ending.
 
+## 12. The Screen 1 redesign — corrected 2026-08-25, still not preregistered, no code exists
+
+**This section is not a preregistration.** It records what the redesign's object must be, and one
+correction to the object named on 2026-08-25 morning, so that the preregistration written next is
+written against the right thing. Nothing here authorises a run.
+
+### 12a. The correction: the *unconditional* decay profile is nearly information-free
+
+The object named after Screen 1's withdrawal was the **local-projection decay profile** — for
+`x_t = log(range-based vol_t)`, one OLS per horizon:
+
+```
+x_{t+h} = a_h + b_h * x_t + e_{t+h}          h = 1 ... 120
+```
+
+with the curve `b_h` versus `h` as the deliverable. That is model-free and it does respect the
+filtration-not-states directive. But with a single regressor its population value is
+
+```
+b_h = Cov(x_{t+h}, x_t) / Var(x_t) = rho(h)
+```
+
+— **the autocorrelation function of log volatility, estimated horizon by horizon.** And the log-vol
+ACF of equity indices is already established in print: slow, near-hyperbolic decay with `d` around
+0.4 (Andersen, Bollerslev, Diebold & Ebens 2001; Andersen et al. 2003 *Econometrica*). The
+unconditional profile will reproduce a published result.
+
+**Disposition: the unconditional curve is demoted to a calibration check, and labelled as one.** Its
+value is that it verifies our *measurement* — that Parkinson (or Garman-Klass) volatility on daily
+OHLC recovers a known shape despite its five documented defects (discretization bias downward,
+missing overnight gaps, jump contamination, drift sensitivity, non-synchronous index highs). Passing
+it licenses the measurement. It is not a finding about markets and may not be reported as one.
+
+### 12b. The informative object: the *level-conditional* profile
+
+The question in §1, and in the directive, is whether **currently** elevated risk is staying or
+leaving. A single `b_h` per horizon assumes the decay rate is the same from a high starting point as
+from a low one — **which is the question itself, assumed away.**
+
+There is strong prior reason to think that assumption is false, and it is priced rather than
+estimated: **the VIX term structure inverts when spot VIX is high** and slopes upward when it is low.
+That is the options market stating in a tradeable instrument that mean reversion from elevated levels
+is faster than from quiet ones. A single-slope local projection averages the two and reports a number
+belonging to neither.
+
+So the object becomes decay as a continuous function of the **starting rank**, not of a state:
+
+```
+b_h(u) = d/dx E[ x_{t+h} | x_t = F^{-1}(u) ]        u in (0,1)
+```
+
+Read down a column and the answer is "from the 90th percentile, at what rate does it come back." No
+binarization, no spell, no hazard, no elevated/quiet panel — the directive is satisfied by
+construction, because the conditioning variable is a continuous rank and the output is a rate.
+
+**Literature terms for the preregistration to cite:** state-dependent local projections (Ramey &
+Zubairy 2018 *JPE* — the threshold version), quantile autoregression (Koenker & Xiao 2006 *JASA*),
+nonlinear/nonparametric local-projection validity (Goncalves, Herrera, Kilian & Pesavento — read for
+the caveats before choosing the form), and in the volatility literature the phenomenon itself is
+**level-dependent mean reversion in variance**.
+
+**Claim status, per [[CLAUDE]] §6.3.** That reversion is faster from high volatility is an
+**established regularity** in the options-pricing and volatility-targeting literatures and is visible
+in the VIX curve. Whether it is present, and how large, in *daily range-based volatility on this
+sample under honest overlapping-horizon inference* is an **unresolved question**. That gap is the only
+reason to run anything.
+
+### 12c. The kill condition, to be preregistered verbatim
+
+Two ways this thread dies, and both are cheap:
+
+1. **`b_h(u)` is flat in `u`.** Decay from the 90th percentile matches decay from the 50th. Then "is
+   current elevated risk staying" has the answer *"the same as always — there is nothing conditional
+   to know"*, the present-state description collapses to the unconditional ACF, and the thread closes
+   on one afternoon's measurement.
+2. **`b_h(u)` slopes, but says nothing the VIX/VIX3M slope does not already say.** The slope is free,
+   forward-looking, and available daily since 2009-09-18. Its known defect is that it is a Q-measure
+   object contaminated by the variance risk premium (Dew-Becker, Giglio, Le & Rodriguez 2017 *JFE*:
+   only ~1-2 months of variance-shock persistence is actually priced). **If our physical-measure
+   profile is redundant against it, the thread closes.** This comparison is preregistered as the kill
+   condition, not bolted on after a favourable result.
+
+Survival requires slope *beyond* what the curve already prices. That would be a continuous, stateless,
+public-data risk-description result — and it would name the model family to fit next rather than
+authorising one.
+
+### 12d. Inference constraints, inherited and non-negotiable
+
+Named now so the preregistration cannot quietly omit them:
+
+- **Overlapping horizons.** `e_{t+h}` is serially correlated by construction for `h > 1`. HAC
+  (Newey-West at lag ~`h`, or Hansen-Hodrick) is mandatory; plain OLS standard errors are wrong by a
+  factor growing in `h`.
+- **Persistent regressor.** Long-horizon regression `t`-statistics diverge when `h/T` does not vanish
+  (Valkanov 2003), and `R^2` has a nonstandard limit. No significance claim at the far end of the
+  curve; the profile is reported as description.
+- **Effective sample at the tail.** Roughly `T/h` non-overlapping blocks — order 66 at `h = 120` on a
+  full daily history. That number is written on the figure.
+- **Logs, not levels.** Log realized/range volatility is approximately Gaussian (Andersen, Bollerslev,
+  Diebold & Ebens 2001); a levels regression would be a statement about 2008 and 2020.
+- **Attenuation.** Parkinson carries relative variance ~0.41 — real errors-in-variables in the
+  regressor. In the unconditional form this shrinks every `b_h` by a common factor, so the *level* of
+  the curve is biased down and the *shape* survives. **Whether that clean separation holds in the
+  conditional form, where the noisy regressor enters twice, is an open question to settle before the
+  form is chosen.**
+- **Form not yet chosen.** Interacted/threshold (few lines, one summary number) versus full quantile
+  surface (own HAC treatment, over-resolution risk at long `h`). Given the effective-sample figure
+  above, the interaction is the form the data plausibly supports. **Decided in the preregistration,
+  before code, and not revisited after seeing a result.**
+
+### 12e. Sequencing
+
+**Thread A's inference step runs first** (decided 2026-08-25 — see [[docs/REPRO-SJM2024-FINDINGS]]
+scope decision). This section waits behind it. That ordering is deliberate: Thread A is one run from
+closing, and this repository's queue is capped at two live threads.
+
 ## Related
 
 - [[docs/REPRO-SJM2024-FINDINGS]] — where the question came from · [[docs/ASSESSMENT-RETURN-AT-RISK]] —
