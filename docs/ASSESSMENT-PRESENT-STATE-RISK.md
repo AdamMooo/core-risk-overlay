@@ -190,6 +190,20 @@ hardest: base rates may be described; the moment the output is "so do X when the
 
 ## 11. Screen 1 — duration/hazard, preregistered 2026-08-25, before any code
 
+> **WITHDRAWN 2026-08-25, same day, before any code — and the reason is a standing directive this
+> preregistration violated.** The 2026-08-24 session closed with: *persistence is real, states are
+> not; the honest object is continuous ranks and trajectories on multiple clocks, never binarized
+> elevated/quiet — Screen 1 must be redesigned continuous-conditional or not at all* (recorded in
+> `_daily/2026-08-24`, carried into `_daily/2026-08-25` Focus). Both 11a and 11b below are hazards of
+> a **binarized** state's exit — the exact framing the directive rejects: the (75,55) band's spell
+> structure is a property of the band's own hysteresis at least as much as of the market, and "9
+> spells" is what discretization does to 15.7 years of continuous information. **The text is kept,
+> struck in spirit, per this repository's precedent for a superseded preregistration ([[CHARTER]]
+> §9.3, Q1). Nothing below may run.** A continuous-conditional redesign — the conditional decay
+> profile of the RV *rank trajectory* given its current level and path, on multiple clocks, with the
+> term-structure slope as a continuous covariate rather than an inversion flag — requires its own
+> preregistration block, written against the directive, before any code exists.
+
 **Where this came from.** The SJM reproduction's own diagnostic (state-vs-RV AUC 0.85-0.95) reduces the
 jump model's state to a persistence-regularised volatility threshold; the honest present-state question
 raised by that closure was not "is the state elevated" (Screen 0's object) but **"is it elevated and
