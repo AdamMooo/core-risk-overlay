@@ -4,3 +4,4 @@ scipy==1.18.0
 statsmodels==0.14.4
 matplotlib==3.11.1
 yfinance==1.5.1
+jumpmodels==0.1.1

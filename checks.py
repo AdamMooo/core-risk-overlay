@@ -1,11 +1,17 @@
 r"""Regression checks for active infrastructure.
 
-Covers src/data_loader.py and src/pathfunctionals.py -- the two modules the
-return-state program inherits -- and verifies the data cache against
-data/MANIFEST.md. There is no active research programme; the three closed
-programmes carry their own suites, frozen with the code they guard. The closed programs' checks are frozen with the
-code they guard: closed-research/checks.py (prediction) and
+Covers src/data_loader.py, src/pathfunctionals.py, and -- since D4 -- the
+Shu-Yu-Mulvey reproduction modules src/jumpmodel.py and src/sjm_features.py;
+and verifies the data cache against data/MANIFEST.md. There is no active
+research programme; the three closed programmes carry their own suites, frozen
+with the code they guard: closed-research/checks.py (prediction) and
 closed-research/intervention/checks.py (rolled-put / tenor).
+
+The jump-model checks are the in-repo half of D4: the dynamic programme
+verified against brute-force enumeration (deductive), and state recovery on
+synthetic data with known regimes (statistical). The third leg -- exact
+equivalence against the authors' `jumpmodels` package, including the lambda
+convention -- needs the third-party package and lives in d4_crosscheck.py.
 
 Plain-script smoke test (no pytest). Synthetic data, no network, deterministic.
 Exits non-zero on failure.
@@ -22,9 +28,13 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 import numpy as np
 import pandas as pd
 
+import itertools
+
 import data_loader as dl
+import jumpmodel as jm
 import manifest as mf
 import pathfunctionals as pf
+import sjm_features as sf
 
 FAILURES: list[str] = []
 
@@ -197,11 +207,190 @@ def check_manifest() -> None:
               f"{', '.join(missing)}")
 
 
+def _path_cost(D: np.ndarray, path: np.ndarray, lam: float) -> float:
+    T = len(D)
+    return float(D[np.arange(T), path].sum() + lam * np.count_nonzero(np.diff(path)))
+
+
+def _brute_force(D: np.ndarray, lam: float) -> tuple[float, np.ndarray]:
+    """Minimum cost over ALL K^T state paths, and the per-(t, k) prefix costs.
+
+    Exponential and therefore only usable at toy sizes -- which is the point:
+    it shares no code and no idea with the dynamic programme it certifies.
+    """
+    T, K = D.shape
+    best_cost = np.inf
+    prefix = np.full((T, K), np.inf)
+    for path in itertools.product(range(K), repeat=T):
+        p = np.asarray(path)
+        running = D[0, p[0]]
+        prefix[0, p[0]] = min(prefix[0, p[0]], running)
+        for t in range(1, T):
+            running += D[t, p[t]] + (lam if p[t] != p[t - 1] else 0.0)
+            prefix[t, p[t]] = min(prefix[t, p[t]], running)
+        best_cost = min(best_cost, running)
+    return best_cost, prefix
+
+
+def check_jumpmodel_dp() -> None:
+    """Deductive half of D4: the optimizer solves the problem it claims to."""
+    rng = np.random.default_rng(42)
+
+    # Endpoints of the penalty. At lambda=0 the path is the per-row argmin
+    # (k-means assignment); at lambda=inf it is one state for the whole sample,
+    # the one with the smallest column sum.
+    D = rng.uniform(0.0, 4.0, size=(40, 3))
+    check("jumpmodel: viterbi at lambda=0 is the per-row argmin",
+          bool(np.array_equal(jm.viterbi_path(D, 0.0), D.argmin(axis=1))))
+    huge = jm.viterbi_path(D, 1e9)
+    check("jumpmodel: viterbi at huge lambda is constant at the best column",
+          len(set(huge.tolist())) == 1 and huge[0] == int(D.sum(axis=0).argmin()))
+
+    # The gold-standard check: against enumeration of every path, at penalties
+    # where the switch decision is genuinely contested.
+    exact_path, exact_prefix, exact_online = True, True, True
+    for trial in range(5):
+        D = rng.uniform(0.0, 4.0, size=(7, 3))
+        for lam in (0.3, 1.0, 3.0):
+            best_cost, prefix = _brute_force(D, lam)
+            vp = jm.viterbi_path(D, lam)
+            exact_path &= np.isclose(_path_cost(D, vp, lam), best_cost)
+            V = jm.forward_costs(D, lam)
+            exact_prefix &= bool(np.allclose(V, prefix))
+            exact_online &= bool(np.array_equal(V.argmin(axis=1), prefix.argmin(axis=1)))
+    check("jumpmodel: viterbi cost equals brute-force optimum (15 instances)", exact_path)
+    check("jumpmodel: forward costs equal brute-force prefix costs", exact_prefix)
+    check("jumpmodel: online state equals brute-force prefix argmin", exact_online)
+
+    # Fit self-consistency at lambda=0: the fixed point of coordinate descent
+    # is exactly a k-means fixed point -- states are nearest-centroid and
+    # centroids are member means.
+    X = np.concatenate([rng.normal(-2.0, 0.5, (60, 2)), rng.normal(2.0, 0.5, (60, 2))])
+    states, centroids, _ = jm.fit_jump_model(X, k=2, jump_penalty=0.0, seed=1)
+    nearest = np.array([((X - c) ** 2).sum(axis=1) for c in centroids]).argmin(axis=0)
+    means_ok = all(
+        np.allclose(centroids[j], X[states == j].mean(axis=0)) for j in range(2)
+    )
+    check("jumpmodel: fit at lambda=0 is a k-means fixed point",
+          bool(np.array_equal(states, nearest)) and means_ok)
+
+
+def _simulate_states(rng: np.random.Generator, T: int, p_stay: tuple[float, float]) -> np.ndarray:
+    states = np.empty(T, dtype=np.int64)
+    s = 0
+    for t in range(T):
+        states[t] = s
+        if rng.random() > p_stay[s]:
+            s = 1 - s
+    return states
+
+
+def _best_permutation_accuracy(found: np.ndarray, truth: np.ndarray) -> float:
+    direct = float((found == truth).mean())
+    return max(direct, 1.0 - direct)
+
+
+def check_jumpmodel_recovery() -> None:
+    """Statistical half of D4: known states in, same states out."""
+    rng = np.random.default_rng(7)
+
+    # Directly in feature space: two persistent states, Gaussian emissions
+    # separated by ~3 sigma. This verifies the optimizer as an estimator,
+    # with no feature pipeline in the loop.
+    T = 1500
+    truth = _simulate_states(rng, T, (0.99, 0.99))
+    means = np.array([[0.0, 0.0, 0.0], [1.8, 1.8, 1.8]])
+    X = rng.standard_normal((T, 3)) + means[truth]
+    Xs = (X - X.mean(axis=0)) / X.std(axis=0)
+    states, centroids, _ = jm.fit_jump_model(Xs, k=2, jump_penalty=30.0, seed=0)
+    order = jm.order_states_by(centroids, 0)
+    relabeled = np.argsort(order)[states]
+    acc = _best_permutation_accuracy(relabeled, truth)
+    check(f"jumpmodel: recovers known states in feature space (acc {acc:.3f} >= 0.95)",
+          acc >= 0.95)
+
+    # End to end through the SJM feature pipeline: regime-switching returns ->
+    # build_features -> standardize -> fit. The state path is deterministic
+    # blocks rather than a simulated chain, because two resolution constraints
+    # bound the pipeline, not the code: the EWM features lag a switch (accuracy
+    # is scored away from switch dates) and cannot resolve regimes shorter than
+    # their own memory (the 60d Sortino halflife). A random chain that happens
+    # to draw short bear segments blurs the centroids together and the check
+    # would then measure the draw, not the implementation.
+    blocks = [(0, 500), (1, 150), (0, 600), (1, 250), (0, 700),
+              (1, 120), (0, 800), (1, 200), (0, 680)]
+    truth = np.concatenate([np.full(n, s, dtype=np.int64) for s, n in blocks])
+    T = len(truth)
+    returns = pd.Series(
+        np.where(truth == 0,
+                 rng.normal(4e-4, 0.007, T),
+                 rng.normal(-8e-4, 0.02, T)),
+        index=pd.bdate_range("2000-01-03", periods=T),
+    )
+    features = sf.build_features(returns)
+    truth_series = pd.Series(truth, index=returns.index).reindex(features.index)
+
+    Xf = features.to_numpy()
+    Xs = (Xf - Xf.mean(axis=0)) / Xf.std(axis=0)
+    states, centroids, _ = jm.fit_jump_model(Xs, k=2, jump_penalty=50.0, seed=0)
+    order = jm.order_states_by(centroids, sf.DOWNSIDE_FEATURE)
+    relabeled = np.argsort(order)[states]  # 0 = low downside deviation = calm
+
+    check("jumpmodel: mechanical naming puts the high-downside state last",
+          centroids[order][1, sf.DOWNSIDE_FEATURE] > centroids[order][0, sf.DOWNSIDE_FEATURE])
+
+    switch_dates = truth_series.index[truth_series.diff().abs() > 0]
+    away = pd.Series(True, index=truth_series.index)
+    for d in switch_dates:
+        i = truth_series.index.get_loc(d)
+        away.iloc[max(0, i - 20): i + 21] = False
+    mask = away.to_numpy()
+    acc = float((relabeled[mask] == truth_series.to_numpy()[mask]).mean())
+    check(f"jumpmodel: recovers known states through the feature pipeline "
+          f"(acc {acc:.3f} >= 0.93 away from switches)", acc >= 0.93)
+
+    # Online inference: equality of the online state with the offline path's
+    # last state is a theorem (both are argmin_k V(T,k)) and is checked exactly.
+    # Agreement along the path is NOT a theorem -- the online label sequence is
+    # not itself a single path and can chatter where the offline optimum holds
+    # steady -- so mid-path agreement is a sanity band, not an identity.
+    online = jm.online_states(Xs, centroids, 50.0)
+    offline = jm.viterbi_path(
+        ((Xs[:, None, :] - centroids[None, :, :]) ** 2).sum(axis=2), 50.0
+    )
+    check("jumpmodel: online state at the sample end equals the offline optimum",
+          online[-1] == offline[-1])
+    check(f"jumpmodel: online tracks offline along the path "
+          f"({(online == offline).mean():.3f} >= 0.90, sanity band)",
+          float((online == offline).mean()) >= 0.90)
+
+
+def check_sjm_features() -> None:
+    index = pd.bdate_range("2024-01-01", periods=5)
+    up = pd.Series([0.01, 0.02, 0.01, 0.03, 0.02], index=index)
+    check("sjm_features: downside deviation of an all-positive series is zero",
+          bool((sf.downside_deviation(up, 10) == 0.0).all()))
+    check("sjm_features: sortino is NaN (not inf) when downside is zero",
+          bool(sf.sortino_ratio(up, 10).isna().all()))
+
+    # Hand computation, adjust=True EWM: dd^2(t) = sum w_i r_i^2 1{r_i<0} / sum w_i
+    # with w_i = alpha_decay^(t-i) and alpha_decay = (1/2)^(1/halflife).
+    r = pd.Series([-0.02, 0.01, -0.01], index=index[:3])
+    decay = 0.5 ** (1.0 / 10)
+    num = (decay**2) * 0.02**2 + 0.01**2
+    den = decay**2 + decay + 1.0
+    check("sjm_features: downside deviation matches the hand-computed EWM",
+          np.isclose(sf.downside_deviation(r, 10).iloc[-1], np.sqrt(num / den)))
+
+
 def main() -> None:
     check_manifest()
     check_data_loader()
     check_vix_alignment()
     check_pathfunctionals()
+    check_sjm_features()
+    check_jumpmodel_dp()
+    check_jumpmodel_recovery()
 
     print()
     if FAILURES:
