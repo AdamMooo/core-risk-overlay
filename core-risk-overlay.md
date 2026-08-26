@@ -4,7 +4,7 @@ type: project
 
 # Core-Risk-Overlay
 
-Last updated: 2026-08-25
+Last updated: 2026-08-26
 
 **NO ACTIVE RESEARCH PROGRAMME.** Three have run and all three are closed — see [[README]]. This file
 is the chronological record. **Repository purpose and agent behaviour are [[CLAUDE]].** **The last
@@ -13,6 +13,52 @@ in [[docs/POINT-IN-TIME-DISCIPLINE]]. Frozen evidence in [[docs/PROBLEM-MAP]]. E
 hedging mandate, in [[PARKED]].
 
 **The repository name is historical.** It names a program that no longer runs.
+
+## Status — 2026-08-26, eighth entry: THE INFERENCE RUN IS PREREGISTERED AND HALF-EXECUTED — Z0 PASSES, N1 AND N2 ARE STILL OWED
+
+> **Thread A's closing item is committed and running.** The preregistration is
+> [[docs/REPRO-SJM2024-FINDINGS]] §"Preregistered for the inference run" — the nine-field §0 gate, Z0–Z5,
+> and an explicit *what may be said afterwards*, all written before any inference code. Three departures
+> from the 2026-08-25 plan were taken and argued in place: **intersection–union instead of Bonferroni**
+> (Y2 claims the JM beats *every* band, so the null is a union, the statistic is the max p-value, and the
+> level is exactly alpha with no correction); the block size is a **declared grid** {5,10,21,42,63,126}
+> with max-p as the headline rather than Ledoit–Wolf's calibration algorithm, which targets T=120 monthly
+> and would be a larger simulation than the test it serves at T≈8,560 daily; and Y1 gets an **equivalence
+> margin** (0.10 Sharpe, 1.0pp pain), because failing to reject licenses nothing.
+>
+> **Z0 was mis-specified and was amended before the scoring run, on a deductive argument.** It required
+> N3's gap distribution to centre on zero, which presumes the two rules are exposure-matched. They are
+> not — the volatility-threshold table in the same document already said so — so the control now tests
+> that each gap's **sign agrees with its exposure difference**, and a non-zero centre is expected.
+> Exposure-matching became **open item 7** rather than a mid-run redesign: changing a comparison after
+> its preregistration is committed is the exact defect the preregistration exists to prevent.
+>
+> **Z0 PASSES, and it is the only thing scored.** All 200 N3 paths produced finite gaps, and on all
+> three bands the jump model holds the market less and shows the shallower deep tail — sign agreement on
+> the centre of all nine band × statistic distributions, 72–81% path by path at a correlation of only
+> +0.17. The pipeline does not manufacture a difference.
+>
+> **The run then stopped before N1 produced a path.** N3 finished 12:42; the process was gone by 13:08
+> with no N1 or N2 rows. Cause undiagnosed. Both null *fits* had already succeeded and are cached, so a
+> resume re-fits nothing. **Z3 and Z4 are unscored, and Thread A does not close until they are.**
+>
+> **What the control exposed in passing:** the jump model's exposure deficit is **30–42pp** under i.i.d.
+> returns against **2.4–12.0pp** observed. Stripped of clustering the fitted state carries nothing and
+> the rule collapses to holding cash. Not a Z0 failure — N3 is a machinery check — but it means N3's gap
+> magnitudes (−7 to −11pp) are **not** a calibration for the observed ones (−0.70pp) and must not be read
+> as one. N1 is the null that self-calibrates the exposure confound, and N1 is the run still owed.
+>
+> **Also: [[docs/MATH-REFERENCE]] was split.** §1, §6, §7 and two §5 definitions moved verbatim to the
+> closed intervention's own reference; §2–§5 stay and now justify themselves by what currently runs.
+> §3 turned out to govern more than it was written for — "max drawdown is an extreme-value functional
+> with effective n = 1" was written about one path, and a *difference* of two of them inherits the
+> defect. That is the whole argument for sending the deep half to explicit simulation rather than to a
+> block bootstrap whose answer would be a property of the block length.
+>
+> **Next, in order:** resume `deeptail_mc.py --null N1 --null N2`; write the four contracts left
+> unimplemented in `src/ledoitwolf.py` (delta-method gradient, block-structure Psi, circular resampler,
+> studentized test) so the shallow half can run; then score Z1–Z4 and write the run section. Thread B is
+> untouched and still has one decision open before code.
 
 ## Status — 2026-08-25, seventh entry: THE LEDGER GETS KILL CONDITIONS, AND THREAD A'S SCOPE IS CUT FROM FOUR ITEMS TO ONE
 
