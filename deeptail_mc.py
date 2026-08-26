@@ -354,6 +354,12 @@ def main() -> int:
             fitted[null] = {k: np.asarray(v) if isinstance(v, list) else v
                             for k, v in fitted[null].items()}
 
+    # Nulls already on disk survive a partial re-run. The first execution
+    # (2026-08-26) completed N3 and then died before N1 produced a path; a writer
+    # that rebuilt OUT from this run's rows alone would have thrown those 200
+    # paths away on the resume. A null that IS re-run replaces its own rows.
+    existing = pd.read_csv(OUT) if OUT.exists() else pd.DataFrame(columns=["null"])
+
     rows = []
     for null in args.null or NULLS:
         started = time.time()
@@ -363,7 +369,9 @@ def main() -> int:
         with Pool(args.workers) as pool:
             done = pool.map(worker, seeds)
         rows.extend(done)
-        pd.DataFrame(rows).to_csv(OUT, index=False)
+        fresh = pd.DataFrame(rows)
+        kept = existing[~existing["null"].isin(set(fresh["null"]))] if len(existing) else existing
+        pd.concat([kept, fresh], ignore_index=True).to_csv(OUT, index=False)
         draws = pd.DataFrame(done)
         summarise(draws, observed, null)
         print(f"({time.time()-started:.0f}s on {args.workers} workers; "

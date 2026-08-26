@@ -739,6 +739,47 @@ confound rather than to engineer it away mid-run. It is recorded as an open item
   differ that field 4 says this sample does not provide.
 - **The shallow-half verdict may not be carried to the deep half, or the reverse**, at any confidence.
 
+### The run — started 2026-08-26, INCOMPLETE. N3 scored, N1 and N2 not yet executed
+
+**Status.** `deeptail_mc.py` completed **N3 (200 paths, 11:20–12:42)** and then stopped before N1
+produced a single path — the process was gone by 13:08 with no rows for N1 or N2 in
+`data/deeptail_mc.csv`. The cause is not diagnosed; the two null *fits* had already succeeded and are
+cached in `data/deeptail_nulls.json` (N1 GARCH(1,1)-t: alpha 0.0829, beta 0.9103, persistence 0.9932,
+nu 6.19, converged; N2 stay probabilities 0.989 / 0.964), so a resume re-fits nothing. **Nothing on
+the deep half is scored below except Z0**, and Z0 does not license reading Z3 or Z4 — it only permits
+them to be read once they exist.
+
+**Z0 — PASSES.** All 200 N3 paths produced finite gaps on all three bands, and every gap's sign
+agrees with its exposure difference: the jump model holds the market **less** than every band under
+i.i.d. returns, and shows the **shallower** deep tail against every band, on the centre of all nine
+band × statistic distributions.
+
+| band | exposure gap (JM − band) | CDaR(1%) gap | CDaR(5%) gap | MaxDD gap | per-path sign agreement |
+|---|---|---|---|---|---|
+| (75,55) | −30.51pp | −8.08pp | −6.95pp | −8.64pp | 77.0 / 72.5 / 77.5% |
+| (80,60) | −36.24pp | −8.96pp | −7.72pp | −9.58pp | 79.5 / 74.0 / 80.5% |
+| (85,65) | −42.13pp | −9.91pp | −8.50pp | −10.65pp | 79.5 / 78.0 / 81.0% |
+
+Means over 200 paths; the exposure gap is negative on 200/200 paths for all three bands. Path-by-path
+correlation between the depth gap and the exposure gap is only **+0.17**, so the agreement is carried
+by the common sign and not by a tight path-level coupling — which is what the control claims and all
+it claims.
+
+**What the control incidentally exposed, and it is not a Z0 failure.** Under N3 the jump model's
+exposure deficit is **30–42pp**, against **2.4–12.0pp** on the observed path. Stripped of clustering
+the fitted state carries nothing, and the rule collapses to holding cash for a third to a half of the
+sample more than the bands do. This is a fact about the rule's behaviour on structureless data, not a
+defect in the harness, and N3 is a machinery check rather than the comparison null — but it means
+**N3's gap magnitudes are not a calibration for the observed ones** (−7 to −11pp against −0.70pp) and
+must not be read as one. The comparison null is N1, which preserves clustering and therefore
+self-calibrates the exposure confound; that is the run still owed.
+
+**Harness change made after the partial run, and it is plumbing rather than design.** The writer
+rebuilt `deeptail_mc.csv` from the current process's rows alone, so resuming with `--null N1 --null
+N2` would have deleted the 200 N3 paths. It now preserves nulls already on disk and replaces only the
+nulls being re-run. No generating process, statistic, band, seed or scoring rule was touched; the
+preregistration is unamended by this.
+
 ## Related
 
 - [[docs/PROBLEM-MAP]] §0.9 — the diagnostic this run confirmed · [[PARKED]] §4 — F9, the constraint
