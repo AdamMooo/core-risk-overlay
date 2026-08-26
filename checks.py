@@ -32,6 +32,7 @@ import itertools
 
 import data_loader as dl
 import jumpmodel as jm
+import ledoitwolf as lw
 import manifest as mf
 import pathfunctionals as pf
 import sjm_features as sf
@@ -383,6 +384,133 @@ def check_sjm_features() -> None:
           np.isclose(sf.downside_deviation(r, 10).iloc[-1], np.sqrt(num / den)))
 
 
+def check_ledoitwolf_grad() -> None:
+    """The delta-method gradient, against a numerical derivative of f itself.
+
+    This is the check that catches a transcribed sign. A gradient that is wrong
+    in one entry still produces a plausible-looking standard error.
+    """
+    v = np.array([5.0e-4, 3.0e-4, 1.0e-4, 9.0e-5])
+    grad = lw.sharpe_grad(v)
+    check("ledoitwolf: gradient has shape (4,)", np.shape(grad) == (4,))
+
+    numerical = np.empty(4)
+    for k in range(4):
+        step = 1.0e-6 * abs(v[k])
+        up, down = v.copy(), v.copy()
+        up[k] += step
+        down[k] -= step
+        numerical[k] = (lw.sharpe_difference(up) - lw.sharpe_difference(down)) / (2.0 * step)
+    check("ledoitwolf: gradient matches a central difference of f",
+          bool(np.allclose(grad, numerical, rtol=1e-4)))
+
+    same = np.array([5.0e-4, 5.0e-4, 1.0e-4, 1.0e-4])
+    g = lw.sharpe_grad(same)
+    check("ledoitwolf: identical moments give equal-and-opposite mean terms",
+          bool(np.isclose(g[0], -g[1]) and np.isclose(g[2], -g[3])))
+
+
+def check_ledoitwolf_block_psi() -> None:
+    """Their footnote 9: at b = 1 the block estimator IS the sample covariance."""
+    rng = np.random.default_rng(0)
+    y = rng.standard_normal((600, 4))
+    y = y - y.mean(axis=0)
+
+    psi1 = lw.block_psi(y, 1)
+    check("ledoitwolf: block_psi at b=1 is the sample covariance",
+          bool(np.allclose(psi1, np.cov(y.T, bias=True), atol=1e-12)))
+
+    psi5 = lw.block_psi(y, 5)
+    check("ledoitwolf: block_psi is symmetric", bool(np.allclose(psi5, psi5.T)))
+    check("ledoitwolf: block_psi is positive semi-definite",
+          bool(np.linalg.eigvalsh(psi5).min() > -1e-10))
+    check("ledoitwolf: block_psi discards the ragged tail, not wraps it",
+          bool(np.allclose(lw.block_psi(y[:600], 7), lw.block_psi(y[: 7 * (600 // 7)], 7))))
+
+
+def check_ledoitwolf_resampler() -> None:
+    rng = np.random.default_rng(0)
+    idx = lw.circular_block_indices(100, 7, rng)
+    check("ledoitwolf: resample has the sample's length", len(idx) == 100)
+    check("ledoitwolf: resample indices stay in range",
+          bool(idx.min() >= 0 and idx.max() < 100))
+
+    wrapped = lw.circular_block_indices(20, 20, np.random.default_rng(1))
+    check("ledoitwolf: a full-length block is a rotation (the circular part)",
+          sorted(wrapped.tolist()) == list(range(20)))
+
+    a = lw.circular_block_indices(50, 5, np.random.default_rng(3))
+    b = lw.circular_block_indices(50, 5, np.random.default_rng(3))
+    check("ledoitwolf: the resampler is deterministic given the generator",
+          bool(np.array_equal(a, b)))
+
+    counts = np.zeros(40)
+    for seed in range(400):
+        counts += np.bincount(lw.circular_block_indices(40, 6, np.random.default_rng(seed)),
+                              minlength=40)
+    check("ledoitwolf: every observation is equally likely (no edge effect)",
+          bool(counts.std() / counts.mean() < 0.06))
+
+
+def check_ledoitwolf_test() -> None:
+    """Behaviour of the whole test on constructed data, both directions."""
+    rng = np.random.default_rng(7)
+    base = rng.standard_normal(2000) * 0.01 + 5.0e-4
+
+    same = lw.studentized_pvalue(base, rng.standard_normal(2000) * 0.01 + 5.0e-4,
+                                 block=5, n_boot=199, rng=np.random.default_rng(1))
+    check("ledoitwolf: p-value is a probability",
+          0.0 < same["pvalue"] <= 1.0)
+    check("ledoitwolf: p-value granularity is 1/(M+1)",
+          bool(np.isclose(same["pvalue"] * 200.0, round(same["pvalue"] * 200.0))))
+    check("ledoitwolf: equal-Sharpe series are not distinguished",
+          same["pvalue"] > 0.05)
+
+    shifted = lw.studentized_pvalue(base, base - 4.0e-4,
+                                    block=5, n_boot=199, rng=np.random.default_rng(1))
+    check("ledoitwolf: a deterministic mean shift IS distinguished",
+          shifted["pvalue"] < 0.05)
+    check("ledoitwolf: Delta_hat matches the two sample Sharpe ratios",
+          bool(np.isclose(shifted["delta"],
+                          lw.sharpe_difference(lw.moments(base, base - 4.0e-4)))))
+    lo, hi = shifted["ci"]
+    check("ledoitwolf: the interval is centred on Delta_hat",
+          bool(np.isclose((lo + hi) / 2.0, shifted["delta"])))
+    check("ledoitwolf: a rejected null has an interval excluding zero", lo > 0.0 or hi < 0.0)
+
+
+def check_ledoitwolf_hac() -> None:
+    """The HAC estimator, against the two cases where the answer is known."""
+    rng = np.random.default_rng(11)
+    white = rng.standard_normal((4000, 4))
+    white = white - white.mean(axis=0)
+    psi = lw.hac_psi(white)
+    check("ledoitwolf: HAC of white noise is the contemporaneous covariance",
+          bool(np.allclose(psi, np.eye(4), atol=0.15)))
+
+    persistent = np.zeros((4000, 4))
+    shock = rng.standard_normal((4000, 4))
+    for t in range(1, 4000):
+        persistent[t] = 0.7 * persistent[t - 1] + shock[t]
+    persistent = persistent - persistent.mean(axis=0)
+    long_run = lw.hac_psi(persistent)
+    check("ledoitwolf: HAC of an AR(1) recovers sigma^2/(1-rho)^2, not sigma^2",
+          bool(np.allclose(np.diag(long_run), 1.0 / (1.0 - 0.7) ** 2, rtol=0.30)))
+
+
+def _run_unwritten_ok(suite) -> None:
+    """Run a suite whose subject may still be a stub.
+
+    src/ledoitwolf.py ships four unimplemented contracts. An unwritten one is a
+    FAIL, not a crash -- the other checks must still run while it is being
+    written.
+    """
+    try:
+        suite()
+    except NotImplementedError as unwritten:
+        check(f"ledoitwolf: {unwritten}", False)
+
+
 def main() -> None:
     check_manifest()
     check_data_loader()
@@ -391,6 +519,8 @@ def main() -> None:
     check_sjm_features()
     check_jumpmodel_dp()
     check_jumpmodel_recovery()
+    for name in ("grad", "block_psi", "resampler", "test", "hac"):
+        _run_unwritten_ok(globals()[f"check_ledoitwolf_{name}"])
 
     print()
     if FAILURES:

@@ -476,7 +476,12 @@ the band does not is dial-robustness near its sweet spot — a legitimate, small
 6. **Inference.** Every ordering above is a point estimate with no interval — the paper reports none
    either, confirmed. The CV-vs-fixed and JM-vs-incumbent orderings hang on a handful of episodes.
    Nothing is claimed as distinguishable until a block bootstrap says so.
-7. **The HMM benchmark, now fully specified from the text**: 2-state Gaussian HMM on daily log total
+7. **Exposure-matching the comparison** — opened 2026-08-26 by the Z0 amendment. Every
+   ordering between the jump model and a band is confounded by time in market (62% against
+   62-73%), so no deep-tail difference between them is a clean measure of information. Not
+   done inside the inference run, because redesigning a comparison after its preregistration
+   is committed is the defect the preregistration exists to prevent.
+8. **The HMM benchmark, now fully specified from the text**: 2-state Gaussian HMM on daily log total
    returns, 3000-day window refit daily, online Viterbi, median filter with CV-selected length — to
    check the paper's own margin over it rather than only over buy-and-hold.
 
@@ -674,12 +679,55 @@ episodes. It runs whatever the inference says.
 
 | | expectation | basis | if it fails |
 |---|---|---|---|
-| **Z0** | N3's gap distribution centres on zero — its 95% interval contains 0 for every band and every alpha | i.i.d. returns contain nothing either rule can act on | the pipeline manufactures a gap; **the run is void** and nothing below is read |
+| **Z0** | ~~N3's gap distribution centres on zero~~ **amended below, before the run**: each N3 gap's sign agrees with its exposure difference, the rule holding cash more often showing the shallower tail | i.i.d. returns contain nothing either rule can act on, so a gap can only be exposure | a sign contradicting its exposure difference means the pipeline manufactures a gap; **the run is void** and nothing below is read |
 | **Z1** | the Sharpe difference between the best band (75,55) and the jump model is **not** distinguishable from zero at any block size on the grid | 0.44 vs 0.44 on the paper window; the difference is a rounding artefact | if a Sharpe difference *is* distinguishable, the reproduction has a return-margin finding it had declared out of scope — record it, do not chase it |
 | **Z2** | the band's Sharpe interval lies above `-0.10` and its pain interval above `-1.0pp` against the JM: **equivalence established** on the shallow half | Y1's point estimates favour the band outright | if the interval reaches below the margin, Y1 weakens from "matches or beats" to "not shown to be worse", and the summary line must say so |
 | **Z3** | the observed deep-tail gaps (0.7 / 0.5pp at 1% / 5%, 2.5pp MaxDD) fall **inside** N1's null distribution — **not distinguishable** | two episodes; field 2 | if outside under N1 **and** the intersection–union test rejects for all three bands, the residual stands and **D8 is unpicked next** as the leading artefact explanation |
 | **Z4** | under N2, where regimes are real by construction, the JM's deep-tail edge is **also** wide and overlapping zero | the same two-episode arithmetic applies to a simulated path of the same length | if N2's edge is sharp while the observed gap is small relative to it, that is evidence **against** the paper's premise on this sample rather than mere absence of evidence — a stronger closure, and it must be reported as the stronger claim it is |
 | **Z5** | the deep-tail ordering is not robust to leave-one-episode-out — dropping either episode moves it materially or flips it | it is a two-observation statistic | if the ordering *is* stable to dropping either episode, that is the one descriptive result that would make the residual worth attributing, and it raises D8's priority |
+
+### Amendment to Z0 — written 2026-08-26, before the scoring run
+
+**What was wrong, and it was wrong deductively rather than empirically.** Z0 as first written
+required N3's gap distribution to centre on zero, and made a non-zero centre grounds for declaring the
+run void. That presumes the two rules are **exposure-matched**, and they are not. The
+volatility-threshold table three sections above records it: the jump model holds the market 62% of the
+time, the bands 62–73%, and the (85,65) band 72%. **Two rules holding the market for different
+fractions of a sample have different drawdowns with zero information between them.** Under N3, where
+by construction neither rule can know anything, a gap is therefore not merely possible but expected,
+and its size is a fact about exposure rather than about the machinery. The information needed to catch
+this was in this document before the preregistration was written and was not used.
+
+A two-path smoke run of the harness prompted the check. Its numbers are not read, are not recorded
+here and did not determine the amendment — the argument above is deductive and would hold if the smoke
+run had produced a centre of exactly zero.
+
+**Z0, as it now reads.** `timein` is recorded for every rule on every simulated path, and the control
+tests two things:
+
+- **the pipeline runs and produces finite gaps on every path**, and
+- **each N3 gap's sign agrees with its exposure difference** — the rule holding cash more often shows
+  the shallower deep tail.
+
+A gap whose sign **contradicts** its exposure difference means the pipeline manufactures a difference
+that no mechanism in N3 can produce, and the run is void. **A non-zero centre is not a failure.**
+
+**What this changes about reading Z3 and Z4, and what it does not.** Nothing, mechanically: Z3 was
+already stated as *the observed gap against N1's distribution* and never against zero, and N1 carries
+the same exposure confound as the observed comparison, so it self-calibrates. What it changes is the
+**sentence** the run can end with. An observed gap inside N1's distribution now licenses only:
+
+> indistinguishable from what two rules of these exposures do to each other on a clustered path
+
+and never the stronger-sounding *indistinguishable from no difference*, which the exposure confound
+does not permit anyone to say.
+
+**And a live consequence for the (85,65) comparison, recorded before the run rather than after.** That
+band holds the market 72% against the jump model's 62% — a 10pp exposure difference. Its deep-tail gap
+is therefore substantially an exposure comparison whatever the inference returns, and it is quoted
+that way or not at all. Exposure-matching the comparison is **not** done here: it would be a new
+design choice made after a preregistration was committed, and the honest move is to report the
+confound rather than to engineer it away mid-run. It is recorded as an open item.
 
 ### What may be said afterwards, and what may not
 

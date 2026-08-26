@@ -54,6 +54,7 @@ PROVENANCE = {
     "s0_efa_daily.csv": "screen0.py -- EFA daily closes, turbulence panel",
     "s0_tlt_daily.csv": "screen0.py -- TLT daily closes, turbulence panel",
     "s0_gld_daily.csv": "screen0.py -- GLD daily closes, turbulence panel",
+    "infer_nets_gspc.csv": "DERIVED. inference.py -- daily net returns of the jump-model and volatility-band rules, the input series to the Ledoit-Wolf test. Costs a full refit loop to regenerate: inference.py --refresh",
 }
 
 
