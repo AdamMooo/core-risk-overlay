@@ -71,6 +71,14 @@ read, and `../../checks.py` verifies it. E4's four cross-market series in partic
 (`^GSPC` 1927+, `^N225`, `^FTSE`, `^GDAXI`) came from `yfinance` and there is no guarantee a
 re-download years from now returns the same history.
 
+## Its mathematics
+
+[[MATH-INTERVENTION]] — admissibility (C1/C2), the three mechanisms M1/M2/M3, and the
+clairvoyant EVPI bound. Moved here verbatim on 2026-08-26 from the active mathematics
+reference, where they had outlived the programme they describe. The drawdown process and the
+CDaR family stayed active: they are implemented by `../../src/pathfunctionals.py` and are
+still what live work computes with.
+
 ## The frozen copy, deliberately
 
 `pathfunctionals.py` is **duplicated** here rather than imported from `../../src/`. The active

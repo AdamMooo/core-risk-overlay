@@ -54,6 +54,8 @@ PROVENANCE = {
     "s0_efa_daily.csv": "screen0.py -- EFA daily closes, turbulence panel",
     "s0_tlt_daily.csv": "screen0.py -- TLT daily closes, turbulence panel",
     "s0_gld_daily.csv": "screen0.py -- GLD daily closes, turbulence panel",
+    "deeptail_mc.csv": "DERIVED. deeptail_mc.py -- one row per simulated path: the deep-tail and exposure gaps between the jump model and each band under N1/N2/N3. ~2h of refit loops to regenerate",
+    "deeptail_nulls.json": "DERIVED. deeptail_mc.py -- the fitted GARCH(1,1)-t and Markov-switching null parameters, cached so a rerun does not repeat the MLE",
     "infer_nets_gspc.csv": "DERIVED. inference.py -- daily net returns of the jump-model and volatility-band rules, the input series to the Ledoit-Wolf test. Costs a full refit loop to regenerate: inference.py --refresh",
 }
 

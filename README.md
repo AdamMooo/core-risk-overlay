@@ -25,8 +25,9 @@ real-world risk question -> literature -> mechanism -> observable data
 - **Purpose, agent behaviour, and the repository-gravity warning:** [[CLAUDE]]
 - **The last programme's charter, and its termination record:** [[CHARTER]] §11
 - **Process — the gate every experiment passes:** [[docs/RESEARCH-PROTOCOL]]
-- **Time basis and leak register:** [[docs/POINT-IN-TIME-DISCIPLINE]] · **Mathematics:**
-  [[docs/MATH-REFERENCE]]
+- **Time basis and leak register:** [[docs/POINT-IN-TIME-DISCIPLINE]] · **Mathematics of the
+  drawdown process and the CDaR family:** [[docs/MATH-REFERENCE]] — a live conventions
+  document; `src/pathfunctionals.py` implements it and every published CDaR number obeys it
 - **What is identified under the null:** [[docs/IDENTIFICATION-UNDER-N1]] · **why Q1 is not licensed
   and what replaces it:** [[docs/DECISION-Q1-CLAIM]]
 - **Evidence base from the closed programs, frozen:** [[docs/PROBLEM-MAP]]

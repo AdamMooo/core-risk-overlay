@@ -53,6 +53,7 @@ Run: .venv\Scripts\python.exe deeptail_mc.py                 all three nulls
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import sys
 import time
@@ -89,6 +90,7 @@ BENCHMARK = f"JM fixed paper-{LAMBDA_PAPER:g}"
 PAPER_END = "2023-12-29"
 NULLS = ("N3", "N1", "N2")
 OUT = CACHE / "deeptail_mc.csv"
+NULL_FIT = CACHE / "deeptail_nulls.json"
 
 
 # ---------------------------------------------------------------------------
@@ -174,10 +176,13 @@ def fit_markov_variance(r: np.ndarray) -> dict:
     fit = MarkovRegression(r * 100.0, k_regimes=2, trend="c", switching_variance=True).fit(
         search_reps=20, disp=False
     )
+    # params is a bare ndarray when endog is one, so go through the model's own
+    # parameter names rather than indexing it by label.
+    named = dict(zip(fit.model.param_names, np.asarray(fit.params)))
     transition = np.asarray(fit.regime_transition)[:, :, 0]
     transition = transition / transition.sum(axis=0, keepdims=True)
-    means = np.array([fit.params[f"const[{k}]"] for k in range(2)]) / 100.0
-    variances = np.array([fit.params[f"sigma2[{k}]"] for k in range(2)]) / 100.0**2
+    means = np.array([named[f"const[{k}]"] for k in range(2)]) / 100.0
+    variances = np.array([named[f"sigma2[{k}]"] for k in range(2)]) / 100.0**2
     order = np.argsort(variances)  # 0 = quiet
     return {"transition": transition[np.ix_(order, order)], "means": means[order],
             "variances": variances[order], "llf": float(fit.llf)}
@@ -325,19 +330,29 @@ def main() -> int:
         print(f"  {key:<34s}{observed[key]:>9.2%}")
 
     fitted = {"N3": {}}
+    cached = json.loads(NULL_FIT.read_text()) if NULL_FIT.exists() else {}
     for null in args.null or NULLS:
         if null == "N1":
-            fitted["N1"] = fit_garch_t(returns.to_numpy())
+            fitted["N1"] = cached.get("N1") or fit_garch_t(returns.to_numpy())
             print(f"\nN1 GARCH(1,1)-t: alpha={fitted['N1']['alpha']:.4f} "
                   f"beta={fitted['N1']['beta']:.4f} "
                   f"persistence={fitted['N1']['alpha']+fitted['N1']['beta']:.4f} "
                   f"nu={fitted['N1']['nu']:.2f} converged={fitted['N1']['converged']}")
         elif null == "N2":
-            fitted["N2"] = fit_markov_variance(returns.to_numpy())
+            fitted["N2"] = cached.get("N2") or fit_markov_variance(returns.to_numpy())
             transition = fitted["N2"]["transition"]
             print(f"\nN2 Markov-switching: annualised vol "
                   f"{np.sqrt(fitted['N2']['variances']*TRADING_DAYS)} "
                   f"stay probabilities {np.diag(transition)}")
+
+    NULL_FIT.write_text(json.dumps(
+        {k: v for k, v in fitted.items() if v},
+        default=lambda o: o.tolist() if isinstance(o, np.ndarray) else o, indent=1))
+
+    for null in ("N2",):
+        if null in fitted and fitted[null]:
+            fitted[null] = {k: np.asarray(v) if isinstance(v, list) else v
+                            for k, v in fitted[null].items()}
 
     rows = []
     for null in args.null or NULLS:
