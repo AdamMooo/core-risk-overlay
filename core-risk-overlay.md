@@ -14,6 +14,51 @@ hedging mandate, in [[PARKED]].
 
 **The repository name is historical.** It names a program that no longer runs.
 
+## Status — 2026-08-26, ninth entry: THE SHALLOW HALF IS SCORED — Z1 HOLDS, Z2 FAILS, Z5 TRIGGERS ITS FAILURE BRANCH; N1/N2 RUNNING AT CLOSE
+
+> **The four Ledoit–Wolf contracts are written and all 55 checks pass** (commit d1865a8). An
+> independent adversarial audit against the paper and the preregistration returned **zero defects on
+> the mathematics** and four findings on the harness — the Z2 pain margin was written on the wrong
+> side (a lower-is-better functional given the Sharpe test's geometry), the shallow path functionals
+> ran on the excess curve where the margins were calibrated on the net curve, M was 999 not 4999 for
+> the percentile half, and leave-one-episode-out omitted the deep functionals so Z5 had nothing to be
+> read from. **All four were amended deductively, in the Z0-amendment format, before any interval was
+> read** (commit 52fa60e); the first execution's output is renamed unread
+> (`data/inference.superseded.log`) and the corrected run reproduces the frozen tables exactly.
+>
+> **Z1 HELD.** The Sharpe difference is not distinguishable anywhere: headline max-p 0.67 / 0.62 /
+> 0.55 for (75,55) / (80,60) / (85,65); no cell below 0.53. (The Z1 basis's "0.44 vs 0.44" cited the
+> paper-35 row; the declared benchmark paper-25 sits at 0.398 against the band's 0.444 — delta +0.045,
+> verdict unaffected.)
+>
+> **Z2 FAILED, on both functionals, for every band.** The Sharpe intervals are ±~0.21 wide against a
+> ±0.10 margin — the margin sits inside one standard error — and the pain intervals reach past +1.0pp
+> everywhere. Per the preregistration's own failure clause, **Y1 weakens from "matches or beats" to
+> "not shown to be worse."** The equivalence question is the effective-sample-size wall again, now
+> visible on the shallow half: 34 years cannot resolve ±0.10 Sharpe.
+>
+> **Z5 triggered its failure branch for the two tight bands.** The (80,60) and (75,55) deep-tail gaps
+> are stable to dropping the dot-com, the GFC, or both (−1.4/−1.6/−2.0pp essentially unchanged) — the
+> preregistered "one descriptive result that would make the residual worth attributing", and it
+> **raises D8's priority** exactly as written. The (85,65) gap collapses without the two episodes
+> (−14pp → −0.7pp, MaxDD flips sign), the exposure confound behaving as pre-recorded.
+>
+> **The machinery's measured size, from a known-truth simulation at the market's fitted persistence
+> (0.9932):** the 6-block max-p rule's true size is ~7% at T≈8,560 (individual cells 7.5–9.5%),
+> invariant to pair correlation (checked at rho 0.70 and 0.80; measured JM-band correlations are
+> 0.73–0.80), sourced in the HAC estimate, not the block bootstrap. Direction of the caveat:
+> strengthens Z1's non-rejection (the test over-rejects and still did not), and Z2's failure is robust
+> (the true intervals are wider than the printed ones, which already failed).
+>
+> **N1 and N2 were resumed 21:43 (commit 6d7d897 made the writers resume-safe) and were still running
+> at session close.** Each null persists to `data/deeptail_mc.csv` on completion. **Z3 and Z4 are the
+> only open verdicts; Thread A does not close until they are scored.** Next session: score them from
+> the CSV (observed-vs-null percentiles per band × statistic, the intersection–union reading for Y2),
+> write the run section in [[docs/REPRO-SJM2024-FINDINGS]] once and whole, regenerate the manifest
+> (`deeptail_mc.csv` plus run logs are the expected mismatches), and record the three cosmetic audit
+> notes there (eigenvalue-not-singular-value shrink on a dead branch; "one-day lag" naming a shift(2)
+> shared identically by both halves; per-grid-row seed reuse, marginally harmless).
+
 ## Status — 2026-08-26, eighth entry: THE INFERENCE RUN IS PREREGISTERED AND HALF-EXECUTED — Z0 PASSES, N1 AND N2 ARE STILL OWED
 
 > **Thread A's closing item is committed and running.** The preregistration is
