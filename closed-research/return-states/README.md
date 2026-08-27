@@ -112,7 +112,7 @@ seeing the obstruction**, and S0b's own header declared it the final synthetic g
 |---|---|
 | `s0_discriminating_functional.py` | **S0** — the four-functional identification study, and **R1** |
 | `s0b_discreteness_gate.py` | **S0b** — the discreteness gate, and **R2**. VOID by its own control |
-| `checks.py` | 140 checks: the matching algebra of both gates, Sarle's coefficient against its exact known values, and the (M3) constraint asserted to 1e-10 |
+| `checks.py` | 180 checks: the matching algebra of both gates, Sarle's coefficient against its exact known values, and the (M3) constraint asserted to 1e-10 |
 | `data_loader.py`, `pathfunctionals.py` | frozen copies — see below |
 | `STUB-S0-WHAT-COUNTS-AS-EVIDENCE.md` | S0's preregistration, unaltered |
 | `STUB-S0B-DISCRETENESS-GATE.md` | S0b's preregistration, unaltered |

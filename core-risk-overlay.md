@@ -45,6 +45,47 @@ program that no longer runs.
 - [[closed-research/HUB-RECORD]] — this file's pre-closure working record 2026-08-12 → 2026-08-18,
   moved verbatim 2026-08-27
 
+## Status — 2026-08-27, eleventh entry: THE DEEP CLEAN — ONE ARCHIVE PER PROGRAMME, THE HUB IS A HUB AGAIN, AND N2 IS ON ITS FOURTH LAUNCH
+
+> **N2 died a third terminal-tied death and is running again, detached.** The morning's sequence:
+> the N1N2 detached run completed N1 (200 paths, 5,490s, appended 11:25) and the 12:34 reboot killed
+> N2; a 12:43 relaunch was not detached and died at ~13:16 when its parent vanished (one pool-worker
+> WinError 5) — and its `manifest.py` provenance line had been written **ahead of the run**, claiming
+> a scored table that never existed. Corrected, and recorded here so the pattern has a name:
+> provenance describes what a log *is*, never what a run is hoped to produce. Relaunched 13:28 via
+> `Start-Process` — the exact pattern that carried N1 through 91 minutes — logging to
+> `data/deeptail_mc.N2retry.log`; 12 workers confirmed healthy at 14:05. The CSV holds N3 200 / N1
+> 200 / N2 2 stale rows the writer replaces on completion. **Nothing was scored. Z3 and Z4 remain
+> the only open verdicts, and Thread A does not close until they are read from the completed CSV.**
+>
+> **The return-states archive is now self-contained, like the other two.** Its four supporting
+> documents — both preregistration stubs, [[closed-research/return-states/IDENTIFICATION-UNDER-N1]]
+> and [[closed-research/return-states/DECISION-Q1-CLAIM]] — moved verbatim from `docs/` into
+> `closed-research/return-states/` (git recorded renames at 96–98% similarity), with every wikilink
+> retargeted: [[CHARTER]], [[README]], this file, the documents' own cross-references, and the two
+> archive scripts' pointer strings. All 180 frozen return-states checks pass after the move; the
+> archive README claimed "140 checks" and now states the measured 180. The charter stays at root —
+> the §7 authority table is its home.
+>
+> **The hub is a hub again.** This file's 1,094-line pre-closure body — the governing frame, the
+> mandate's target, the open questions, the known defects, and every experiment write-up from
+> 2026-08-12 to 2026-08-18 — moved verbatim to [[closed-research/HUB-RECORD]]. What remains is the
+> status log plus a navigation map of every document. [[docs/MATH-REFERENCE]] and
+> [[docs/MATH-AUDIT-JUMPMODEL]] join the [[CLAUDE]] §7 authority table (the daily note had flagged
+> the former: it binds the CDaR convention and is cited from source code).
+>
+> **The learning got a vault note.** [[systemic-events-are-too-rare-to-calibrate]] now exists in
+> `C:\dev\lessons\` — the n=1 benefit side, the two-episode SJM edge, and Z2's ±0.10-margin wall are
+> one lesson — and the two documents that cited the phrase as prose
+> ([[docs/REPRO-SJM2024-FINDINGS]], [[docs/ASSESSMENT-PRESENT-STATE-RISK]]) now link it.
+>
+> **Vault-side, the queued audit items are done** (VA-030/031/033/035/036/037): the INDEX's
+> dismantled-stack section is replaced by the truth (this container holds one repo; check counts
+> corrected 37→72, 140→180), dead project links pruned, the stale memories deleted or corrected, and
+> the graph mirror reconciled. `C:\dev\CLAUDE.md`'s structure diagram and repo table now match the
+> disk. **Next: read Z3/Z4 from the completed CSV, write the run section in
+> [[docs/REPRO-SJM2024-FINDINGS]] once and whole, regenerate the manifest.**
+
 ## Status — 2026-08-27, tenth entry: N1/N2 RELAUNCHED DETACHED, AND THE MODEL GETS ITS MATHEMATICAL AUDIT; Z3/Z4 STILL THE ONLY OPEN VERDICTS
 
 > **Housekeeping first: the branch sprawl is gone.** Every branch — four locals plus two remote
