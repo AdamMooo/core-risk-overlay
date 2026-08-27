@@ -342,11 +342,11 @@ def main() -> int:
             fitted["N2"] = cached.get("N2") or fit_markov_variance(returns.to_numpy())
             transition = fitted["N2"]["transition"]
             print(f"\nN2 Markov-switching: annualised vol "
-                  f"{np.sqrt(fitted['N2']['variances']*TRADING_DAYS)} "
+                  f"{np.sqrt(np.asarray(fitted['N2']['variances'])*TRADING_DAYS)} "
                   f"stay probabilities {np.diag(transition)}")
 
     NULL_FIT.write_text(json.dumps(
-        {k: v for k, v in fitted.items() if v},
+        {**cached, **{k: v for k, v in fitted.items() if v}},
         default=lambda o: o.tolist() if isinstance(o, np.ndarray) else o, indent=1))
 
     for null in ("N2",):
