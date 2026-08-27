@@ -412,6 +412,32 @@ Named now so the preregistration cannot quietly omit them:
   above, the interaction is the form the data plausibly supports. **Decided in the preregistration,
   before code, and not revisited after seeing a result.**
 
+**The attenuation question above was settled 2026-08-27, by synthetic design study**
+(`screen1_design_eiv.py`, no market data), and the clean separation does NOT hold — in a direction
+worse than attenuation:
+
+- With a level-dependent truth calibrated to what the VIX curve prices (persistence 0.99 quiet ->
+  0.97 stressed) and Parkinson-magnitude noise (`s_u = 0.32` on log vol), the quadratic-summary
+  coefficient `c_h` is **detectable at T = 14000**: |c|/MC-sd ~ 3.4 at h = 1-21, falling to 1.7 at
+  h = 63 — the far end is description only, as already stated above.
+- **Noise does not attenuate the curvature — at short horizons it inflates it** (x11 at h = 1, x3 at
+  h = 5, x1.3 at h = 21). Mechanism: with a non-Gaussian marginal, `E[x_t | x*_t]` is itself
+  nonlinear in the observed value, so curvature is injected by the *distribution's shape* under
+  noise, not by the dynamics. It happened to share the true effect's sign here; its magnitude is an
+  artifact. **No magnitude of `c_h` may be interpreted; only detection against a calibrated null.**
+- The flat-truth simulation false-fired at ~0% — but only because its marginal was Gaussian by
+  construction. A level-independent null on real data can still be skewed, which would inject
+  spurious curvature through the same mechanism.
+
+**Consequences for the preregistration, binding when it is written:** (1) the form is the
+quadratic/interacted summary `c_h` — the surface is over-resolution at this effective sample;
+(2) the flatness test is scored against a **simulation-calibrated null** — a level-independent
+process fitted to the data, with the measured noise added, never against `c_h = 0` — the same
+discipline the deep-tail run used and for the same reason; (3) informative horizons are the middle
+of the curve (h ~ 5-21), where true dynamics dominate the injection artifact; (4) the kill
+condition's "flat" reads "indistinguishable from the calibrated level-independent null", not
+"c_h ~ 0".
+
 ### 12e. Sequencing
 
 **Thread A's inference step runs first** (decided 2026-08-25 — see [[docs/REPRO-SJM2024-FINDINGS]]
