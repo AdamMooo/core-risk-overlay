@@ -95,7 +95,10 @@ def sharpe_grad(v: np.ndarray) -> np.ndarray:
       - sharpe_grad(v) with v from a series and its own copy must give a
         gradient whose first and second entries are equal and opposite
     """
-    raise NotImplementedError("sharpe_grad: write me")
+    a, b, c, d = v
+    var_i, var_n = c - a**2, d - b**2
+    return np.array([c / var_i**1.5, -d / var_n**1.5,
+                     -0.5 * a / var_i**1.5, 0.5 * b / var_n**1.5])
 
 
 def block_psi(y_star: np.ndarray, block: int) -> np.ndarray:
@@ -126,7 +129,10 @@ def block_psi(y_star: np.ndarray, block: int) -> np.ndarray:
       - returns (4, 4), symmetric, positive semi-definite
       - block=1 equals np.cov(y_star.T, bias=True) up to floating point
     """
-    raise NotImplementedError("block_psi: write me")
+    n_blocks = y_star.shape[0] // block
+    zeta = y_star[: n_blocks * block].reshape(n_blocks, block, -1).sum(axis=1)
+    zeta /= np.sqrt(block)
+    return zeta.T @ zeta / n_blocks
 
 
 def circular_block_indices(n_obs: int, block: int, rng: np.random.Generator) -> np.ndarray:
@@ -151,7 +157,10 @@ def circular_block_indices(n_obs: int, block: int, rng: np.random.Generator) -> 
       - block=1 is the i.i.d. bootstrap
       - deterministic given rng
     """
-    raise NotImplementedError("circular_block_indices: write me")
+    n_starts = -(-n_obs // block)
+    starts = rng.integers(0, n_obs, size=n_starts)
+    idx = (starts[:, None] + np.arange(block)) % n_obs
+    return idx.ravel()[:n_obs]
 
 
 def studentized_pvalue(
@@ -193,7 +202,31 @@ def studentized_pvalue(
       ci         (lo, hi), the symmetric studentized interval of their Eq. (7),
                  Delta_hat +/- z*_{|.|,0.95} * s(Delta_hat), daily scale
     """
-    raise NotImplementedError("studentized_pvalue: write me")
+    n_obs = len(r_i)
+    v_hat = moments(r_i, r_n)
+    delta_hat = sharpe_difference(v_hat)
+    if psi_hat is None:
+        psi_hat = hac_psi(moment_conditions(r_i, r_n, v_hat))
+    se_hat = standard_error(v_hat, psi_hat, n_obs)
+    d = abs(delta_hat) / se_hat
+
+    d_star = np.empty(n_boot)
+    for m in range(n_boot):
+        idx = circular_block_indices(n_obs, block, rng)
+        ri_star, rn_star = r_i[idx], r_n[idx]
+        v_star = moments(ri_star, rn_star)
+        y_star = moment_conditions(ri_star, rn_star, v_star)
+        se_star = standard_error(v_star, block_psi(y_star, block), n_obs)
+        d_star[m] = abs(sharpe_difference(v_star) - delta_hat) / se_star
+
+    z_crit = float(np.quantile(d_star, 0.95))
+    return {
+        "delta": float(delta_hat),
+        "se": se_hat,
+        "d": float(d),
+        "pvalue": float((np.sum(d_star >= d) + 1.0) / (n_boot + 1.0)),
+        "ci": (float(delta_hat - z_crit * se_hat), float(delta_hat + z_crit * se_hat)),
+    }
 
 
 # ---------------------------------------------------------------------------
