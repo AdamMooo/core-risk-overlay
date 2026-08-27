@@ -683,7 +683,7 @@ episodes. It runs whatever the inference says.
 | **Z1** | the Sharpe difference between the best band (75,55) and the jump model is **not** distinguishable from zero at any block size on the grid | 0.44 vs 0.44 on the paper window; the difference is a rounding artefact | if a Sharpe difference *is* distinguishable, the reproduction has a return-margin finding it had declared out of scope — record it, do not chase it |
 | **Z2** | the band's Sharpe interval lies above `-0.10` and ~~its pain interval above `-1.0pp`~~ (**sign-amended below, after the audit and before any interval was read**: its pain interval below `+1.0pp`) against the JM: **equivalence established** on the shallow half | Y1's point estimates favour the band outright | if the interval reaches below the margin, Y1 weakens from "matches or beats" to "not shown to be worse", and the summary line must say so |
 | **Z3** | the observed deep-tail gaps (0.7 / 0.5pp at 1% / 5%, 2.5pp MaxDD) fall **inside** N1's null distribution — **not distinguishable** | two episodes; field 2 | if outside under N1 **and** the intersection–union test rejects for all three bands, the residual stands and **D8 is unpicked next** as the leading artefact explanation |
-| **Z4** | under N2, where regimes are real by construction, the JM's deep-tail edge is **also** wide and overlapping zero | the same two-episode arithmetic applies to a simulated path of the same length | if N2's edge is sharp while the observed gap is small relative to it, that is evidence **against** the paper's premise on this sample rather than mere absence of evidence — a stronger closure, and it must be reported as the stronger claim it is |
+| **Z4** | under N2, where regimes are real by construction, the JM's deep-tail edge is **also** wide ~~and overlapping zero~~ (**reading amended below, 2026-08-27, before N2's table was read**: width is the criterion — zero-crossing is exposure-confounded) | the same two-episode arithmetic applies to a simulated path of the same length | if N2's edge is sharp while the observed gap is small relative to it, that is evidence **against** the paper's premise *as instantiated by the fitted specification* on this sample rather than mere absence of evidence — a stronger closure, and it must be reported as the stronger claim it is |
 | **Z5** | the deep-tail ordering is not robust to leave-one-episode-out — dropping either episode moves it materially or flips it | it is a two-observation statistic | if the ordering *is* stable to dropping either episode, that is the one descriptive result that would make the residual worth attributing, and it raises D8's priority |
 
 ### Amendment to Z0 — written 2026-08-26, before the scoring run
@@ -728,6 +728,39 @@ is therefore substantially an exposure comparison whatever the inference returns
 that way or not at all. Exposure-matching the comparison is **not** done here: it would be a new
 design choice made after a preregistration was committed, and the honest move is to report the
 confound rather than to engineer it away mid-run. It is recorded as an open item.
+
+### Amendment to Z4's reading — written 2026-08-27, before N2's table was read
+
+N2 completes today; nothing from it has been read. Three corrections in the Z0 amendment's format —
+each deductive, argued from what this document already establishes, none from N2's numbers.
+
+**1. Zero-crossing cannot be Z4's criterion, by this document's own Z0 amendment.** The amendment
+establishes that two rules of unequal exposure produce non-zero gaps with zero information between
+them, and the exposure confound operates under N2 exactly as under N3 and N1. A gap distribution
+overlapping zero is therefore neither necessary nor sufficient for "no power": a real regime edge can
+hide under an exposure shift, and a zero-crossing can be pure exposure. Z4 is read on **width** — the
+95% width of N2's gap distributions against the size of the observed gaps — and, descriptively only,
+against N1's width (whether regimes-real adds anything clustering alone does not). That N1-vs-N2
+comparison is not preregistered as a test and is never reported as one.
+
+**2. The universal sentence in the N2 row's "what it licenses" column over-quantifies, and is not
+adopted.** "No sample of this length could distinguish the two rules even when regimes are real"
+quantifies over every regime-generating process; the design instantiates exactly one — a fitted
+2-state Markov-switching Gaussian at one penalty and one band family, whose ~28-day turbulent sojourns
+are short against the rules' own 60-day volatility window and 126-day refit schedule, arguably an
+*unfavourable* regime world for the jump model rather than a favourable one. What a wide N2 outcome
+establishes is: **this design has no power to detect a regime-driven deep-tail edge between these two
+rules at this sample length, under its own maintained alternative.** That scoped sentence is what the
+closure may use. A preregistration governs selection, not validity; pre-writing an over-broad sentence
+does not make the design able to support it.
+
+**3. The scored table's N2 rows will mechanically print inside/OUTSIDE, and that column is not
+read.** N2 is a power check, not a null (declared in the null table and in `deeptail_mc.py`).
+Containment of the observed gap in an alternative's distribution licenses nothing; no significance
+language attaches to N2 in either direction. Only the two preregistered branch readings exist. The
+same declaration binds the sharp branch: what a sharp N2 edge indicts is the paper's premise *as
+instantiated by the fitted specification*, with misspecification of that fitted world recorded as the
+standing alternative explanation.
 
 ### Amendments after the implementation audit — written 2026-08-26, before any shallow-half interval was read
 
