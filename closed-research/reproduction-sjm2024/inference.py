@@ -41,8 +41,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent))
 
 import ledoitwolf as lw
 from repro_sjm2024 import (
@@ -55,8 +54,8 @@ from repro_sjm2024 import (
     load_riskfree,
     run_jump_model,
 )
-from src.pathfunctionals import cdar, drawdown
-from src.sjm_features import build_features
+from pathfunctionals import cdar, drawdown
+from sjm_features import build_features
 from volthreshold import JM_LAMBDAS_PAPER, PAIRS, threshold_signal
 
 BLOCK_GRID = (5, 10, 21, 42, 63, 126)

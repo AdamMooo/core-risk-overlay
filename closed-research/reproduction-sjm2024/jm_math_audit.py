@@ -7,11 +7,12 @@ from __future__ import annotations
 
 import sys
 from itertools import product
+from pathlib import Path
 
 import numpy as np
 
-sys.path.insert(0, r"C:\dev\systematic-investing-research\core-risk-overlay")
-from src.jumpmodel import (  # noqa: E402
+sys.path.insert(0, str(Path(__file__).parent))
+from jumpmodel import (  # noqa: E402
     _squared_distances,
     fit_jump_model,
     forward_costs,
@@ -236,8 +237,8 @@ import sys
 
 import numpy as np
 
-sys.path.insert(0, r"C:\dev\systematic-investing-research\core-risk-overlay")
-from src.jumpmodel import _squared_distances, fit_jump_model, viterbi_path
+sys.path.insert(0, str(Path(__file__).parent))
+from jumpmodel import _squared_distances, fit_jump_model, viterbi_path
 
 # --- check 1: the T=5 breakpoint is exactly 0.9, and switch count 1 is skipped
 x = np.array([0.0, 0.9, 1.0, 0.2, 0.0])

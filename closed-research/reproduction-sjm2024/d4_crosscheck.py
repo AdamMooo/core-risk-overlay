@@ -35,7 +35,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent))
 
 import jumpmodel as jm
 import sjm_features as sf
@@ -136,7 +136,7 @@ def check_free_fit_agreement(Xs: np.ndarray, truth: np.ndarray) -> None:
 
 
 def check_real_data() -> None:
-    cache = Path(__file__).resolve().parent / "data" / "sjm_gspc_daily.csv"
+    cache = Path(__file__).resolve().parent.parent.parent / "data" / "sjm_gspc_daily.csv"
     if not cache.exists():
         print("       (real-data leg skipped: data/sjm_gspc_daily.csv not cached)")
         return

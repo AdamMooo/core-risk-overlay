@@ -159,11 +159,12 @@ here.
 ## 8. Run commands
 
 ```powershell
-.venv\Scripts\python.exe checks.py                               # 72 active checks
-.venv\Scripts\python.exe d4_crosscheck.py                        # 28 vs authors' jumpmodels pkg
-.venv\Scripts\python.exe closed-research\checks.py               # 81 frozen
-.venv\Scripts\python.exe closed-research\intervention\checks.py  # 17 frozen
-.venv\Scripts\python.exe closed-research\return-states\checks.py # 180 frozen
+.venv\Scripts\python.exe checks.py                                             # 37 active checks
+.venv\Scripts\python.exe closed-research\checks.py                             # 81 frozen
+.venv\Scripts\python.exe closed-research\intervention\checks.py                # 17 frozen
+.venv\Scripts\python.exe closed-research\return-states\checks.py               # 180 frozen
+.venv\Scripts\python.exe closed-research\reproduction-sjm2024\checks.py        # 35 frozen
+.venv\Scripts\python.exe closed-research\reproduction-sjm2024\d4_crosscheck.py # 28 vs authors' jumpmodels pkg
 ```
 
 `data/` is gitignored; `data/MANIFEST.md` is tracked and is what makes reproduction checkable rather

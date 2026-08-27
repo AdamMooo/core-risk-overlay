@@ -27,12 +27,22 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from repro_sjm2024 import TRADING_DAYS, load_prices
 from src.caching import cached_series
 from src.data_loader import download_daily_prices
 
 ROOT = Path(__file__).resolve().parent
 CACHE = ROOT / "data"
+
+# Inlined from repro_sjm2024.py at its archive move (2026-08-27) so this Thread B
+# screen does not import across the closed-research boundary. Same cache keys,
+# byte-identical series.
+TRADING_DAYS = 252
+
+
+def load_prices(ticker: str, start: str) -> pd.Series:
+    key = ticker.replace("^", "").lower()
+    return cached_series(CACHE, f"sjm_{key}_daily.csv",
+                         lambda: download_daily_prices(ticker, start=start))
 
 RV_WINDOW = 60
 VRP_RV_WINDOW = 21

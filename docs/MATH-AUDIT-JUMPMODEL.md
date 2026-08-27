@@ -2,7 +2,7 @@
 
 Last updated: 2026-08-27. Companion to [[docs/MATH-REFERENCE]] (path functionals) and
 [[docs/REPRO-SJM2024-FINDINGS]] (the reproduction this model serves). Everything here is about
-`src/jumpmodel.py` — the code that actually runs — with the authors' package (`src/Shu/`,
+`closed-research/reproduction-sjm2024/jumpmodel.py` — the code that actually runs — with the authors' package (`closed-research/reproduction-sjm2024/Shu/`,
 cross-checked in `d4_crosscheck.py`) and the literature brought in as evidence.
 
 **The question this document answers** (posed 2026-08-27): is "k-means clustering with a penalty
@@ -11,7 +11,7 @@ analogy? Method: line-by-line translation of the implementation into notation, d
 statistical interpretation from published theorems, two independent literature sweeps (one
 instructed specifically to find evidence the characterization is wrong), and six computational
 experiments run against the repository's own functions
-(`jm_math_audit.py` at the repository root, results reproduced in §H).
+(`closed-research/reproduction-sjm2024/jm_math_audit.py`, results reproduced in §H).
 
 ## A. Exact objective, as implemented
 
@@ -22,10 +22,10 @@ L(s, theta) = sum_{t=1..T} ||x_t - theta_{s_t}||^2  +  lambda * #{t >= 2 : s_t !
 minimized jointly over the state path `s in {0..K-1}^T` and the centroids
 `theta = (theta_0..theta_{K-1})`, each `theta_k in R^d`. No `1/T`, no `1/2`, no dimension
 normalization. This is not a paraphrase: `fit_jump_model` computes exactly this number at
-`src/jumpmodel.py:119-123` and selects across restarts on it.
+`closed-research/reproduction-sjm2024/jumpmodel.py:119-123` and selects across restarts on it.
 
 **Convention warning (D5 in the findings doc).** The paper and the authors' package put a `1/2`
-on the fit term (`src/Shu/jump.py:206`), so `lambda_ours = 2 * lambda_package`. The production
+on the fit term (`closed-research/reproduction-sjm2024/Shu/jump.py:206`), so `lambda_ours = 2 * lambda_package`. The production
 run's `lambda = 50` is the paper's `lambda = 25`. Verified exactly, at every lambda tried, in
 `d4_crosscheck.py` (28 checks; the objective relation `val_pkg = ours/2` among them). The wider
 literature is split on the same factor — Bemporad et al.'s eq. (6) and the Shu papers carry the
@@ -37,7 +37,7 @@ unscaled (`||.||^2`) convention unless labelled "paper units".
 
 | symbol | meaning | production value |
 |---|---|---|
-| `x_t` | feature vector at day t | 3 features: EWM downside deviation (HL 10d), EWM Sortino (HL 20d, 60d), on excess returns (`src/sjm_features.py`) |
+| `x_t` | feature vector at day t | 3 features: EWM downside deviation (HL 10d), EWM Sortino (HL 20d, 60d), on excess returns (`closed-research/reproduction-sjm2024/sjm_features.py`) |
 | `T` | training window length | 3000 trading days |
 | `K` | number of states | 2 |
 | `theta_k` | centroid of state k | learned |
@@ -52,7 +52,7 @@ which is what gives lambda a stable meaning across refits — §F3.
 
 Every term of §A, pointed at its line:
 
-1. **Fit term.** `_squared_distances` (`src/jumpmodel.py:6-8`) is `D(t,k) = ||x_t - theta_k||^2`.
+1. **Fit term.** `_squared_distances` (`closed-research/reproduction-sjm2024/jumpmodel.py:6-8`) is `D(t,k) = ||x_t - theta_k||^2`.
 2. **Penalty term.** `viterbi_path` (`:11-41`) minimizes `sum_t D(t, s_t) + lambda * #switches`
    over paths by dynamic programming:
    `V(t,k) = D(t,k) + min(V(t-1,k), lambda + min_j V(t-1,j))` — the O(T*K) collapse of the
@@ -65,7 +65,7 @@ Every term of §A, pointed at its line:
 4. **Restarts.** 10 k-means++ seedings (`:62-72`), best objective kept (`:124-125`).
 5. **Empty clusters.** Reseeded to the worst-explained point (`:115-117`). The authors' package
    instead turns an empty cluster's loss column to `+inf`, making it permanently unreachable
-   (`src/Shu/jump.py:123`, docstring `:91-92`) — a silent collapse to K-1 states. A real
+   (`closed-research/reproduction-sjm2024/Shu/jump.py:123`, docstring `:91-92`) — a silent collapse to K-1 states. A real
    behavioral divergence between the two implementations; it never bit on the cross-checked
    data (label agreement 1.0000, `d4_crosscheck.py`).
 6. **Online rule.** `online_states` (`:140-153`): label at t is `argmin_k V(t,k)` from a forward
@@ -202,9 +202,9 @@ continuous jump model (simplex-valued states, `(L1/2)^2` transition cost, a mode
 is ON by default in the package), the sparse jump model (Witten-Tibshirani feature weights), and
 the fuzzy variant. They share the package, not the audited objective.
 
-## H. Synthetic validation — six experiments against `src/jumpmodel.py`
+## H. Synthetic validation — six experiments against `closed-research/reproduction-sjm2024/jumpmodel.py`
 
-Script: `jm_math_audit.py` (repository root; the follow-up checks are its final section), 2026-08-27.
+Script: `closed-research/reproduction-sjm2024/jm_math_audit.py` (the follow-up checks are its final section), 2026-08-27.
 
 1. **Exactness.** 200 random instances (T in [2,8], K in [2,3]): `viterbi_path` value equals
    brute-force enumeration, 0 mismatches. 100 instances, every prefix: forward value matrix
@@ -293,4 +293,4 @@ question does.
 
 - [[docs/REPRO-SJM2024-FINDINGS]] — D1-D8 and the preregistered inference run this model serves
 - [[docs/MATH-REFERENCE]] — the path functionals the comparisons are scored on
-- `checks.py` (jump-model block) · `d4_crosscheck.py` — the machine-checked verification record
+- `closed-research/reproduction-sjm2024/checks.py` (jump-model block) · `closed-research/reproduction-sjm2024/d4_crosscheck.py` — the machine-checked verification record

@@ -126,7 +126,7 @@ the same shape as the closed intervention programme's n=1 benefit side.
 ## The lambda convention — D4's one correction (2026-08-24)
 
 The authors' package computes the per-observation loss as `0.5 * ||x - theta||^2`
-(`jumpmodels/jump.py`, `do_E_step`); `src/jumpmodel.py` uses `||x - theta||^2`. Minimising
+(`jumpmodels/jump.py`, `do_E_step`); `closed-research/reproduction-sjm2024/jumpmodel.py` uses `||x - theta||^2`. Minimising
 `0.5*D + lam*J` is minimising `D + 2*lam*J`, so **a lambda here is worth half its face value in the
 package's units**: `lambda_ours = 2 * lambda_package`. Verified exactly in `d4_crosscheck.py` — at the
 matched penalty the two implementations return identical paths, identical online states, and objectives
@@ -300,7 +300,7 @@ advantage does not. Full table pending a rerun; the summary rows above are all t
 | D7 | no feature clipping; the authors' `jumpmodels` package (`preprocess.py::DataClipperStd`) winsorizes each feature to `mean ± 3*std` of the training window (population std) before scaling — this is source-code fidelity, absent from the paper's text entirely | open — not yet run at any lambda, including the D1 CV run above; a plausible partial explanation for the residual Sharpe gap independent of D1 |
 | D8 | fresh k-means++ restarts every 126-day refit block (`seed=0`, no memory of the prior block); the authors' `BaseClusteringAlgo.init_centers()` (`base.py`) appends the previous block's fitted `centers_` as an 11th k-means++ candidate on every refit | open — interacts with the documented local-optimum fragility (lambda_ours=30 landing in a 73%-bear local optimum, see "What D4 turned up" above): warm-starting could suppress spurious optimum-switching between adjacent blocks independently of lambda, so part of the switches/yr and persistence gap may not be a lambda-selection effect at all |
 
-**Source note:** D7 and D8 came from reading the authors' actual `jumpmodels` package source (`src/Shu/preprocess.py`, `src/Shu/base.py`, `src/Shu/jump.py` — supplied 2026-08-25), not from the paper's text. The paper under-specifies the implementation on both counts; reproducing what the authors' code actually does, rather than only what their prose describes, is the standard [[CLAUDE]] standing requirement 5 asks for.
+**Source note:** D7 and D8 came from reading the authors' actual `jumpmodels` package source (`closed-research/reproduction-sjm2024/Shu/preprocess.py`, `closed-research/reproduction-sjm2024/Shu/base.py`, `closed-research/reproduction-sjm2024/Shu/jump.py` — supplied 2026-08-25), not from the paper's text. The paper under-specifies the implementation on both counts; reproducing what the authors' code actually does, rather than only what their prose describes, is the standard [[CLAUDE]] standing requirement 5 asks for.
 
 **Confirmed against the authors' public repo directly** (`github.com/Yizhan-Oliver-Shu/jump-models`, `examples/nasdaq/example.py`, read 2026-08-25 — a package usage demo on the Nasdaq-100, not the paper's own S&P 500 study code, which is not in this repo):
 
@@ -860,4 +860,4 @@ preregistration is unamended by this.
 - [[docs/PROBLEM-MAP]] §0.9 — the diagnostic this run confirmed · [[PARKED]] §4 — F9, the constraint
 - [[docs/POINT-IN-TIME-DISCIPLINE]] — leak row 11 (report the whole CDaR curve), and the selection-on-outcome
   clause that D1 tests · [[docs/RESEARCH-PROTOCOL]] §0.1 — no magnitude without identification
-- Code: `src/jumpmodel.py`, `src/sjm_features.py`, `repro_sjm2024.py`. Figure: `figures/sjm2024_gspc.png`
+- Code: `closed-research/reproduction-sjm2024/jumpmodel.py`, `closed-research/reproduction-sjm2024/sjm_features.py`, `repro_sjm2024.py`. Figure: `figures/sjm2024_gspc.png`

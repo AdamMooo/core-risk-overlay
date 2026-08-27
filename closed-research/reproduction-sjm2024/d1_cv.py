@@ -31,7 +31,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).parent))
 
 from repro_sjm2024 import (
     COST_ONE_WAY,
@@ -45,15 +45,15 @@ from repro_sjm2024 import (
     load_prices,
     load_riskfree,
 )
-from src.jumpmodel import fit_jump_model, online_states, order_states_by
-from src.pathfunctionals import cdar_curve
-from src.sjm_features import DOWNSIDE_FEATURE, build_features
+from jumpmodel import fit_jump_model, online_states, order_states_by
+from pathfunctionals import cdar_curve
+from sjm_features import DOWNSIDE_FEATURE, build_features
 
 PAPER_GRID = (0.0, 5.0, 15.0, 35.0, 70.0, 150.0)
 OUR_GRID = tuple(2.0 * lam for lam in PAPER_GRID)
 VALIDATION_DAYS = 8 * TRADING_DAYS
 SELECT_EVERY = 21
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 
 
 def signals_for_grid(features: pd.DataFrame, returns: pd.Series, naming: str = "dd"):
