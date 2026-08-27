@@ -1,6 +1,6 @@
 # Reproduction findings — Shu, Yu & Mulvey (2024), statistical jump model
 
-Last updated: 2026-08-24. **STATUS: IN PROGRESS AND PROVISIONAL.** No charter, no programme. This
+Last updated: 2026-08-26. **STATUS: IN PROGRESS AND PROVISIONAL.** No charter, no programme. This
 records what has run so it is not lost, not what has been established.
 
 **D4 is discharged (2026-08-24), with one correction it surfaced — the lambda convention (below).**
@@ -120,7 +120,7 @@ return and true only on path.** Both halves must be said together.
 The entire edge is the 2000s (+8.3pp/yr against buy-and-hold), which is dot-com plus the GFC — the two
 episodes where per-episode depth was 0.0% and 5.0%. In every other decade it loses, and in the 1990s it
 loses by 9.3pp/yr. **Effective n on the thing that generates the result is two episodes**, which is the
-same wall as [[systemic-events-are-too-rare-to-calibrate]] and the same shape as the closed intervention
+same systemic-events-too-rare-to-calibrate wall, and the same shape as the closed intervention
 programme's n=1 benefit side.
 
 ## The lambda convention — D4's one correction (2026-08-24)

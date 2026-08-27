@@ -183,5 +183,6 @@ against a rolled-put overlay and a monetisation rule, and both are preserved at
 
 - [[docs/RESEARCH-PROTOCOL]] — the gate · [[docs/POINT-IN-TIME-DISCIPLINE]] — rows 9-13 govern the
   knobs above · [[docs/REPRO-SJM2024-FINDINGS]] — where §3 is currently load-bearing
+- [[docs/MATH-AUDIT-JUMPMODEL]] — the jump model's mathematics, audited 2026-08-27
 - [[closed-research/intervention/MATH-INTERVENTION]] — §1, §6 and §7, moved 2026-08-26
 - [[closed-research/docs/MATH-REFERENCE]] — the prediction programme's mathematics, intact

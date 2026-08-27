@@ -11,7 +11,7 @@ analogy? Method: line-by-line translation of the implementation into notation, d
 statistical interpretation from published theorems, two independent literature sweeps (one
 instructed specifically to find evidence the characterization is wrong), and six computational
 experiments run against the repository's own functions
-(`scratchpad jm_math_audit.py`, results reproduced in §H).
+(`jm_math_audit.py` at the repository root, results reproduced in §H).
 
 ## A. Exact objective, as implemented
 
@@ -204,7 +204,7 @@ the fuzzy variant. They share the package, not the audited objective.
 
 ## H. Synthetic validation — six experiments against `src/jumpmodel.py`
 
-Script: session scratchpad `jm_math_audit.py` + `jm_audit_followup.py`, 2026-08-27.
+Script: `jm_math_audit.py` (repository root; the follow-up checks are its final section), 2026-08-27.
 
 1. **Exactness.** 200 random instances (T in [2,8], K in [2,3]): `viterbi_path` value equals
    brute-force enumeration, 0 mismatches. 100 instances, every prefix: forward value matrix

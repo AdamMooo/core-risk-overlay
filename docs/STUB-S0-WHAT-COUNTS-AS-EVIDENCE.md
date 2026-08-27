@@ -325,7 +325,7 @@ false negative that looks exactly like a real one.
 
 ## Results
 
-**RAN 2026-08-18.** `states/s0_discriminating_functional.py`, seed 20260818, 400 replications per
+**RAN 2026-08-18.** `closed-research/return-states/s0_discriminating_functional.py` (at `states/` pre-archive), seed 20260818, 400 replications per
 class per cell, 18 cells, all feasible. No market data. Full console output reproduced by re-running
 the module.
 

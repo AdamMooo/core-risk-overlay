@@ -347,7 +347,7 @@ zero. If it does not, the run is void** — not interesting.
 
 ## Results
 
-**RAN 2026-08-19.** `states/s0b_discreteness_gate.py`, seed 20260819, 400 replications per class per
+**RAN 2026-08-19.** `closed-research/return-states/s0b_discreteness_gate.py` (at `states/` pre-archive), seed 20260819, 400 replications per class per
 cell, 18 cells. No market data.
 
 > # THE RUN IS VOID.

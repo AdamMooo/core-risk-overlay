@@ -1,6 +1,6 @@
 # Core-Risk-Overlay
 
-Last updated: 2026-08-25
+Last updated: 2026-08-27
 
 > # A RESEARCH LABORATORY FOR SYSTEMATIC MARKET AND PORTFOLIO RISK.
 >
@@ -30,6 +30,8 @@ real-world risk question -> literature -> mechanism -> observable data
   document; `src/pathfunctionals.py` implements it and every published CDaR number obeys it
 - **What is identified under the null:** [[docs/IDENTIFICATION-UNDER-N1]] · **why Q1 is not licensed
   and what replaces it:** [[docs/DECISION-Q1-CLAIM]]
+- **The jump model's mathematics, audited — what the estimator is and what lambda means:**
+  [[docs/MATH-AUDIT-JUMPMODEL]]
 - **Evidence base from the closed programs, frozen:** [[docs/PROBLEM-MAP]]
 - **Deliberately excluded, including the hedging mandate:** [[PARKED]] · **Chronological log:**
   [[core-risk-overlay]]
@@ -134,20 +136,25 @@ designed** — [[CHARTER]] §8.
 | `src/data_loader.py` | working — daily and weekly returns, VIX, start-date invariant, explicit calendar |
 | `src/pathfunctionals.py` | working — drawdown process, excursions with censoring, CDaR curve, time under water. Retained because drawdown geometry is a **candidate state characteristic**, not because it was an objective |
 | `src/manifest.py` | working — the data cache's sha256 manifest. `data/` is gitignored and two caches are derived artifacts, so `data/MANIFEST.md` is what makes "the archives reproduce" checkable rather than asserted |
-| `closed-research/return-states/` | return-state programme — 140 checks passing, S0b verified to reproduce after the archive move (control `d' = 7.416`) |
+| `closed-research/return-states/` | return-state programme — 180 checks passing, S0b verified to reproduce after the archive move (control `d' = 7.416`) |
 | `src/jumpmodel.py`, `src/sjm_features.py`, `repro_sjm2024.py` | **reproduction in progress, verified** — Shu-Yu-Mulvey (2024) rebuilt with the reactive incumbents the paper omits. Findings and the open list: [[docs/REPRO-SJM2024-FINDINGS]]. **D4 discharged 2026-08-24** — brute-force DP enumeration, synthetic known-state recovery, exact equivalence with the authors' package; surfaced the lambda convention (a lambda here = half its paper-units face value) |
 | `d1_cv.py` | the D1/D6 run — the paper's monthly CV lambda selector on the full paper grid, both naming rules, preregistered and scored in [[docs/REPRO-SJM2024-FINDINGS]] |
 | `volthreshold.py` | the preregistered volatility-band incumbent — the cheapest falsification of the reproduction's result, scored against Y1–Y3 in [[docs/REPRO-SJM2024-FINDINGS]] |
 | `screen0.py` | Screen 0 of [[docs/ASSESSMENT-PRESENT-STATE-RISK]] — the six-coordinate redundancy/disagreement map, preregistered in its §7b |
 | `src/Shu/` | **reference copy, never imported** — three modules of the authors' `jumpmodels` package (github.com/Yizhan-Oliver-Shu/jump-models), retained as the source for fidelity items D5/D7/D8. The live cross-check (`d4_crosscheck.py`) imports the pip-installed package, not this copy |
 | `src/caching.py` | shared disk-cache helper used by `repro_sjm2024.py` and `screen0.py` |
-| `checks.py` | 51 checks, all passing — the two retained modules, the data manifest, and since D4 the reproduction modules. `d4_crosscheck.py` (28 checks) holds the leg needing the authors' `jumpmodels` package. **The three closed programmes carry their own suites, frozen with the code they guard** |
+| `src/ledoitwolf.py` | working — the four Ledoit-Wolf (2008) contracts for the shallow-half inference: delta-method gradient, block-structure Psi, circular block resampler, studentized test. Contract-checked in `checks.py` |
+| `inference.py` | the shallow half of the preregistered inference run — Sharpe and pain intervals against the declared equivalence margins; Z1/Z2 scored 2026-08-26 |
+| `deeptail_mc.py` | the deep half — parametric Monte Carlo under the three preregistered nulls (N1 GARCH-t, N2 Markov-switching, N3 i.i.d. resampling); Z0 scored, N1/N2 owed |
+| `jm_math_audit.py` | the six synthetic experiments behind [[docs/MATH-AUDIT-JUMPMODEL]] §H, preserved for reproducibility |
+| `checks.py` | 72 checks — the two retained modules, the data manifest, since D4 the reproduction modules, and since 2026-08-26 the Ledoit-Wolf contracts. The manifest-hash check is red by design mid-run, until `data/MANIFEST.md` is regenerated at the inference run's close. `d4_crosscheck.py` (28 checks) holds the leg needing the authors' `jumpmodels` package. **The three closed programmes carry their own suites, frozen with the code they guard** |
 | `closed-research/` | prediction program — 81 checks passing, D3 and F2 verified reproducible |
 | `closed-research/intervention/` | rolled-put program — 17 checks passing, E0 verified reproducible after the archive move |
 
 **There is no queue.** `src/data_loader.py`, `src/pathfunctionals.py` and `src/manifest.py` are
 retained because they are correct and general, not because anything is planned. **Nothing here is
-waiting to be run.**
+waiting to be run** except the one preregistered run in flight — N1/N2 of the deep-tail inference
+([[docs/REPRO-SJM2024-FINDINGS]], "The run"), whose Z3/Z4 verdicts close the reproduction thread.
 
 ## 6. What counts as a result
 
