@@ -20,7 +20,10 @@ crosses.
   pain, CDaR(25%,50%)   same resampler, but PERCENTILE intervals -- they are not
                         smooth functions of means, so there is no delta-method
                         standard error to studentize with, and the interval is
-                        reported as the weaker object it is.
+                        reported as the weaker object it is. Computed on the NET
+                        wealth curve, the object every table in the findings and
+                        the deep half use and the margins were calibrated on
+                        (preregistration amendment 2, 2026-08-26).
 
 Block size is DECLARED, not calibrated: the grid is run in full, every p-value is
 reported, and the largest is the headline. Politis-White is printed as a
@@ -52,13 +55,13 @@ from repro_sjm2024 import (
     load_riskfree,
     run_jump_model,
 )
-from src.pathfunctionals import cdar
+from src.pathfunctionals import cdar, drawdown
 from src.sjm_features import build_features
 from volthreshold import JM_LAMBDAS_PAPER, PAIRS, threshold_signal
 
 BLOCK_GRID = (5, 10, 21, 42, 63, 126)
 N_BOOT = 4999
-N_BOOT_PERCENTILE = 999
+N_BOOT_PERCENTILE = 4999
 ALPHA = 0.05
 DELTA_SHARPE = 0.10
 DELTA_PAIN = 0.010
@@ -116,6 +119,10 @@ def build_nets(ticker: str, start: str, oos_start: str, refresh: bool) -> pd.Dat
 
 def excess(nets: pd.DataFrame, name: str) -> np.ndarray:
     return (nets[name] - nets["rf"]).to_numpy(dtype=float)
+
+
+def net_returns(nets: pd.DataFrame, name: str) -> np.ndarray:
+    return nets[name].to_numpy(dtype=float)
 
 
 def annual_sharpe(r: np.ndarray) -> float:
@@ -200,9 +207,12 @@ def report_sharpe(nets: pd.DataFrame, names: list[str]) -> None:
 
 
 def report_paths(nets: pd.DataFrame, names: list[str]) -> None:
-    r_jm = excess(nets, BENCHMARK)
+    # Net-curve functionals, and the hi < +delta direction for the pain margin:
+    # preregistration amendments 1 and 2 (2026-08-26), both deductive, both
+    # written before any interval from this half was read.
+    r_jm = net_returns(nets, BENCHMARK)
     print(f"\n{'='*78}\nSHALLOW PATH FUNCTIONALS -- percentile intervals, weaker by construction, "
-          f"M={N_BOOT_PERCENTILE}\n{'='*78}")
+          f"net curve, M={N_BOOT_PERCENTILE}\n{'='*78}")
     statistics = {"pain index": pain}
     for a in SHALLOW_ALPHAS:
         if a < 1.0:
@@ -211,7 +221,7 @@ def report_paths(nets: pd.DataFrame, names: list[str]) -> None:
     for label, statistic in statistics.items():
         print(f"\n{label}   {BENCHMARK}: {statistic(r_jm):.2%}")
         for name in names:
-            r_band = excess(nets, name)
+            r_band = net_returns(nets, name)
             table = percentile_test(r_band, r_jm, statistic, seed=20260826)
             widest = table.loc[(table["hi"] - table["lo"]).idxmax()]
             zero_in = bool(table["p_zero_in"].max() > 0)
@@ -219,8 +229,8 @@ def report_paths(nets: pd.DataFrame, names: list[str]) -> None:
                   f"widest 95% CI [{widest['lo']:+.2%}, {widest['hi']:+.2%}]   "
                   f"{'contains 0' if zero_in else 'excludes 0'}")
             if label == "pain index":
-                print(f"    Z2 equivalence at delta={DELTA_PAIN:.1%}: "
-                      f"{'YES' if (table['lo'] > -DELTA_PAIN).all() else 'NO'}")
+                print(f"    Z2 equivalence at delta={DELTA_PAIN:.1%} (band - JM below +delta): "
+                      f"{'YES' if (table['hi'] < DELTA_PAIN).all() else 'NO'}")
 
 
 def report_episodes(nets: pd.DataFrame, names: list[str]) -> None:
@@ -244,10 +254,26 @@ def report_episodes(nets: pd.DataFrame, names: list[str]) -> None:
             print("-" * len(header))
         cells = []
         for name in columns:
-            r = excess(trimmed, name)
-            cells.append(f"{annual_sharpe(r):>10.2f}{pain(r):>12.2%}")
+            cells.append(f"{annual_sharpe(excess(trimmed, name)):>10.2f}"
+                         f"{pain(net_returns(trimmed, name)):>12.2%}")
         print(f"{label:<16s}" + "".join(cells))
-    print("                    (Sharpe, pain index) per rule")
+    print("                    (Sharpe on excess, pain index on the net curve) per rule")
+
+    print("\nDeep-tail gaps, JM minus band on the net curve (positive = the JM ran deeper).")
+    print("Z5 is read here and only here; descriptive, no interval attaches:")
+    for label, windows in {"full sample": (), **LEAVE_OUT}.items():
+        keep = pd.Series(True, index=nets.index)
+        for lo, hi in windows:
+            keep &= ~((nets.index >= pd.Timestamp(lo)) & (nets.index <= pd.Timestamp(hi)))
+        trimmed = nets[keep]
+        jm_curve = wealth(net_returns(trimmed, BENCHMARK))
+        for name in names:
+            band_curve = wealth(net_returns(trimmed, name))
+            c1 = float(cdar(jm_curve, 0.01)) - float(cdar(band_curve, 0.01))
+            c5 = float(cdar(jm_curve, 0.05)) - float(cdar(band_curve, 0.05))
+            dd = float(drawdown(jm_curve).max()) - float(drawdown(band_curve).max())
+            print(f"  {label:<14s}{name:<20s}cdar1% {c1:+8.2%}   cdar5% {c5:+8.2%}   "
+                  f"maxdd {dd:+8.2%}")
 
 
 def main() -> int:

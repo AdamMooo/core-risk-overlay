@@ -681,7 +681,7 @@ episodes. It runs whatever the inference says.
 |---|---|---|---|
 | **Z0** | ~~N3's gap distribution centres on zero~~ **amended below, before the run**: each N3 gap's sign agrees with its exposure difference, the rule holding cash more often showing the shallower tail | i.i.d. returns contain nothing either rule can act on, so a gap can only be exposure | a sign contradicting its exposure difference means the pipeline manufactures a gap; **the run is void** and nothing below is read |
 | **Z1** | the Sharpe difference between the best band (75,55) and the jump model is **not** distinguishable from zero at any block size on the grid | 0.44 vs 0.44 on the paper window; the difference is a rounding artefact | if a Sharpe difference *is* distinguishable, the reproduction has a return-margin finding it had declared out of scope — record it, do not chase it |
-| **Z2** | the band's Sharpe interval lies above `-0.10` and its pain interval above `-1.0pp` against the JM: **equivalence established** on the shallow half | Y1's point estimates favour the band outright | if the interval reaches below the margin, Y1 weakens from "matches or beats" to "not shown to be worse", and the summary line must say so |
+| **Z2** | the band's Sharpe interval lies above `-0.10` and ~~its pain interval above `-1.0pp`~~ (**sign-amended below, after the audit and before any interval was read**: its pain interval below `+1.0pp`) against the JM: **equivalence established** on the shallow half | Y1's point estimates favour the band outright | if the interval reaches below the margin, Y1 weakens from "matches or beats" to "not shown to be worse", and the summary line must say so |
 | **Z3** | the observed deep-tail gaps (0.7 / 0.5pp at 1% / 5%, 2.5pp MaxDD) fall **inside** N1's null distribution — **not distinguishable** | two episodes; field 2 | if outside under N1 **and** the intersection–union test rejects for all three bands, the residual stands and **D8 is unpicked next** as the leading artefact explanation |
 | **Z4** | under N2, where regimes are real by construction, the JM's deep-tail edge is **also** wide and overlapping zero | the same two-episode arithmetic applies to a simulated path of the same length | if N2's edge is sharp while the observed gap is small relative to it, that is evidence **against** the paper's premise on this sample rather than mere absence of evidence — a stronger closure, and it must be reported as the stronger claim it is |
 | **Z5** | the deep-tail ordering is not robust to leave-one-episode-out — dropping either episode moves it materially or flips it | it is a two-observation statistic | if the ordering *is* stable to dropping either episode, that is the one descriptive result that would make the residual worth attributing, and it raises D8's priority |
@@ -728,6 +728,48 @@ is therefore substantially an exposure comparison whatever the inference returns
 that way or not at all. Exposure-matching the comparison is **not** done here: it would be a new
 design choice made after a preregistration was committed, and the honest move is to report the
 confound rather than to engineer it away mid-run. It is recorded as an open item.
+
+### Amendments after the implementation audit — written 2026-08-26, before any shallow-half interval was read
+
+**Provenance.** An independent adversarial audit of the implementation — against the Ledoit–Wolf
+paper and against this preregistration — returned four findings after the first execution of
+`inference.py` had completed but before its output was read. The path-functional half of that
+output was renamed unread (`data/inference.superseded.log`); the corrections below are all
+deductive, none was prompted by a number, and each would hold on any data. The audit's verification
+of the mathematics itself — gradient, pivot, per-resample studentization, Eq. (9), Eq. (7), the
+block-structure `Psi*`, paired circular resampling, the HAC recipe — returned **zero defects**.
+
+**1. The pain margin was written on the wrong side, and the code transcribed the error faithfully.**
+Z2's clause "its pain interval above −1.0pp" is the Sharpe test's geometry applied to a functional
+whose direction is reversed. Pain is a drawdown object — positive, larger is worse — so *the band is
+not materially worse than the jump model* means `band − JM < +1.0pp`: the interval must lie entirely
+**below +delta**, not above −delta. As written, the test bounded how much *better* the band could
+be: an interval of [+0.2pp, +1.8pp] (band worse, past the margin) would have printed YES, and an
+interval reaching below −1.0pp (band much better) would have printed NO. The clause is amended to
+`hi < +1.0pp`. The margin's magnitude is unchanged. One clause was drafted for two functionals and
+was sign-valid only for Sharpe.
+
+**2. The shallow path functionals are computed on the net wealth curve — the object the margins
+were calibrated on.** The first implementation built pain and CDaR from the excess-return wealth
+curve. Every table in this document, and the deep half of this same run, computes them on the net
+curve (`cumprod(1 + net)`); the excess versions are 1.5–2× larger, and the inflation scales with
+time-in-cash, so it does not cancel in `band − JM` across bands of different exposure. A margin
+calibrated on net-curve numbers is meaningless against excess-curve ones. Corrected to the net
+curve. The Sharpe half is untouched — excess returns are the Ledoit–Wolf input by definition (their
+section 2).
+
+**3. M = 4999 for the percentile intervals too.** The preregistration declares M = 4999 and gives
+the path functionals "the same circular block bootstrap"; the implementation ran 999. No bias, only
+interval-endpoint noise — restored to the declared number regardless.
+
+**4. Leave-one-episode-out is completed to the whole comparison table.** The declared display
+recomputes "the whole comparison table", and Z5 reads the deep-tail ordering under episode-dropping;
+the implementation recomputed only Sharpe and pain, leaving Z5 nothing to be read from. The deep
+functionals — CDaR(1%), CDaR(5%), MaxDD as `JM − band` gaps on the net curve — are added to the
+display, descriptive as declared.
+
+**Not touched:** the Sharpe test in every particular (direction, grid, M, max-p headline, HAC,
+seeds), the deep half wholesale, alpha, and both margins' magnitudes.
 
 ### What may be said afterwards, and what may not
 
