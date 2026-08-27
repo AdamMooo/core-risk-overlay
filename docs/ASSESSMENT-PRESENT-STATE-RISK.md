@@ -1,6 +1,6 @@
 # Assessment — present-state risk description: which public coordinates say something distinct about the risk the book is carrying *now*?
 
-Last updated: 2026-08-25. **STATUS: PROPOSAL. Not a charter, not a programme, not a queue.** The written
+Last updated: 2026-08-27. **STATUS: PROPOSAL. Not a charter, not a programme, not a queue.** The written
 assessment [[CLAUDE]] §6 and [[docs/RESEARCH-PROTOCOL]] P11/P13 require before a programme may be argued.
 Nothing here authorises a run beyond Screen 0 and Screen 1, both preregistered below.
 
