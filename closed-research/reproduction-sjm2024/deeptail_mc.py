@@ -66,7 +66,7 @@ import pandas as pd
 from scipy.optimize import minimize
 from scipy.special import gammaln
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).parent))
 
 from repro_sjm2024 import (
     CACHE,
@@ -79,8 +79,8 @@ from repro_sjm2024 import (
     load_riskfree,
     run_jump_model,
 )
-from src.pathfunctionals import cdar, drawdown
-from src.sjm_features import build_features
+from pathfunctionals import cdar, drawdown
+from sjm_features import build_features
 from volthreshold import PAIRS, threshold_signal
 
 DEEP_ALPHAS = (0.01, 0.05)

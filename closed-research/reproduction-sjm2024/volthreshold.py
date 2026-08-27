@@ -26,7 +26,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).parent))
 
 from repro_sjm2024 import (
     REFIT_DAYS,
@@ -39,13 +39,12 @@ from repro_sjm2024 import (
     load_riskfree,
     run_jump_model,
 )
-from src.pathfunctionals import cdar_curve, time_under_water
-from src.sjm_features import build_features
+from pathfunctionals import cdar_curve, time_under_water
+from sjm_features import build_features
 
 PAIRS = ((80, 60), (75, 55), (85, 65))
 JM_LAMBDAS_PAPER = (25.0, 35.0)
 CDAR_ALPHAS = (0.01, 0.05, 0.10, 0.25, 0.50, 1.00)
-ROOT = Path(__file__).resolve().parent
 
 
 def threshold_signal(rv: pd.Series, oos_index: pd.DatetimeIndex,

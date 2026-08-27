@@ -20,10 +20,10 @@ program that no longer runs.
 - [[docs/POINT-IN-TIME-DISCIPLINE]] — time basis and leak register
 - [[PARKED]] — deliberately excluded, each with its unparking condition
 
-**In flight — the SJM reproduction (Thread A; a reproduction, not a programme):**
+**Closed 2026-08-27 — the SJM reproduction (Thread A; a reproduction, not a programme):**
 
-- [[docs/REPRO-SJM2024-FINDINGS]] — findings, fidelity audit, and the preregistered inference run.
-  **Z3/Z4 are the only open verdicts**
+- [[docs/REPRO-SJM2024-FINDINGS]] — findings, fidelity audit, and the completed inference run with
+  its Z0–Z5 verdicts. Code archived at `closed-research/reproduction-sjm2024/` (35+28 frozen checks)
 - [[docs/MATH-AUDIT-JUMPMODEL]] — what the estimator is, exactly, and what lambda means
 - [[docs/MATH-REFERENCE]] — live conventions: the drawdown process and the CDaR family
 
@@ -44,6 +44,33 @@ program that no longer runs.
 - [[docs/PROBLEM-MAP]] — the frozen evidence and lessons of all three
 - [[closed-research/HUB-RECORD]] — this file's pre-closure working record 2026-08-12 → 2026-08-18,
   moved verbatim 2026-08-27
+
+## Status — 2026-08-27, twelfth entry: THREAD A CLOSES — Z3 INSIDE ON ALL NINE, Z4 WIDE — NO POWER EVEN WITH REGIMES REAL, THE REPRODUCTION IS ARCHIVED
+
+> **N2 completed on its fourth launch** (detached 13:28 → 15:40; 200 paths, 7,735s on 12
+> workers), the CSV at 200/200/200 with the two stale rows replaced by the resume-safe writer as
+> designed. Integrity ran on two independent routes before anything was read: the N1 table
+> reproduced from the raw rows, seed sets exact, observed gaps byte-identical to `inference.log`,
+> null fits unchanged.
+>
+> **Z3 CONFIRMED as preregistered.** All nine band × statistic comparisons inside N1's 95%
+> intervals; the IUT never armed (max percentile 40.5%); the (85,65) family quoted only as the
+> 10pp-exposure comparison the Z0 amendment requires. The licensed sentence, and only it: the
+> observed deep-tail gaps are *indistinguishable from what two rules of these exposures do to each
+> other on a clustered path*, on 34 years of daily ^GSPC at these functionals.
+>
+> **Z4, read under the pre-read amendment** (commit 5cd0abf, written and committed while N2 still
+> ran: width not zero-crossing, the scoped power sentence not the universal, the N2 verdict column
+> declared unread): under the fitted regime-true world the deep-tail gap distributions are 39–45pp wide — the same width clustering alone produces under N1 (38–43pp) — so the comparison has no power to detect a regime-driven edge at this sample length even when the jump model's premise is true by construction. The scoped sentence, not the preregistration's universal; no magnitude quoted.
+>
+> **D8 stays retired** — Z5's episode-stability for the two tight bands is recorded as the
+> descriptive fact it is, not an identification; the unpicking condition (a real residual under N1)
+> did not arrive. D2, HMM and D7 stay retired with it. **Thread A is closed.** The code is archived
+> at `closed-research/reproduction-sjm2024/` on the three-precedent convention (own README, 35
+> frozen checks + 28 package cross-checks, frozen copies of the shared modules); root `checks.py`
+> drops to 37; eight dead run logs deleted and the manifest regenerated. The findings doc carries
+> the run section, the final summary line, and four conceded audit notes. Thread B
+> ([[docs/ASSESSMENT-PRESENT-STATE-RISK]]) is untouched and is the only live proposal.
 
 ## Status — 2026-08-27, eleventh entry: THE DEEP CLEAN — ONE ARCHIVE PER PROGRAMME, THE HUB IS A HUB AGAIN, AND N2 IS ON ITS FOURTH LAUNCH
 

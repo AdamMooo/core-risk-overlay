@@ -36,13 +36,13 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).parent))
 
-from src.caching import cached_series
-from src.data_loader import download_daily_prices
-from src.jumpmodel import fit_jump_model, online_states, order_states_by
-from src.pathfunctionals import cdar_curve, depth_in_window, time_under_water
-from src.sjm_features import DOWNSIDE_FEATURE, build_features
+from caching import cached_series
+from data_loader import download_daily_prices
+from jumpmodel import fit_jump_model, online_states, order_states_by
+from pathfunctionals import cdar_curve, depth_in_window, time_under_water
+from sjm_features import DOWNSIDE_FEATURE, build_features
 
 TRAIN_DAYS = 3000
 REFIT_DAYS = 126
@@ -55,7 +55,7 @@ VOL_TARGET = 0.10
 VOL_WINDOW = 60
 CDAR_ALPHAS = (0.01, 0.05, 0.10, 0.25, 0.50, 1.00)
 UNDERWATER = (0.10, 0.20)
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 CACHE = ROOT / "data"
 
 EPISODES = {

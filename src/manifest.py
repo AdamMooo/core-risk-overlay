@@ -61,17 +61,9 @@ PROVENANCE = {
     "inference.err.log": "stderr of the same; empty on the clean run",
     "inference.superseded.log": "the first shallow-half execution's output, renamed UNREAD before the four audit amendments -- kept as the record that no interval was read pre-amendment",
     "inference.superseded.err.log": "stderr of the same; empty",
-    "deeptail_mc.N3.csv": "DERIVED. backup copy of the first execution's 200 N3 rows, taken 2026-08-26 before the resume-safe writer fix; superseded by deeptail_mc.csv",
-    "deeptail_nulls.backup.json": "backup of the two cached null fits, taken 2026-08-26 21:22 before the resume",
-    "deeptail_mc.N1.log": "run log, 2026-08-26 21:29 attempt; empty -- the process died before stdout flushed",
-    "deeptail_mc.N1.err.log": "stderr of the same; empty",
-    "deeptail_mc.resume.log": "run log, 2026-08-26 21:41 resume (--null N1 --null N2); empty -- died at session close before stdout flushed",
-    "deeptail_mc.resume.err.log": "stderr of the same; empty",
     "deeptail_mc.N1N2.log": "run log, 2026-08-27 detached relaunch: N1's 200 paths and scored table (5,490s, 12 workers); ends where the 12:34 reboot killed N2",
     "deeptail_mc.N1N2.err.log": "stderr of the same: seven pool-worker respawn failures (WinError 5) as the reboot tore down the parent",
-    "deeptail_mc.N2.log": "run log, 2026-08-27 12:43 relaunch (--null N2); empty -- died ~13:16 before stdout flushed, third terminal-tied death (the provenance line here originally claimed 200 paths; that was written ahead of the run and was wrong)",
-    "deeptail_mc.N2.err.log": "stderr of the same: one pool-worker spawn failure (WinError 5) as the parent vanished",
-    "deeptail_mc.N2retry.log": "run log, 2026-08-27 13:28 relaunch (--null N2), detached via Start-Process like the successful N1 run",
+    "deeptail_mc.N2retry.log": "run log, 2026-08-27 13:28 relaunch (--null N2), detached via Start-Process like the successful N1 run; N2's 200 paths and scored table",
     "deeptail_mc.N2retry.err.log": "stderr of the same",
 }
 

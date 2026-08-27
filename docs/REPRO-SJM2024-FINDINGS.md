@@ -1,6 +1,7 @@
 # Reproduction findings — Shu, Yu & Mulvey (2024), statistical jump model
 
-Last updated: 2026-08-26. **STATUS: IN PROGRESS AND PROVISIONAL.** No charter, no programme. This
+Last updated: 2026-08-27. **STATUS: CLOSED.** The reproduction is complete and archived at
+`closed-research/reproduction-sjm2024/`; the run section below carries the Z0–Z5 verdicts. No charter, no programme. This
 records what has run so it is not lost, not what has been established.
 
 **D4 is discharged (2026-08-24), with one correction it surfaced — the lambda convention (below).**
@@ -451,12 +452,15 @@ Verdicts:
   Sharpe dip, the lambda-30-ours local optimum on synthetic data). Neither family gives a stable rule
   for free; the JM's mid-grid is the more forgiving neighbourhood.
 
-**The reproduction's summary line, as it now stands (pending the rule-B rerun and the bootstrap):** the
-paper's jump-model strategy is, to within episode-level noise, **a persistence-regularised volatility
-threshold**. Its distinguishable residual is confined to the deepest quarter of the drawdown
-distribution and is smaller than 1pp of CDaR against the best of three preregistered two-parameter
-bands; whether even that survives inference is the bootstrap's question. What the machinery buys that
-the band does not is dial-robustness near its sweet spot — a legitimate, smaller claim than the paper's.
+**The reproduction's summary line, final (2026-08-27):** the paper's jump-model strategy is, to
+within episode-level noise, **a persistence-regularised volatility threshold**. On the shallow half
+of the drawdown distribution a two-parameter volatility band is not shown to be worse (Z1 held: no
+Sharpe difference distinguishable anywhere on the block grid; Z2 failed: 34 years cannot resolve a
+±0.10 Sharpe equivalence margin). On the deep tail the jump model's advantage is **not identified
+in magnitude** on 34 years of daily ^GSPC: the observed gaps sit inside the clustering null's
+distribution — indistinguishable from what two rules of these exposures do to each other on a
+clustered path — and the design has no power to detect a regime-driven edge at this length even under its own regime-true alternative (Z4, read as amended 2026-08-27). What the machinery buys that the band does not is
+dial-robustness near its sweet spot — a legitimate, smaller claim than the paper's.
 
 ## Open, in the order worth doing
 
@@ -473,9 +477,9 @@ the band does not is dial-robustness near its sweet spot — a legitimate, small
    Note the DAX (`^GDAXI`) is a performance index — total return by construction — so it is the one
    paper market replicable on public TR data at full length, and the Nikkei's decades-long grind is the
    one bear shape the US sample does not contain.
-6. **Inference.** Every ordering above is a point estimate with no interval — the paper reports none
-   either, confirmed. The CV-vs-fixed and JM-vs-incumbent orderings hang on a handful of episodes.
-   Nothing is claimed as distinguishable until a block bootstrap says so.
+6. ~~**Inference.**~~ — **done 2026-08-27**: the preregistered run below, complete. Shallow half
+   scored 2026-08-26 (Z1 held, Z2 failed); deep half scored 2026-08-27 (Z0 passed as amended, Z3
+   inside on all nine, Z4 read under the pre-read amendment). See "The run", the closing section.
 7. **Exposure-matching the comparison** — opened 2026-08-26 by the Z0 amendment. Every
    ordering between the jump model and a band is confounded by time in market (62% against
    62-73%), so no deep-tail difference between them is a clean measure of information. Not
@@ -814,15 +818,27 @@ seeds), the deep half wholesale, alpha, and both margins' magnitudes.
   differ that field 4 says this sample does not provide.
 - **The shallow-half verdict may not be carried to the deep half, or the reverse**, at any confidence.
 
-### The run — started 2026-08-26, INCOMPLETE. N3 scored, N1 and N2 not yet executed
+### The run — 2026-08-26 → 2026-08-27, COMPLETE. Z0–Z5 scored; the reproduction closes here
 
-**Status.** `deeptail_mc.py` completed **N3 (200 paths, 11:20–12:42)** and then stopped before N1
-produced a single path — the process was gone by 13:08 with no rows for N1 or N2 in
-`data/deeptail_mc.csv`. The cause is not diagnosed; the two null *fits* had already succeeded and are
-cached in `data/deeptail_nulls.json` (N1 GARCH(1,1)-t: alpha 0.0829, beta 0.9103, persistence 0.9932,
-nu 6.19, converged; N2 stay probabilities 0.989 / 0.964), so a resume re-fits nothing. **Nothing on
-the deep half is scored below except Z0**, and Z0 does not license reading Z3 or Z4 — it only permits
-them to be read once they exist.
+**Chronology, honest.** N3 ran 11:20–12:42 on 2026-08-26 and the process died before N1 produced a
+path (cause undiagnosed; both null fits had already succeeded and are cached in
+`data/deeptail_nulls.json` — N1 GARCH(1,1)-t: alpha 0.0829, beta 0.9103, persistence 0.9932, nu
+6.19, converged; N2 stay probabilities 0.989/0.964 — so no resume re-fit anything). The writer was
+made resume-safe (commit 6d7d897; plumbing, not design — see the closing paragraph). N1 completed
+on the 2026-08-27 detached relaunch (200 paths, 5,490s on 12 workers, `data/deeptail_mc.N1N2.log`);
+the same process was killed at N2 by the 12:34 reboot (`data/deeptail_mc.N1N2.err.log`). A
+terminal-tied 12:43 N2 relaunch died with its terminal ~13:16; the 13:28 relaunch ran detached via
+`Start-Process` and completed 15:40 (200 paths, 7,735s on 12 workers,
+`data/deeptail_mc.N2retry.log`). Final CSV: 200/200/200 paths, seeds 20260826–20261025 per null, no
+duplicate (null, seed) pairs, the two stale N2 rows from the 12:43 attempt replaced by the writer
+as designed.
+
+**Integrity, verified before anything below was read, on two independent routes.** The N1 scored
+table was reproduced independently from the raw CSV rows — all nine means, interval endpoints,
+percentiles and verdicts, to printed rounding. The N1/N3 seed sets verified exact and complete. The
+observed gaps confirmed byte-identical to the shallow half's independent record
+(`data/inference.log`, the Z5 full-sample rows). The cached null fits confirmed unchanged against
+the preregistered values. After N2 landed, the gate ran again: 200 N2 rows, the seed set exact and duplicate-free, N1/N3 row counts untouched, and the N2 log's observed-gap block byte-identical to the N1 run's.
 
 **Z0 — PASSES.** All 200 N3 paths produced finite gaps on all three bands, and every gap's sign
 agrees with its exposure difference: the jump model holds the market **less** than every band under
@@ -846,8 +862,103 @@ the fitted state carries nothing, and the rule collapses to holding cash for a t
 sample more than the bands do. This is a fact about the rule's behaviour on structureless data, not a
 defect in the harness, and N3 is a machinery check rather than the comparison null — but it means
 **N3's gap magnitudes are not a calibration for the observed ones** (−7 to −11pp against −0.70pp) and
-must not be read as one. The comparison null is N1, which preserves clustering and therefore
-self-calibrates the exposure confound; that is the run still owed.
+must not be read as one. The comparison null is N1, which preserves clustering and was designed to
+carry the exposure confound with it; that run follows.
+
+**Z3 — the observed gaps are inside N1, on all nine comparisons. CONFIRMED as preregistered.**
+
+```
+gap (JM minus band)                 observed  null mean  null 2.5% null 97.5%  pctile
+RV band (75,55)|cdar0.01              -0.70%      3.15%    -12.87%     27.22%   32.0%    inside
+RV band (75,55)|cdar0.05              -0.48%      3.54%     -9.94%     28.40%   31.0%    inside
+RV band (75,55)|maxdd                 -2.50%      2.80%    -14.11%     26.01%   26.0%    inside
+RV band (80,60)|cdar0.01              -1.44%      1.66%    -16.34%     22.68%   40.5%    inside
+RV band (80,60)|cdar0.05              -1.64%      2.39%    -13.49%     25.60%   30.5%    inside
+RV band (80,60)|maxdd                 -2.04%      0.97%    -19.02%     22.57%   39.5%    inside
+RV band (85,65)|cdar0.01             -14.07%      0.31%    -18.37%     24.68%    4.5%    inside
+RV band (85,65)|cdar0.05             -14.08%      1.27%    -14.89%     24.81%    3.0%    inside
+RV band (85,65)|maxdd                -12.51%     -0.57%    -18.87%     21.75%    8.5%    inside
+(timein rows are exposure, not verdicts: observed -2.41/-5.84/-11.96pp at the 94.0/95.5/96.0th
+percentile of N1's timein distributions)
+```
+
+The observed deep-tail gaps — all nine band × statistic comparisons — fall inside the fitted
+GARCH(1,1)-t null's 95% intervals: on 34 years of daily ^GSPC, at these functionals, they are
+indistinguishable from what two rules of these exposures do to each other on a clustered path. The
+deep-tail difference was declared unidentified in magnitude before the run (field 7) and nothing
+here revises that. The (85,65) rows sit at the 3.0–8.5th percentile — one to a few paths from the
+boundary at 200-path resolution — and that band's gap is substantially an exposure comparison (72%
+vs 62% time in market, the 10pp confound recorded before the run); it is quoted only as such. The
+failure branch never arms: nothing is OUTSIDE, and the intersection–union condition dies at the
+first band — the max percentile across bands is 40.5%, nowhere near either tail. Y2's "edge over
+every variant" is therefore not established as an inferential matter, and the sub-1pp point
+estimates it rested on remain point estimates.
+
+**Limitations of N1, recorded rather than argued away.** The fitted null is symmetric (no leverage
+term) while ^GSPC's volatility arrives asymmetrically in declines; its persistence is near-IGARCH
+(0.9932), which is part of why the null intervals are ±15–25pp wide against sub-3pp observed gaps —
+"inside" is partly a statement about interval width at two effective episodes (field 2). And the
+observed timein gaps sit at the 94–96th percentile of N1's timein distributions: the null world
+drives the two rules' exposures 2–10x further apart than the observed path does. N1 carries the
+exposure confound by construction, as designed; that it also over-disperses it is recorded, and
+"self-calibrates the confound" is kept as design intent, not asserted as demonstrated.
+
+**Z4 — read under the 2026-08-27 amendment: width, not zero-crossing; the scoped sentence, not the
+universal; the table's N2 verdict column unread.**
+
+```
+gap (JM minus band)                 observed  null mean  null 2.5% null 97.5%  pctile
+RV band (75,55)|cdar0.01              -0.70%     -3.50%    -26.35%     16.26%   57.0%
+RV band (75,55)|cdar0.05              -0.48%     -2.63%    -25.25%     14.11%   54.0%
+RV band (75,55)|maxdd                 -2.50%     -4.43%    -27.08%     13.73%   55.0%
+RV band (80,60)|cdar0.01              -1.44%     -5.35%    -27.70%     14.18%   62.5%
+RV band (80,60)|cdar0.05              -1.64%     -4.17%    -25.75%     13.96%   54.5%
+RV band (80,60)|maxdd                 -2.04%     -6.33%    -27.79%     13.62%   63.5%
+RV band (85,65)|cdar0.01             -14.07%     -7.95%    -32.82%     11.48%   26.5%
+RV band (85,65)|cdar0.05             -14.08%     -6.76%    -32.37%     10.97%   23.0%
+RV band (85,65)|maxdd                -12.51%     -8.90%    -31.64%     10.48%   34.0%
+(the run's printed inside/OUTSIDE column is omitted here BY the amendment -- N2 is a power check
+and its containment column is not read; timein rows are exposure: observed -2.41/-5.84/-11.96pp at
+the 97.0/98.0/97.0th percentile of N2's timein distributions)
+```
+
+Under the fitted 2-state Markov-switching Gaussian — the one world in this design where regimes
+are real by construction — 200 paths of the same length produce deep-tail gap distributions whose
+95% intervals are 39–45pp wide (e.g. (75,55) CDaR(1%): [−26.4%, +16.3%] around a −3.5% mean),
+comparable to N1's 38–43pp: **the comparison has no power to detect a regime-driven deep-tail edge
+between these two rules at this sample length, even when the regime structure the jump model
+presumes is present.** That is a statement about this fitted specification (~92/28-day sojourns,
+Gaussian within-state), this penalty, and this band family. Zero-crossing is not the criterion —
+exposure alone moves these gaps off zero: the N2 null means sit at −2.6 to −8.9pp with the same
+sign as the exposure difference, and the observed timein gaps sit at the 97–98th percentile of
+N2's timein distributions, the same over-dispersion N1 showed. Descriptively and not as a test:
+regimes-real adds essentially nothing to the width that clustering alone produces. **Z4 CONFIRMED
+as amended** — the scoped sentence, not the preregistration's universal: this design, under its own
+maintained alternative, could not have detected the edge. No claim is made about every regime
+process of this length, and no magnitude is quoted from any row above.
+
+**Z5 and the D8 disposition, resolved.** Z5's failure branch triggered on the shallow-half run: the
+(75,55)/(80,60) deep-tail gaps are episode-stable, the preregistered "one descriptive result that
+would make the residual worth attributing," raising D8's priority *conditionally*. The condition —
+inference finding the deep-tail residual real — did not arrive: Z3 is all-inside and the IUT never
+armed. **D8 stays retired**, with Z5's stability recorded beside it as the one descriptive fact
+that would have unpicked it, explicitly not an identification. D2, the HMM benchmark and D7 stay
+retired with it.
+
+**Four audit notes, recorded at closure as promised.** Three cosmetic, from the shallow-half
+session: the shrinkage helper takes an eigenvalue rather than singular-value decomposition on a
+branch no scored path reaches; "one-day execution lag" names a shift(2) applied identically to both
+rules on both halves (a naming defect, not an asymmetry); per-grid-row seed reuse in the shallow
+bootstrap is marginally harmless (identical draws across block sizes, which only smooths the max-p
+grid). A fourth, conceded from the pre-read adversarial review: the intersection–union test was
+described in the preregistration and adjudicated by hand from the per-band percentiles rather than
+computed as a statistic in code, and the scored table prints a one-sided percentile while alpha is
+declared two-sided — a drafting defect, moot on this data (no band is near either tail).
+
+**What may be said afterwards, obeyed.** No effect magnitude from the deep half; no sentence
+holding both a p-value and a portfolio judgement; the shallow verdicts (Z1 held, Z2 failed) not
+carried to the deep half nor the reverse; "not distinguishable" written with its functional and
+sample named.
 
 **Harness change made after the partial run, and it is plumbing rather than design.** The writer
 rebuilt `deeptail_mc.csv` from the current process's rows alone, so resuming with `--null N1 --null
