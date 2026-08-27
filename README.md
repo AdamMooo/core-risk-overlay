@@ -156,6 +156,12 @@ retained because they are correct and general, not because anything is planned. 
 waiting to be run** except the one preregistered run in flight — N1/N2 of the deep-tail inference
 ([[docs/REPRO-SJM2024-FINDINGS]], "The run"), whose Z3/Z4 verdicts close the reproduction thread.
 
+**Disk-retention rule** (2026-08-27). A file stays on disk only if (a) a findings doc cites it as
+evidence, (b) a frozen check suite runs against it, or (c) it belongs to the run in flight.
+Everything else is deleted — git history is the archive. When a programme closes, its root scripts
+move into its `closed-research/` box, as the three closed programmes' did; outputs regenerable from
+kept code are deleted unless a doc embeds them.
+
 ## 6. What counts as a result
 
 Profitability is not on this list, and is not required by any item on it.
