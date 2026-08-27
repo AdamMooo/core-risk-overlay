@@ -4,7 +4,7 @@ type: project
 
 # Core-Risk-Overlay
 
-Last updated: 2026-08-26
+Last updated: 2026-08-27
 
 **NO ACTIVE RESEARCH PROGRAMME.** Three have run and all three are closed — see [[README]]. This file
 is the chronological record. **Repository purpose and agent behaviour are [[CLAUDE]].** **The last
@@ -13,6 +13,41 @@ in [[docs/POINT-IN-TIME-DISCIPLINE]]. Frozen evidence in [[docs/PROBLEM-MAP]]. E
 hedging mandate, in [[PARKED]].
 
 **The repository name is historical.** It names a program that no longer runs.
+
+## Status — 2026-08-27, tenth entry: N1/N2 RELAUNCHED DETACHED, AND THE MODEL GETS ITS MATHEMATICAL AUDIT; Z3/Z4 STILL THE ONLY OPEN VERDICTS
+
+> **Housekeeping first: the branch sprawl is gone.** Every branch — four locals plus two remote
+> copilot stubs — was verified fully contained in `repro-sjm2024` before anything was deleted;
+> `main` fast-forwarded to a521c35 and pushed; everything else removed locally and on GitHub. One
+> branch remains, and it is `main`.
+>
+> **The N1/N2 deaths have a probable cause, and the fix is procedural.** Both prior attempts were
+> launched from inside a session terminal and died at or near session close (the 21:43 resume
+> wrote nothing in 55 minutes; `pool.map` persists a null's rows only after all its paths finish,
+> so partial progress dies with the process). Relaunched 2026-08-27 via `Start-Process` — detached
+> from any terminal — logging to `data/deeptail_mc.N1N2.log`; both null fits loaded from cache and
+> the pool was simulating at last check. **Nothing has been scored; Z3 and Z4 remain the only open
+> verdicts, and Thread A does not close until they are read from the completed CSV.**
+>
+> **The jump model now has a mathematical audit: [[docs/MATH-AUDIT-JUMPMODEL]].** Method: the
+> implementation translated line-by-line into the exact objective; two independent literature
+> sweeps, one instructed to attack the "k-means + switching penalty" characterization; six
+> computational experiments against `src/jumpmodel.py` itself. Verdict: the characterization is
+> exact as algebra, but the informative exact description is Bemporad et al. (2018) Prop. 1 —
+> **joint MAP of a constrained Gaussian HMM with the switching prior frozen at
+> `lambda = 2 sigma^2 log((1-q)/q)`, fit by classification EM** — which is what predicts the
+> failure modes (no consistency theorem exists; lambda is scale- and dimension-relative; the
+> solution path skips switch counts, demonstrated analytically at a T=5 breakpoint of exactly
+> 0.9). Two measured surprises: at the MAP-calibrated lambda the hard-assignment separation bias
+> (+78% at k-means) nearly vanishes and the fit matches an oracle Viterbi; and under strongly
+> autocorrelated noise the lambda-accuracy curve flattens rather than shifting — the i.i.d.
+> lambda-to-prior mapping simply stops meaning anything, which is the honest reading of
+> production lambda = 50 (implied i.i.d. switch probability 1.4e-11/day) on EWM-smoothed
+> features. The adversarial sweep independently rediscovered D5 (the factor-2 lambda convention),
+> D7 (the package's undocumented 3-sigma winsorization) and D1's selection critique — a
+> convergence that corroborates the findings doc rather than extending it. No model change is
+> proposed: the surfaced repairs address defects that do not bear on path-level comparison, and
+> no live question needs them. The preregistration and findings doc are untouched.
 
 ## Status — 2026-08-26, ninth entry: THE SHALLOW HALF IS SCORED — Z1 HOLDS, Z2 FAILS, Z5 TRIGGERS ITS FAILURE BRANCH; N1/N2 RUNNING AT CLOSE
 
