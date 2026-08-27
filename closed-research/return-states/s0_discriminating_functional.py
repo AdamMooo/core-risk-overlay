@@ -1,6 +1,6 @@
 """S0 -- what would constitute evidence that the return-generating environment has changed.
 
-Preregistration: docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE.md, committed before this file, with the
+Preregistration: closed-research/return-states/STUB-S0-WHAT-COUNTS-AS-EVIDENCE.md, committed before this file, with the
 sweep, the functionals and the matching declared in its section 5.
 
 NO MARKET DATA IS READ HERE. Everything is simulated from two model classes at declared parameters,
@@ -374,7 +374,7 @@ def report() -> None:
 
     print()
     print("S0 -- WHAT WOULD CONSTITUTE EVIDENCE THAT THE RETURN-GENERATING ENVIRONMENT HAS CHANGED")
-    print(f"Preregistered: docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE.md   seed {SEED}   "
+    print(f"Preregistered: closed-research/return-states/STUB-S0-WHAT-COUNTS-AS-EVIDENCE.md   seed {SEED}   "
           f"{REPLICATIONS} replications/class/cell")
     print("NO MARKET DATA. This experiment cannot produce a finding about equities.")
     print()

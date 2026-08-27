@@ -8,7 +8,7 @@
 
 
 Written 2026-08-18, **before Q1 is designed**, as the gate item standing between S0's result and Q1's
-stub. Companion to [[CHARTER]] §2 (the null) and [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] (which
+stub. Companion to [[CHARTER]] §2 (the null) and [[closed-research/return-states/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] (which
 named the literature but did not work through it).
 
 **Conclusion in one paragraph.** The classical identification failure that makes regime-number testing
@@ -199,6 +199,6 @@ for Q1's stub to resolve before it runs.
 ## Related
 
 - [[CHARTER]] §2 — the null · §6 — the stopping rules · §9.1 — what S0 fixed
-- [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] — the experiment that produced the functional
+- [[closed-research/return-states/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] — the experiment that produced the functional
 - [[docs/RESEARCH-PROTOCOL]] §0 rule 3 — the literature gate this document discharges
 - [[docs/POINT-IN-TIME-DISCIPLINE]] — row 1, the smoothed-versus-filtered constraint

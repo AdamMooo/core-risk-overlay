@@ -114,11 +114,14 @@ seeing the obstruction**, and S0b's own header declared it the final synthetic g
 | `s0b_discreteness_gate.py` | **S0b** — the discreteness gate, and **R2**. VOID by its own control |
 | `checks.py` | 140 checks: the matching algebra of both gates, Sarle's coefficient against its exact known values, and the (M3) constraint asserted to 1e-10 |
 | `data_loader.py`, `pathfunctionals.py` | frozen copies — see below |
+| `STUB-S0-WHAT-COUNTS-AS-EVIDENCE.md` | S0's preregistration, unaltered |
+| `STUB-S0B-DISCRETENESS-GATE.md` | S0b's preregistration, unaltered |
+| `IDENTIFICATION-UNDER-N1.md` | the identification analysis worked before Q1's stub |
+| `DECISION-Q1-CLAIM.md` | why Q1 was never licensed |
 
-Preregistrations, unaltered: `../../docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE.md`,
-`../../docs/STUB-S0B-DISCRETENESS-GATE.md`. Identification analysis:
-`../../docs/IDENTIFICATION-UNDER-N1.md`. Why Q1 was never licensed:
-`../../docs/DECISION-Q1-CLAIM.md`. The charter: `../../CHARTER.md`.
+The four documents above lived in `../../docs/` until 2026-08-27, when they were moved here
+verbatim so this archive is self-contained like the other two. The charter stays at
+`../../CHARTER.md` — it is in the repository's authority table there.
 
 ## Reproducing
 

@@ -291,8 +291,8 @@ its predecessor returns.
 
 | | question | status |
 |---|---|---|
-| **S0** | ~~What would constitute evidence that the return-generating environment has changed?~~ **RAN 2026-08-18. H(S0) SURVIVES, CONDITIONALLY.** One functional discriminates the classes after exact matching on the unconditional variance and the whole squared-return ACF: **T3, the dispersion of block realized variance**, `d'` up to 10.2 at 21-day blocks. Two candidates are **eliminated** and one deductive prediction was **wrong** — see §9.1. [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] | **CLOSED** |
-| **S0b** | ~~With the dispersion of the variance process ALSO matched, does any functional still separate a discrete two-state chain from a continuous-variance null?~~ **RAN 2026-08-19. THE RUN IS VOID — the control failed.** All 18 cells feasible, all three matching constraints exact to 3.4e-14, and T3's `d'` reached **7.42** against a threshold of 2. Neither PASS nor FAIL under the frozen criteria. [[docs/STUB-S0B-DISCRETENESS-GATE]] §7-§9 | **AWAITING A DECISION** the preregistration does not supply — see §9.5 |
+| **S0** | ~~What would constitute evidence that the return-generating environment has changed?~~ **RAN 2026-08-18. H(S0) SURVIVES, CONDITIONALLY.** One functional discriminates the classes after exact matching on the unconditional variance and the whole squared-return ACF: **T3, the dispersion of block realized variance**, `d'` up to 10.2 at 21-day blocks. Two candidates are **eliminated** and one deductive prediction was **wrong** — see §9.1. [[closed-research/return-states/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] | **CLOSED** |
+| **S0b** | ~~With the dispersion of the variance process ALSO matched, does any functional still separate a discrete two-state chain from a continuous-variance null?~~ **RAN 2026-08-19. THE RUN IS VOID — the control failed.** All 18 cells feasible, all three matching constraints exact to 3.4e-14, and T3's `d'` reached **7.42** against a threshold of 2. Neither PASS nor FAIL under the frozen criteria. [[closed-research/return-states/STUB-S0B-DISCRETENESS-GATE]] §7-§9 | **AWAITING A DECISION** the preregistration does not supply — see §9.5 |
 | **Q1** | **(A) Existence**, on whatever functional S0b returns | **NOT LICENSED** (§9.3), and deferred behind S0b. A passing S0b licenses **Q1's DESIGN only**, inheriting S0b's null, functional, block length and void rule. **No market data until S0b returns a determinate result** |
 | **Q2** | **(B) Characterisation.** Which properties of `F_{s,h}` differ, and which do not? | **does not exist** until Q1 returns |
 | **Q3** | **(C) Transition.** Is the distribution conditional on a recent transition different from the distribution conditional on occupying the state? | **does not exist** until Q2 returns |
@@ -344,7 +344,7 @@ route to an S3 ending.
 
 ### 9.2 The identification gate, discharged 2026-08-18 — and what it flagged
 
-Worked before Q1's stub, in full at [[docs/IDENTIFICATION-UNDER-N1]]. Three findings, one of them
+Worked before Q1's stub, in full at [[closed-research/return-states/IDENTIFICATION-UNDER-N1]]. Three findings, one of them
 structural.
 
 **The good news, and it was not an accident.** The classical failure that makes regime-number testing
@@ -382,7 +382,7 @@ QLR here may proceed without reading it.**
 
 ### 9.3 Q1 is NOT LICENSED, 2026-08-19 — and the reason is algebraic, not cautionary
 
-Full note: [[docs/DECISION-Q1-CLAIM]]. The decision was taken at the claim level before any Q1 design
+Full note: [[closed-research/return-states/DECISION-Q1-CLAIM]]. The decision was taken at the claim level before any Q1 design
 work, and it is stronger than §9.2's flag.
 
 **The identity.** For any `r = sigma * z` with `z ~ iid N(0,1)` and `E[sigma^2] = 1`, kurtosis
@@ -422,7 +422,7 @@ not orthogonal**. S0's reported numbers and its four anomalies stand unaltered.
 
 **There is no S0c.** After S0b the null family is not widened, the functional set is not extended, the
 sweep is not enlarged, and the sample is not grown to chase a marginal cell. The condition is written
-into [[docs/STUB-S0B-DISCRETENESS-GATE]] itself rather than promised beside it, because a scope
+into [[closed-research/return-states/STUB-S0B-DISCRETENESS-GATE]] itself rather than promised beside it, because a scope
 condition living outside the document it constrains is not a constraint.
 
 **Why a second synthetic gate was authorised at all**, recorded so the precedent stays narrow: S0b is
@@ -481,7 +481,7 @@ recorded so it is neither lost nor promoted.**
 ## 11. TERMINATION — 2026-08-19
 
 **S0b returned VOID. The programme terminates as INDETERMINATE under §6, and no repair is
-authorised.** The scope condition in [[docs/STUB-S0B-DISCRETENESS-GATE]]'s header and in §9.4 named
+authorised.** The scope condition in [[closed-research/return-states/STUB-S0B-DISCRETENESS-GATE]]'s header and in §9.4 named
 S0b the final synthetic gate before it ran, and it is honoured.
 
 **The record, stated as the sequence of claims rather than as a narrative:**

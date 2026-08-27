@@ -22,7 +22,7 @@ above that rule may be edited once they exist.
 > scope condition that lives outside the document it constrains is not a constraint.
 
 **Why this gate exists and S0's did not suffice.** S0 matched the unconditional variance and the whole
-squared-return ACF and found a surviving functional, T3. [[docs/DECISION-Q1-CLAIM]] §1.2 then showed
+squared-return ACF and found a surviving functional, T3. [[closed-research/return-states/DECISION-Q1-CLAIM]] §1.2 then showed
 by exact algebra that **S0's matching left free precisely the quantity T3 measures** — the dispersion
 of the variance process — so T3's separation carried no information about discreteness. S0b closes
 that degree of freedom and asks what, if anything, is left.
@@ -68,7 +68,7 @@ family.
 
 **The alternative (unchanged from S0).** `r_t = sigma(S_t) z_t`, `z ~ iid N(0,1)`, `S_t` a two-state
 Markov chain, parameterised by `(kappa, pi2, lambda)` exactly as in
-[[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] §5.1, unconditional variance normalised to 1, returns scaled
+[[closed-research/return-states/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] §5.1, unconditional variance normalised to 1, returns scaled
 by `DAILY_SD = 0.01`.
 
 **The null.**
@@ -171,7 +171,7 @@ theory here — it is used as a *statistic whose null distribution is simulated*
 continuous one matched on variance, ACF and `Var(sigma^2)`**; if one exists, S0b is redundant and must
 not run. The search is part of S0b and is reported. **The Cho–White QLR is not used and no argument
 here rests on it**, per the standing block pending Carter & Steigerwald (2012)
-([[docs/IDENTIFICATION-UNDER-N1]] §2).
+([[closed-research/return-states/IDENTIFICATION-UNDER-N1]] §2).
 
 ### 4. WHY IT MATTERS
 
@@ -218,7 +218,7 @@ signal is cleaner** — see §2.7.
 clears **both** the preregistered threshold **and** the residual mismatch, the latter measured as
 `d'` on the return kurtosis in the same cell, in absolute value. Declared here rather than discovered:
 this is a **heuristic control, not an orthogonalisation** — exactly the criticism that
-[[docs/DECISION-Q1-CLAIM]] §1.2 upgraded against S0's void rule, stated in advance this time.
+[[closed-research/return-states/DECISION-Q1-CLAIM]] §1.2 upgraded against S0's void rule, stated in advance this time.
 
 **The aggregation diagnostic, which is S0b's specific defence against repeating S0's error.** Fatter
 innovation tails in the null inflate the estimation noise in realized variance, which reshapes
@@ -481,7 +481,7 @@ this stub's own header and by [[CHARTER]] §9.4.
 
 - [[CHARTER]] §2 — the null and what discreteness means · §6 — stopping rules · §9.3 — why Q1 was not
   licensed
-- [[docs/DECISION-Q1-CLAIM]] — the identity that made this gate necessary, and **R1**, the negative
+- [[closed-research/return-states/DECISION-Q1-CLAIM]] — the identity that made this gate necessary, and **R1**, the negative
   result S0 actually produced
-- [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] — S0, unaltered, whose sweep and machinery this reuses
-- [[docs/IDENTIFICATION-UNDER-N1]] — why Davies' problem does not apply, and the two reading gaps
+- [[closed-research/return-states/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] — S0, unaltered, whose sweep and machinery this reuses
+- [[closed-research/return-states/IDENTIFICATION-UNDER-N1]] — why Davies' problem does not apply, and the two reading gaps

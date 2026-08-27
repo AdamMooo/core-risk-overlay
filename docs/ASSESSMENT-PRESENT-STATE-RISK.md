@@ -84,7 +84,7 @@ review is done; no run beyond Screen 0 before that.
 ## 6. Effective sample size, stated before anything runs
 
 Backwardation episodes since 2004: ~22. Systemic drawdowns in the whole SPY history: ~10-15
-(systemic events are too rare to calibrate on). **Any claim conditioned on rare states is
+([[systemic-events-are-too-rare-to-calibrate|systemic events are too rare to calibrate on]]). **Any claim conditioned on rare states is
 episode-counted, not day-counted.** Well-sampled statements live at the *shallow* end (occupancy, spell
 lengths, co-movement of coordinates); tail-conditional statements are curve endpoints, not estimates.
 

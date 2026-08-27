@@ -141,10 +141,12 @@ weak test.
 | [[docs/RESEARCH-PROTOCOL]] | **authoritative** — the gate and the standing principles |
 | [[docs/POINT-IN-TIME-DISCIPLINE]] | **authoritative** — time basis and leak register |
 | [[PARKED]] | **authoritative** — what is excluded, and the condition that would unpark it |
+| [[docs/MATH-REFERENCE]] | **authoritative** — live conventions for the drawdown process and the CDaR family; cited from source code, binds every published CDaR number |
+| [[docs/MATH-AUDIT-JUMPMODEL]] | **evidence** — the jump model's mathematical audit: what the estimator is and what lambda means |
 | [[docs/PROBLEM-MAP]] | **frozen evidence** — the closed programmes' findings and lessons |
 | [[CHARTER]] | **historical** — the third programme's charter, terminated at §11 |
-| [[core-risk-overlay]] | **historical** — chronological log |
-| `closed-research/` | **historical, reproducible** — three programmes, own charters and check suites |
+| [[core-risk-overlay]] | **historical** — chronological status log, with a navigation map of every document |
+| `closed-research/` | **historical, reproducible** — three programmes, self-contained with their preregistrations and check suites; [[closed-research/HUB-RECORD]] is the hub's pre-closure working record |
 
 Change the authoritative documents first, and never edit [[CHARTER]] or `closed-research/` to make the
 past look tidier than it was.

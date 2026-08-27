@@ -1,6 +1,6 @@
 """S0b -- the discreteness gate. THE FINAL SYNTHETIC IDENTIFICATION GATE.
 
-Preregistration: docs/STUB-S0B-DISCRETENESS-GATE.md, committed before this file, with the null, the
+Preregistration: closed-research/return-states/STUB-S0B-DISCRETENESS-GATE.md, committed before this file, with the null, the
 three matching constraints, the functionals, the predictions and all three disqualifying tells fixed
 in advance.
 
@@ -369,7 +369,7 @@ def report() -> None:
 
     print()
     print("S0b -- THE DISCRETENESS GATE.  THE FINAL SYNTHETIC IDENTIFICATION GATE.")
-    print(f"Preregistered: docs/STUB-S0B-DISCRETENESS-GATE.md   seed {SEED}   "
+    print(f"Preregistered: closed-research/return-states/STUB-S0B-DISCRETENESS-GATE.md   seed {SEED}   "
           f"{REPLICATIONS} replications/class/cell")
     print("NO MARKET DATA. This experiment cannot produce a finding about equities.")
     print()

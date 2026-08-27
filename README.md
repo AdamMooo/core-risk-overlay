@@ -28,15 +28,15 @@ real-world risk question -> literature -> mechanism -> observable data
 - **Time basis and leak register:** [[docs/POINT-IN-TIME-DISCIPLINE]] · **Mathematics of the
   drawdown process and the CDaR family:** [[docs/MATH-REFERENCE]] — a live conventions
   document; `src/pathfunctionals.py` implements it and every published CDaR number obeys it
-- **What is identified under the null:** [[docs/IDENTIFICATION-UNDER-N1]] · **why Q1 is not licensed
-  and what replaces it:** [[docs/DECISION-Q1-CLAIM]]
 - **The jump model's mathematics, audited — what the estimator is and what lambda means:**
   [[docs/MATH-AUDIT-JUMPMODEL]]
 - **Evidence base from the closed programs, frozen:** [[docs/PROBLEM-MAP]]
-- **Deliberately excluded, including the hedging mandate:** [[PARKED]] · **Chronological log:**
-  [[core-risk-overlay]]
+- **Deliberately excluded, including the hedging mandate:** [[PARKED]] · **Chronological log and
+  navigation map:** [[core-risk-overlay]]
 - **Closed research, preserved and reproducible, not active branches:**
-  [[closed-research/README]] (prediction) · [[closed-research/intervention/README]] (rolled-put)
+  [[closed-research/README]] (prediction) · [[closed-research/intervention/README]] (rolled-put) ·
+  [[closed-research/return-states/README]] (return states — its preregistrations, the identification
+  analysis and the Q1 decision live there since 2026-08-27)
 
 ---
 
@@ -145,7 +145,7 @@ designed** — [[CHARTER]] §8.
 | `src/caching.py` | shared disk-cache helper used by `repro_sjm2024.py` and `screen0.py` |
 | `src/ledoitwolf.py` | working — the four Ledoit-Wolf (2008) contracts for the shallow-half inference: delta-method gradient, block-structure Psi, circular block resampler, studentized test. Contract-checked in `checks.py` |
 | `inference.py` | the shallow half of the preregistered inference run — Sharpe and pain intervals against the declared equivalence margins; Z1/Z2 scored 2026-08-26 |
-| `deeptail_mc.py` | the deep half — parametric Monte Carlo under the three preregistered nulls (N1 GARCH-t, N2 Markov-switching, N3 i.i.d. resampling); Z0 scored, N1/N2 owed |
+| `deeptail_mc.py` | the deep half — parametric Monte Carlo under the three preregistered nulls (N1 GARCH-t, N2 Markov-switching, N3 i.i.d. resampling); Z0 scored 2026-08-26; N3 and N1 complete at 200 paths each; N2 relaunched detached 2026-08-27 13:28; **Z3/Z4 unread until N2's rows land** |
 | `jm_math_audit.py` | the six synthetic experiments behind [[docs/MATH-AUDIT-JUMPMODEL]] §H, preserved for reproducibility |
 | `checks.py` | 72 checks — the two retained modules, the data manifest, since D4 the reproduction modules, and since 2026-08-26 the Ledoit-Wolf contracts. The manifest-hash check is red by design mid-run, until `data/MANIFEST.md` is regenerated at the inference run's close. `d4_crosscheck.py` (28 checks) holds the leg needing the authors' `jumpmodels` package. **The three closed programmes carry their own suites, frozen with the code they guard** |
 | `closed-research/` | prediction program — 81 checks passing, D3 and F2 verified reproducible |

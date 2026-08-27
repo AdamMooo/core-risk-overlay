@@ -417,7 +417,7 @@ INCONCLUSIVE rather than a negative — which must be written into Q1's stub in 
 **The functional that survived, T3, does not carry evidence of discreteness.** One day after this
 experiment ran, an exact identity showed that its separation is reducible to a difference in
 variance-process dispersion — the quantity section 5.2's matching left free. Recorded as **R1** in
-[[docs/DECISION-Q1-CLAIM]] section 6b, with the algebra at section 1.2 there.
+[[closed-research/return-states/DECISION-Q1-CLAIM]] section 6b, with the algebra at section 1.2 there.
 
 **This does not retract S0 and does not amend anything above.** Every number reported here stands, the
 four anomalies stand, and the two eliminations — aggregate kurtosis and path geometry — stand
@@ -428,9 +428,9 @@ section 9 below is superseded accordingly.
 
 ### 9. What this licenses, and what it does not
 
-**SUPERSEDED 2026-08-19 by section 8b and [[docs/DECISION-Q1-CLAIM]].** What follows is what this
+**SUPERSEDED 2026-08-19 by section 8b and [[closed-research/return-states/DECISION-Q1-CLAIM]].** What follows is what this
 section said when the results were committed, preserved because a stub rewritten after the fact is
-worthless. Q1 was **not** licensed; [[docs/STUB-S0B-DISCRETENESS-GATE]] replaced it.
+worthless. Q1 was **not** licensed; [[closed-research/return-states/STUB-S0B-DISCRETENESS-GATE]] replaced it.
 
 Under §2 field 9, exactly one thing: **the design of Q1**, with the functional and horizon S0
 returned and not re-chosen.

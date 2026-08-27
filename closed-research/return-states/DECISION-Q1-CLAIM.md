@@ -8,7 +8,7 @@
 
 
 Written 2026-08-19, **before Q1 is designed**, at the claim level rather than the design level.
-Companion to [[docs/IDENTIFICATION-UNDER-N1]], which established that Davies' problem does not apply
+Companion to [[closed-research/return-states/IDENTIFICATION-UNDER-N1]], which established that Davies' problem does not apply
 and that the *alternative* is what goes unidentified.
 
 **Nothing in S0 is altered by this note.** Its result, its four reported anomalies and its record stand
@@ -244,7 +244,7 @@ identifier here so that later documents cite it rather than re-deriving it.
 > efficiency, not on content.
 >
 > **Kind:** `[D]` for the reduction, `[I]` for the `d'` magnitudes that motivated looking.
-> **Evidence:** [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] sections 6-8 for the measurement, section 1.2
+> **Evidence:** [[closed-research/return-states/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] sections 6-8 for the measurement, section 1.2
 > above for the algebra. **Effective n:** 400 replications x 18 cells, synthetic; the reduction itself
 > needs none.
 
@@ -284,6 +284,6 @@ identifier here so that later documents cite it rather than re-deriving it.
 ## Related
 
 - [[CHARTER]] §2 — the null and what discreteness means · §6 — stopping rules · §9.1 — what S0 fixed
-- [[docs/IDENTIFICATION-UNDER-N1]] — the identification gate this note builds on
-- [[docs/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] — the experiment, unaltered
+- [[closed-research/return-states/IDENTIFICATION-UNDER-N1]] — the identification gate this note builds on
+- [[closed-research/return-states/STUB-S0-WHAT-COUNTS-AS-EVIDENCE]] — the experiment, unaltered
 - [[docs/PROBLEM-MAP]] §1 E5 — the measured Gaussian-tail failure that makes P1's answer predictable
