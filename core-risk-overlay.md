@@ -4,11 +4,38 @@ type: project
 
 # Core-Risk-Overlay
 
-Last updated: 2026-08-27
+Last updated: 2026-10-27
 
-**NO ACTIVE RESEARCH PROGRAMME.** Three have run and all three are closed — see [[README]]. This file
-is the chronological status log, newest first. **The repository name is historical.** It names a
-program that no longer runs.
+This file is the chronological status log, newest first. **The repository name is historical.**
+It names a program that no longer runs; see [[CLAUDE]] for the current scope statement, which
+was reopened 2026-10-25.
+
+## 2026-10-27 — STUB C2 drafted (sleeve bands from the asset universe)
+
+[[STUB-C2-SLEEVE-BANDS]] created as a DRAFT pre-registration adjacent to and independent of C1.
+The question — *are sleeve-weight ranges identifiable from the realised covariance of a stated
+seven-asset Canadian-retail universe at monthly frequency, or are declared bands all the sample
+honestly supports* — maps to the identification question (D) in [[CHARTER]] §1 and is a
+**measurement** programme in [[CLAUDE]] §4's terms, not prediction and not intervention.
+
+**Status: DRAFT, not adopted.** Adoption gated on (a) DGU 2009 and Michaud 1989 moving from
+`[UNREAD]` to `[READ]` in `docs/literature/`; (b) the cut date committed in §7; (c) a
+protocol-§0 review line appended at the bottom of the stub. **Predicted outcome:** null not
+rejected (high confidence); DGU/Michaud both argue MVO-style weight intervals are too wide to
+tighten any declared policy. The run therefore carries information because the surprising
+outcome is a rejection.
+
+**Boundary — load-bearing.** This stub was motivated by friction in the author's governance
+repo (`portfolio-manager`), whose MANDATE declares bands by hand. That repository is **not** a
+caller, consumer, or feed of this one in either direction. If C2 closes with a derived range,
+adoption in `portfolio-manager` is a human MANDATE amendment under its own policy process,
+never a code import. [[CHARTER]] §5's prohibition on circular validation applies verbatim; it
+is the same no-import rule that governs the (now-dormant) relationships with `regime-detection`
+and `algo-trading-bot`. Noted here so a future agent does not mistake the motivation for a
+dependency.
+
+**Not in this entry:** the state of C1 ([[STUB-C1-CREDIT-SATURATION]]) and any other local
+work in flight. Those are the author's to describe when ready.
 
 ## Map
 
