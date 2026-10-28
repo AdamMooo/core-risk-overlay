@@ -1,6 +1,6 @@
 # Reading list — a gate, not a list to admire
 
-Last updated: 2026-08-26
+Last updated: 2026-10-28
 
 Protocol §0 rule 3: **name the paper that already settles this, or state in writing that none does.**
 A finding rediscovered empirically that was already in a cited paper is a process failure and gets
@@ -21,6 +21,38 @@ The prediction program's reading list is preserved at
 [[closed-research/docs/literature/README]] and is not maintained either.
 
 ---
+
+## Blocking now — the C1 credit saturation experiment (added 2026-10-26)
+
+Gates [[STUB-C1-CREDIT-SATURATION]], the first run under the re-opened repository ([[CLAUDE]]
+2026-10-25). **No code runs on C1 until Collin-Dufresne et al. (2001) is `[READ]` at least on §I,
+and either Gilchrist–Zakrajšek (2012) is `[READ]` §§I–II or the gate is discharged on a declared
+substitute per [[CHARTER]] §9.2 precedent.**
+
+| paper | status | gates | why |
+|---|---|---|---|
+| **Collin-Dufresne, Goldstein & Martin (2001), "The Determinants of Credit Spread Changes"**, J. Finance 56(6):2177–2207 | `[WANTED]` — 2026-10-26 | **C1 headline**, [[STUB-C1-CREDIT-SATURATION]] §3 | The canonical paper establishing that equity-market variables leave the majority of credit-spread variation unexplained on their sample. If their finding transfers to the FRED HY series at daily frequency on 1996–2024, C1's prediction is *already settled*. Must be read before C1 runs — otherwise C1 is a potential §0-rule-3 process failure |
+| **Gilchrist & Zakrajšek (2012), "Credit Spreads and Business Cycle Fluctuations"**, AER 102(4):1692–1720 | `[WANTED]` — 2026-10-26 | **C1 mechanism**, [[STUB-C1-CREDIT-SATURATION]] §2 | Introduces the Excess Bond Premium (EBP) — the component of credit spreads orthogonal to default expectations. Supplies the mechanism-for-difference required by [[docs/RESEARCH-PROTOCOL]] §0 field 4: *why* ΔHY_OAS should carry information not in {ΔVIX, RV}. Without this, C1's rejection prediction has no stated reason |
+| **López-Salido, Stein & Zakrajšek (2017), "Credit-Market Sentiment and the Business Cycle"**, QJE 132(3):1373–1426 | `[WANTED]` — 2026-10-26 | C1 extension (branch-opening, not blocking C1 itself) | EBP as a predictor of real activity. Only reads after C1 rejects the null; otherwise it is decoration (§0 rule 5) |
+
+## Blocking now — the C2 sleeve-band identification experiment (added 2026-10-28)
+
+Gates [[STUB-C2-SLEEVE-BANDS]], a candidate under the re-opened repository ([[CLAUDE]] 2026-10-25).
+**C2 is a DRAFT and does not adopt into the queue until the two rows below move from `[WANTED]` to
+`[READ]` or `[skim]` at the depths stated**, the cut date is committed in [[STUB-C2-SLEEVE-BANDS]] §7,
+and a human review line is appended to that stub ([[STUB-C2-SLEEVE-BANDS]] §Status).
+
+**Possible outcome of reading these before any code: C2 closes or converts to a reproduction without
+running.** [[STUB-C2-SLEEVE-BANDS]] §2 predicts non-rejection with high confidence, citing DGU 2009
+and Michaud 1989. Under [[docs/RESEARCH-PROTOCOL]] §0 rule 2, if those papers settle the question on
+comparable samples, the run carries no information and must not happen — the prediction and its
+source are recorded instead. Rediscovering their finding empirically while they sat `[UNREAD]` would
+be a §0 rule 3 process failure, the third in this repo's history.
+
+| paper | status | gates | why |
+|---|---|---|---|
+| **DeMiguel, Garlappi & Uppal (2009), "Optimal Versus Naive Diversification: How Inefficient is the 1/N Portfolio Strategy?"**, RFS 22(5):1915–1953 | `[WANTED]` — 2026-10-28 | **C2 headline**, [[STUB-C2-SLEEVE-BANDS]] §§2–3 | The paper most likely to settle C2 on its own. Establishes across 14 datasets that mean-variance-style portfolio construction does not consistently beat `1/N` out-of-sample on monthly data. If that finding transfers to a 7-asset Canadian-retail universe at ~240 monthly observations, C2's null is already supported — stronger than the stub's claim, because DGU addresses the point estimate directly rather than only the width of the identifiable range. **Must be read in full before C2 adopts.** |
+| **Michaud (1989), "The Markowitz Optimization Enigma: Is 'Optimized' Optimal?"**, FAJ 45(1):31–42 | `[WANTED]` — 2026-10-28 | **C2 mechanism**, [[STUB-C2-SLEEVE-BANDS]] §§2.2, 4 | Supplies the estimation-error mechanism C2 §2 argument 2 rests on — MVO weights' sensitivity to small changes in `Σ̂` and the resulting instability of the frontier. Without this, C2's bootstrap-width prediction has no stated mechanism. **Abstract + §I before C2 adopts**; full read discretionary. |
 
 ## Blocking now — the SJM reproduction and the present-state assessment (added 2026-08-25)
 
